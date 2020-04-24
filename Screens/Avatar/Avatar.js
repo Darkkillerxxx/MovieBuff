@@ -4,6 +4,8 @@ import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
 import FacebookButton from '../../Components/FacebookButton'
+import NextButton from '../../Components/NextButton'
+
 class Avatar extends React.Component{
     constructor()
     {
@@ -66,7 +68,9 @@ class Avatar extends React.Component{
                <FacebookButton>
                     <Button title="Get Profile Pic From Your Facebook" color="#4c5f87"/>
                </FacebookButton>
-            
+                <NextButton>
+                    <Button title="Next" onPress={()=>this.props.navigation.navigate('Genre')} color="#6665FF"></Button>
+                </NextButton>            
             </AppContainer>
         )
     }
