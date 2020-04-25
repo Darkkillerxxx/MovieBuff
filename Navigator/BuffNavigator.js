@@ -3,6 +3,7 @@ import { createAppContainer } from 'react-navigation';
 import WelcomeScreen from  '../Screens/Welcome/WelcomeScreen'
 import Avatar from '../Screens/Avatar/Avatar'
 import Genre from '../Screens/Genre/Genre'
+import Dashboard from '../Screens/Dashboard/Dashboard'
 
 const BuffNavigator=createStackNavigator({
     Welcome:{
@@ -13,6 +14,9 @@ const BuffNavigator=createStackNavigator({
     },
     Genre:{
         screen:Genre
+    },
+    Dashboard:{
+        screen:Dashboard
     }
 },{
     headerMode:'none'

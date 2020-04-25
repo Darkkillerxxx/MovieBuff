@@ -82,7 +82,6 @@ class Genre extends React.Component{
                 <NextButton>
                     <Button title="Next" color="#6665FF"></Button>
                 </NextButton>
-                
             </AppContainer>
         )
     }

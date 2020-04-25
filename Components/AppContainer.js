@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet,View } from 'react-native'
+import { StyleSheet,View,ImageBackground } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 
 const AppContainer=(props)=>{
@@ -9,6 +9,11 @@ const AppContainer=(props)=>{
              style={styles.AppContainer}>
                  {props.children}
         </LinearGradient>
+        // <ImageBackground source={require('../assets/background.png')} style={{flex:1,resizeMode:'cover'}}>
+        // {props.children}
+        // </ImageBackground>
+        
+        
     )
 } 
 

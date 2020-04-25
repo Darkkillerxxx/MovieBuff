@@ -1,8 +1,9 @@
 import React from 'react'
-import { View,Text,Image, StyleSheet,Button } from 'react-native';
+import { View,Text,Image, StyleSheet,Button,TouchableOpacity } from 'react-native';
 import AppContiner from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText'
+import NextButton from '../../Components/NextButton'
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
 
 class WelcomeScreen extends React.Component{
@@ -21,7 +22,7 @@ class WelcomeScreen extends React.Component{
                 <ScrollView>
                     <View style={styles.WelcomeView}>
                         <View style={styles.BackImageContainer}>
-                            <Image style={styles.BackImage} source={require('../../assets/WelcomeBack.png')}  />
+                            <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}  />
                         </View>
                         <View style={styles.JoiningView}>
                             <BoldText style={styles.WelcomeText}>Welcome</BoldText>
@@ -29,9 +30,12 @@ class WelcomeScreen extends React.Component{
                         </View>
                         <View style={styles.InputContainer}>
                             <TextInput placeholder="Enter Screen Name" placeholderTextColor="#BAC1C9" style={styles.Input} />
-                            <View style={styles.ButtonContainer}>
-                                <Button title="Join" onPress={()=>this.props.navigation.navigate('Avatar')} color="#6665FF"></Button>
-                            </View>
+                            <TouchableOpacity onPress={()=>this.props.navigation.navigate('Avatar')}>
+                               <NextButton >
+                                    <NormalText style={styles.NormalText}>Join Now</NormalText>
+                                </NextButton>
+                            </TouchableOpacity>
+
                             <NormalText>OR</NormalText>
                             <View style={styles.FacebookContainer}>
                                 <View style={styles.FacebookIconContainer}>
@@ -71,6 +75,10 @@ const styles=StyleSheet.create({
         width:null,
         height:null,
         resizeMode:'contain'
+    },
+    NormalText:{
+        fontSize:16,
+        color:'#00C08A'
     },
     WelcomeText:{
         fontSize:25,
