@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Image, StyleSheet,Button } from 'react-native';
+import { View, Image, StyleSheet,Button,TouchableOpacity } from 'react-native';
 import {Checkbox} from 'react-native-paper'
 import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText';
@@ -79,9 +79,11 @@ class Genre extends React.Component{
                 <View style={style.FlatListContainer}>
                     <FlatList data={this.state.Region} renderItem={this.showRegions} numColumns={2}/>
                 </View>
-                <NextButton>
-                    <Button title="Next" color="#6665FF"></Button>
-                </NextButton>
+                <TouchableOpacity onPress={()=>this.props.navigation.navigate('Dashboard')}>
+                    <NextButton>
+                        <NormalText style={style.NormalText}>Proceed</NormalText>
+                    </NextButton>
+                </TouchableOpacity>
             </AppContainer>
         )
     }
@@ -122,7 +124,11 @@ const style=StyleSheet.create({
         height:'70%',
         overflow:'hidden',
         alignItems:'center'
-    }
+    },
+    NormalText:{
+        fontSize:16,
+        color:'#00C08A'
+    },
 })
 
 

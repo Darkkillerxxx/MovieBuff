@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Image,FlatList,Button } from 'react-native';
+import { View, StyleSheet,Image,FlatList,Button,TouchableOpacity } from 'react-native';
 import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
@@ -68,9 +68,12 @@ class Avatar extends React.Component{
                <FacebookButton>
                     <Button title="Get Profile Pic From Your Facebook" color="#4c5f87"/>
                </FacebookButton>
-                <NextButton>
-                    <Button title="Next" onPress={()=>this.props.navigation.navigate('Genre')} color="#6665FF"></Button>
-                </NextButton>            
+               <TouchableOpacity onPress={()=>this.props.navigation.navigate('Genre')}>
+                    <NextButton>
+                        <NormalText style={style.NormalText}>Proceed</NormalText>
+                    </NextButton>   
+               </TouchableOpacity>
+                        
             </AppContainer>
         )
     }
@@ -118,7 +121,11 @@ const style=StyleSheet.create({
         borderColor:'white',
         borderWidth:1,
         justifyContent:'space-between'
-    }
+    },
+    NormalText:{
+        fontSize:16,
+        color:'#00C08A'
+    },
 })
 
 
