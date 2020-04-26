@@ -4,6 +4,7 @@ import WelcomeScreen from  '../Screens/Welcome/WelcomeScreen'
 import Avatar from '../Screens/Avatar/Avatar'
 import Genre from '../Screens/Genre/Genre'
 import Dashboard from '../Screens/Dashboard/Dashboard'
+import CustomGame from '../Screens/CustomGame/CustomGame'
 
 const BuffNavigator=createStackNavigator({
     Welcome:{
@@ -17,6 +18,9 @@ const BuffNavigator=createStackNavigator({
     },
     Dashboard:{
         screen:Dashboard
+    },
+    CustomGame:{
+        screen:CustomGame
     }
 },{
     headerMode:'none'

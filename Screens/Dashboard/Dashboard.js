@@ -1,16 +1,27 @@
 import React from 'react'
-import { View, StyleSheet,Image } from 'react-native'
+import { View, StyleSheet,Image,Modal } from 'react-native'
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
 import Coop from '../../Components/CoopButton'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import SmallBtn from '../../Components/SmallButton';
+import BriefInfo from '../../Components/BriefInfo'
+import CustomModal from '../../Components/Modal'
+import { Button } from 'react-native-paper';
 
 class Dashboard extends React.Component{
     constructor()
     {
         super();
+        this.state={
+            ShowModal:false
+        }
+    }
+
+    onProceedToCustom=()=>{
+        this.props.navigation.navigate('CustomGame')
+        this.setState({ShowModal:false})
     }
 
     render()
@@ -22,17 +33,8 @@ class Dashboard extends React.Component{
                         <Image style={styles.ProfilePic} source={require('../../assets/Temp/User1.png')}></Image>
                     </View>
                     <View style={styles.BriefContainer}>
-                        <View style={styles.Brief}>
-                            <View style={styles.BriefPic}>
-                                <Image style={styles.Coins} source={require('../../assets/coins.png')}/>
-                            </View>
-                            <View style={styles.BriefNumbers}>
-                                <NormalText style={styles.NormalText}>7200</NormalText>
-                            </View>
-                        </View>
-                        <View style={styles.Brief}>
-                            
-                        </View>
+                        <BriefInfo value={7200}/>
+                        <BriefInfo value={24}/>
                     </View>
                 </View>
                 <View style={styles.ImageView}>
@@ -43,7 +45,7 @@ class Dashboard extends React.Component{
 
                 <View style={styles.Container}>
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.setState({ShowModal:true})}>
                             <SinglePlayer>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
@@ -84,9 +86,10 @@ class Dashboard extends React.Component{
                         </SmallBtn>
                     </TouchableOpacity>
                    </View>
-                   
                 </View>
-               
+                <Modal visible={this.state.ShowModal} transparent={true} animationType="slide">
+                    <CustomModal ProceedToCustom={this.onProceedToCustom}/>
+                </Modal>         
             </AppContainer>
         )
     }
@@ -126,28 +129,6 @@ const styles=StyleSheet.create({
     ProfilePic:{
         height:50,
         width:50
-    },
-    Brief:{
-        flexDirection:'row',
-        width:'50%',
-        height:25,
-        marginRight:5,
-        backgroundColor:"#11233A",
-        borderRadius:15
-    },
-    BriefPic:{
-        width:'20%',
-        alignItems:'center',
-        justifyContent:'center'
-    },
-    Coins:{
-        height:20,
-        width:20
-    },
-    BriefNumbers:{
-        width:'80%',
-        alignItems:'center',
-        justifyContent:'center'
     },
     BackImageContainer:{
         height:250,
