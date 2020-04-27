@@ -5,7 +5,8 @@ import Avatar from '../Screens/Avatar/Avatar'
 import Genre from '../Screens/Genre/Genre'
 import Dashboard from '../Screens/Dashboard/Dashboard'
 import CustomGame from '../Screens/CustomGame/CustomGame'
-
+import SPGameScreen from '../Screens/GameScreenSP/SPGameScreen'
+import Leaderboard from '../Screens/Leaderboard/Leaderboard'
 const BuffNavigator=createStackNavigator({
     Welcome:{
         screen:WelcomeScreen
@@ -21,6 +22,12 @@ const BuffNavigator=createStackNavigator({
     },
     CustomGame:{
         screen:CustomGame
+    },
+    SPGameScreen:{
+        screen:SPGameScreen
+    },
+    Leaderboard:{
+        screen:Leaderboard
     }
 },{
     headerMode:'none'

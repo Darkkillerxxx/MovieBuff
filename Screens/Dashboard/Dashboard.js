@@ -64,7 +64,7 @@ class Dashboard extends React.Component{
                 </View>
                 <View style={styles.ToolsContainer}>
                    <View style={styles.Tools}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('Leaderboard')}>
                         <SmallBtn color1="#009BE7" color2="#009DB2" color3="#00DF9B" color4="#00F57E">
                             <Image style={styles.Podium} source={require('../../assets/podium.png')}/>
                         </SmallBtn>

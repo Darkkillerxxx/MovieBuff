@@ -90,7 +90,7 @@ class CustomGame extends React.Component{
                     <FlatList data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>
                 </View>
                 <View style={style.ProceedButtonContainer}>
-                    <TouchableOpacity style={{width:'100%'}}>
+                    <TouchableOpacity style={{width:'100%'}} onPress={()=>this.props.navigation.navigate('SPGameScreen')}>
                         <NextButton>
                             <NormalText style={style.NormalText}>Proceed</NormalText>
                         </NextButton>
