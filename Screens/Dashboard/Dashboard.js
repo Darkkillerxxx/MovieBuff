@@ -7,7 +7,7 @@ import Coop from '../../Components/CoopButton'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import SmallBtn from '../../Components/SmallButton';
 import BriefInfo from '../../Components/BriefInfo'
-import CustomModal from '../../Components/Modal'
+import CustomModal from '../../Components/Modals/Modal'
 import { Button } from 'react-native-paper';
 
 class Dashboard extends React.Component{
@@ -80,7 +80,7 @@ class Dashboard extends React.Component{
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
                         <SmallBtn color1="#FF8300" color2="#FF9F00" color3="#FFC700" color4="#FFDE00">
                             <Image style={styles.Podium} source={require('../../assets/earn.png')}/>
                         </SmallBtn>

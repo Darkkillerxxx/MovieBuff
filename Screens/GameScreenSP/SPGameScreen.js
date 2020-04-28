@@ -1,10 +1,11 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,Modal } from 'react-native'
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo from '../../Components/BriefInfo';
 import Options from '../../Components/Options'
+import Levelup from '../../Components/Modals/LevelUp'
 
 class SPGameScreen extends React.Component{
     constructor()
@@ -49,6 +50,9 @@ class SPGameScreen extends React.Component{
                             </View>
                         </View>
                     </View>  
+                    <Modal visible={true} transparent={true} animationType="slide">
+                        <Levelup/>
+                    </Modal> 
                    
                     
                     <View style={style.TimerBar}>

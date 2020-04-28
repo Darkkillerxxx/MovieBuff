@@ -1,6 +1,6 @@
 import React from 'react'
 import {View,Image, StyleSheet,TouchableOpacity} from 'react-native'
-import NormalText from './NormalText'
+import NormalText from '../NormalText'
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 
 
