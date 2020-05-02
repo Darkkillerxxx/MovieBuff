@@ -1,22 +1,98 @@
 import React from 'react'
-import { View,Text,Image, StyleSheet,Button,TouchableOpacity } from 'react-native';
+import { ActivityIndicator,View,Text,Image, StyleSheet,Button,TouchableOpacity,Alert } from 'react-native';
 import AppContiner from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText'
 import NextButton from '../../Components/NextButton'
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
-
+import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
+import { connect }from 'react-redux'
+import * as Facebook from 'expo-facebook';
+import {checkAvailable} from '../../Utils/api'
+ 
 class WelcomeScreen extends React.Component{
     constructor()
     {
         super();
         this.state={
-
+            FacebookResponse:null,
+            Username:"",
+            UsernameAvailable:true,
+            isLoading:false
         }
     }
 
+    async logIn() {
+        try {
+          await Facebook.initializeAsync('829108874264339');
+          const {
+            type,
+            token,
+            expires,
+            permissions,
+            declinedPermissions,
+          } = await Facebook.logInWithReadPermissionsAsync({
+            permissions: ['public_profile'],
+          });
+          if (type === 'success') {
+            // Get the user's name using Facebook's Graph API
+            const response = await fetch(`https://graph.facebook.com/me?fields=id,name,first_name,last_name,middle_name,picture.width(500).height(500),email&access_token=${token}`);
+            let FB= await response.json()
+            this.setState({FacebookResponse:FB},()=>{
+                // console.log(this.state.FacebookResponse)
+                let Login=this.props.Login;
+                Login.id=this.state.FacebookResponse.id,
+                Login.first_name=FB.first_name,
+                Login.last_name=FB.last_name,
+                Login.profile_pic=FB.picture.data.url,
+                this.props.onSetLogin(Login)
+                this.props.onSetFB(this.state.FacebookResponse)
+                console.log("FBRedux",this.props.FB)
+                this.props.navigation.navigate('ProfileDetails')
+            })
+          } else {
+            // type === 'cancel'
+          }
+        } catch ({ message }) {
+          alert(`Facebook Login Error: ${message}`);
+        }
+      }
+
+      validation=()=>{
+        if(this.state.Username.length > 0)
+        {
+            return true   
+        }
+        return false
+    }
+
+      onProceed=()=>{
+          if(this.validation())
+          {
+            this.setState({isLoading:true})
+            checkAvailable(this.state.Username).then(response=>{
+                this.setState({UsernameAvailable:response.Data.Available},()=>{
+                    if(this.state.UsernameAvailable)
+                    {
+                        let Login=this.props.Login;
+                        Login.UserName=this.state.Username
+                        this.props.onSetLogin(Login)
+                        this.props.navigation.navigate('Avatar')
+                    }
+                })
+                this.setState({isLoading:false}) 
+            })
+          }
+      }
+
+      onUserNameChange=(e)=>{
+         this.setState({Username:e})
+      }
+    
+
     render()
     {
+        
         return(
             <AppContiner>
                 <ScrollView>
@@ -29,10 +105,13 @@ class WelcomeScreen extends React.Component{
                             <NormalText style={styles.WelcomeNormalText}>Welcome To Movie Buff</NormalText> 
                         </View>
                         <View style={styles.InputContainer}>
-                            <TextInput placeholder="Enter Screen Name" placeholderTextColor="#BAC1C9" style={styles.Input} />
-                            <TouchableOpacity onPress={()=>this.props.navigation.navigate('Avatar')}>
+                            <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":`${this.state.Username} is Not Available`} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
+                            <TouchableOpacity onPress={()=>this.onProceed()}>
                                <NextButton >
-                                    <NormalText style={styles.NormalText}>Join Now</NormalText>
+                                   {this.state.isLoading ? 
+                                    <ActivityIndicator size="small" color="#00C08A" />
+                                    :<NormalText style={styles.NormalText}>Join Now</NormalText>
+                                    }
                                 </NextButton>
                             </TouchableOpacity>
 
@@ -41,7 +120,7 @@ class WelcomeScreen extends React.Component{
                                 <View style={styles.FacebookIconContainer}>
                                     <Image source={require('../../assets/facebook.png')}/>
                                 </View>
-                                <Button title="Log-in with Facebook" color="#4c5f87"/>
+                                <Button onPress={this.logIn.bind(this)} title="Log-in with Facebook" color="#4c5f87"/>
                             </View>
                         </View>
                         <View style={styles.Terms}>
@@ -92,8 +171,19 @@ const styles=StyleSheet.create({
         alignItems:'center'
     },
     Input:{
-        borderRadius:20,
+        borderRadius:5,
         borderColor:'#BAC1C9',
+        borderWidth:1,
+        width:'90%',
+        paddingVertical:5,
+        paddingHorizontal:15,
+        marginVertical:7,
+        color:'#BAC1C9',
+        textAlign:'center'
+    },
+    InputError:{
+        borderRadius:5,
+        borderColor:'#ff6961',
         borderWidth:1,
         width:'90%',
         paddingVertical:5,
@@ -133,4 +223,18 @@ const styles=StyleSheet.create({
 
 })
 
-export default WelcomeScreen;
+const mapStateToProps= state =>{
+    return{
+        FB:state.FB.FBDetails,
+        Login:state.FB.LoginDetails
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(WelcomeScreen);

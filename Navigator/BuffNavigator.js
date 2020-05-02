@@ -8,7 +8,8 @@ import CustomGame from '../Screens/CustomGame/CustomGame'
 import SPGameScreen from '../Screens/GameScreenSP/SPGameScreen'
 import Leaderboard from '../Screens/Leaderboard/Leaderboard'
 import EarnCoins from '../Screens/EarnCoins/EarnCoins'
-
+import Profile from '../Screens/Profile/Profile'
+import ProfileDetails from '../Screens/ProfileDetails/ProfileDetails'
 
 const BuffNavigator=createStackNavigator({
     Welcome:{
@@ -34,7 +35,14 @@ const BuffNavigator=createStackNavigator({
     },
     EarnCoins:{
         screen:EarnCoins
+    },
+    Profile:{
+        screen:Profile
+    },
+    ProfileDetails:{
+        screen:ProfileDetails
     }
+
 },{
     headerMode:'none'
 })

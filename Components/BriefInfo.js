@@ -4,9 +4,9 @@ import NormalText from './NormalText'
 
 const BriefInfo=(props)=>{
 return(
-    <View style={styles.Brief}>
+    <View style={{...styles.Brief,...props.Brief}}>
         <View style={styles.BriefPic}>
-            <Image style={styles.Coins} source={require('../assets/coins.png')}/>
+            <Image style={styles.Coins} source={props.Image}/>
         </View>
         <View style={styles.BriefNumbers}>
             <NormalText style={styles.NormalText}>{props.value}</NormalText>

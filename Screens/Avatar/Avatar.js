@@ -5,49 +5,36 @@ import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
 import FacebookButton from '../../Components/FacebookButton'
 import NextButton from '../../Components/NextButton'
-
+import {setFB} from '../../Store/Actions/ActionJoin'
+import { connect }from 'react-redux'
+import {getAvatarList} from '../../Utils/api'
 class Avatar extends React.Component{
     constructor()
     {
         super();
         this.state={
-           Icons:[     
-                {
-                    id:1,
-                    image:require('../../assets/Temp/User1.png')
-                },
-                {
-                    id:2,
-                    image:require('../../assets/Temp/User2.png')
-                },
-                {
-                    id:3,
-                    image:require('../../assets/Temp/User3.png')
-                },
-                {
-                    id:4,
-                    image:require('../../assets/Temp/User4.png')
-                },
-                {
-                    id:5,
-                    image:require('../../assets/Temp/User5.png')
-                },
-                {
-                    id:6,
-                    image:require('../../assets/Temp/User6.png')
-                }
-           ]
-           
+           Icons:[],
+           SelectedIcon:1
         }
+        
+    }
+
+    componentDidMount()
+    {
+        console.log("Avatar Redux",this.props.FB)
+        console.log("Avatar Login Redux",this.props.Login)
+
+        getAvatarList().then(result=>{
+            this.setState({Icons:result.Data})
+        })
     }
 
 
     miniIcon=(itemData)=>{
         return(
-            <View style={{ height:50,width:55,borderColor:`${itemData.item.id === 1 ? "#6665FF":"#1D3451"}`,borderWidth:itemData.item.id === 1 ? 1: 0,alignItems:'center',justifyContent:'center'}}>  
-                <Image source={itemData.item.image} style={{height:40,width:40}}/>
+            <View style={{ height:50,width:55,borderColor:`${itemData.item.avatar_id === this.state.SelectedIcon ? "#6665FF":"#1D3451"}`,borderWidth:itemData.item.avatar_id === this.state.SelectedIcon ? 1: 0,alignItems:'center',justifyContent:'center'}}>  
+                <Image source={{uri:itemData.item.a_img_url}} style={{height:40,width:40}}/>
             </View>
-        
         )
     }
 
@@ -57,17 +44,13 @@ class Avatar extends React.Component{
             <AppContainer>
                 <BoldText style={style.BoldText}>Choose Your Avatar</BoldText>
                 <View style={style.AvatarContainer}>
-                    <Image source={require('../../assets/Temp/User1.png')} style={style.Avatar} />
+                    <Image source={{uri:this.state.Icons.length > 0 ? this.state.Icons[this.state.SelectedIcon - 1].a_img_url:null}} style={style.Avatar} />
                 </View>
                 <View style={style.MiniIconContainer}>
                     <View>
-                        <FlatList data={this.state.Icons} renderItem={this.miniIcon} numColumns={5} />
+                        <FlatList keyExtractor={(item, index) => item.avatar_id} data={this.state.Icons} renderItem={this.miniIcon} numColumns={5} />
                     </View>
                 </View>
-                <BoldText style={style.BoldText2}>OR</BoldText>
-               <FacebookButton>
-                    <Button title="Get Profile Pic From Your Facebook" color="#4c5f87"/>
-               </FacebookButton>
                <TouchableOpacity onPress={()=>this.props.navigation.navigate('Genre')}>
                     <NextButton>
                         <NormalText style={style.NormalText}>Proceed</NormalText>
@@ -129,4 +112,17 @@ const style=StyleSheet.create({
 })
 
 
-export default Avatar;
+const mapStateToProps= state =>{
+    return{
+        FB:state.FB.FBDetails,
+        Login:state.FB.LoginDetails
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetFB:(response)=>dispatch(setFB(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Avatar);

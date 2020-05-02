@@ -53,6 +53,7 @@ class Genre extends React.Component{
         }
     }
 
+
     showRegions=(itemData)=>{
         return(
             <View style={style.GenreContainer}>

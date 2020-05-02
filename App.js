@@ -3,6 +3,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import MainLayout from './MainLayout/MainLayout'
 import * as Fonts from 'expo-font'
 import {AppLoading} from 'expo'
+import {Provider} from 'react-redux'
+import {createStore,combineReducers} from 'redux';
+import JoinReducer from './Store/Reducers/Join'
+
+const rootReducer=combineReducers({
+  FB:JoinReducer
+})
+
+const store=createStore(rootReducer)
 
 const LoadFonts=()=>{
   return Fonts.loadAsync({
@@ -21,7 +30,9 @@ export default function App() {
   }
 
   return (
-      <MainLayout/>    
+    <Provider store={store}>
+       <MainLayout/>  
+    </Provider>
   );
 }
 

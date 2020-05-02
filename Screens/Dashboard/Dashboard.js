@@ -1,27 +1,27 @@
 import React from 'react'
-import { View, StyleSheet,Image,Modal } from 'react-native'
+import { View, StyleSheet,Image,Modal,TouchableOpacity } from 'react-native'
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
 import Coop from '../../Components/CoopButton'
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import SmallBtn from '../../Components/SmallButton';
 import BriefInfo from '../../Components/BriefInfo'
 import CustomModal from '../../Components/Modals/Modal'
 import { Button } from 'react-native-paper';
-
+import MPModal from '../../Components/Modals/MPModal'
 class Dashboard extends React.Component{
     constructor()
     {
         super();
         this.state={
-            ShowModal:false
+            ShowModalSP:false,
+            ShowModalMP:false,
         }
     }
 
     onProceedToCustom=()=>{
         this.props.navigation.navigate('CustomGame')
-        this.setState({ShowModal:false})
+        this.setState({ShowModalSP:false})
     }
 
     render()
@@ -30,11 +30,13 @@ class Dashboard extends React.Component{
             <AppContainer style={styles.AppContainer}>
                 <View style={styles.InfoContainer}>
                     <View style={styles.PicContainer}>
-                        <Image style={styles.ProfilePic} source={require('../../assets/Temp/User1.png')}></Image>
+                        <TouchableOpacity onPress={()=>this.props.navigation.navigate('Profile')}>
+                            <Image style={styles.ProfilePic} source={require('../../assets/Temp/User1.png')}></Image>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.BriefContainer}>
-                        <BriefInfo value={7200}/>
-                        <BriefInfo value={24}/>
+                        <BriefInfo  Image={require('../../assets/coins.png')} value={7200}/>
+                        <BriefInfo Image={require('../../assets/Crown.png')} value={24}/>
                     </View>
                 </View>
                 <View style={styles.ImageView}>
@@ -45,7 +47,7 @@ class Dashboard extends React.Component{
 
                 <View style={styles.Container}>
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity onPress={()=>this.setState({ShowModal:true})}>
+                        <TouchableOpacity onPress={()=>this.setState({ShowModalSP:true})}>
                             <SinglePlayer>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
@@ -53,7 +55,7 @@ class Dashboard extends React.Component{
                     </View>
 
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.setState({ShowModalMP:true})}>
                             <Coop>
                                 <NormalText style={styles.NormalTextCo}>Play With Friends</NormalText>
                             </Coop>
@@ -87,9 +89,12 @@ class Dashboard extends React.Component{
                     </TouchableOpacity>
                    </View>
                 </View>
-                <Modal visible={this.state.ShowModal} transparent={true} animationType="slide">
+                <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
                     <CustomModal ProceedToCustom={this.onProceedToCustom}/>
-                </Modal>         
+                </Modal>   
+                <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
+                    <MPModal/>
+                </Modal>       
             </AppContainer>
         )
     }

@@ -69,7 +69,7 @@ class LevelUp extends React.Component{
                    <FlatList data={this.state.LevelRewards} renderItem={this.winContainer} numColumns={3}/>
                 </View>
                 <View style={styles.ModalFooter}>
-                    <TouchableOpacity style={{width:'100%',alignItems:'center'}}>
+                    <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>this.props.changeModal(null)}>
                         <NextButton style={{marginTop:10}}>
                             <NormalText style={{fontSize:16}}>Claim Coins</NormalText>
                         </NextButton>

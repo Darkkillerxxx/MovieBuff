@@ -6,12 +6,22 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo from '../../Components/BriefInfo';
 import Options from '../../Components/Options'
 import Levelup from '../../Components/Modals/LevelUp'
+import Result from '../../Components/Modals/Result'
 
 class SPGameScreen extends React.Component{
     constructor()
     {
         super();
+        this.state={
+            ModalType:"Result"
+        }
     }
+
+    cangeModalType=(type)=>{
+        this.setState({ModalType:type})
+    }
+
+
     render()
     {
         return(
@@ -50,9 +60,13 @@ class SPGameScreen extends React.Component{
                             </View>
                         </View>
                     </View>  
-                    <Modal visible={true} transparent={true} animationType="slide">
-                        <Levelup/>
+                    <Modal visible={this.state.ModalType === "Level" ?  true:false} transparent={true} animationType="slide">
+                        <Levelup changeModal={this.cangeModalType}/>
                     </Modal> 
+
+                    <Modal visible={this.state.ModalType === "Result" ?  true:false} transparent={true} animationType="slide">
+                        <Result changeModal={this.cangeModalType}/>
+                    </Modal>
                    
                     
                     <View style={style.TimerBar}>
