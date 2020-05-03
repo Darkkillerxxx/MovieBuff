@@ -6,9 +6,11 @@ import {AppLoading} from 'expo'
 import {Provider} from 'react-redux'
 import {createStore,combineReducers} from 'redux';
 import JoinReducer from './Store/Reducers/Join'
+import DashboardReducer from './Store/Reducers/Dashboard'
 
 const rootReducer=combineReducers({
-  FB:JoinReducer
+  FB:JoinReducer,
+  Dashboard:DashboardReducer
 })
 
 const store=createStore(rootReducer)

@@ -41,10 +41,10 @@ class WelcomeScreen extends React.Component{
             this.setState({FacebookResponse:FB},()=>{
                 // console.log(this.state.FacebookResponse)
                 let Login=this.props.Login;
-                Login.id=this.state.FacebookResponse.id,
-                Login.first_name=FB.first_name,
-                Login.last_name=FB.last_name,
-                Login.profile_pic=FB.picture.data.url,
+                Login.FbId=this.state.FacebookResponse.id,
+                Login.FirstName=FB.first_name,
+                Login.LastName=FB.last_name,
+                Login.AvatarFacebook=FB.picture.data.url,
                 this.props.onSetLogin(Login)
                 this.props.onSetFB(this.state.FacebookResponse)
                 console.log("FBRedux",this.props.FB)
@@ -75,7 +75,7 @@ class WelcomeScreen extends React.Component{
                     if(this.state.UsernameAvailable)
                     {
                         let Login=this.props.Login;
-                        Login.UserName=this.state.Username
+                        Login.ScreenName=this.state.Username
                         this.props.onSetLogin(Login)
                         this.props.navigation.navigate('Avatar')
                     }

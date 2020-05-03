@@ -5,16 +5,21 @@ import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
 import FacebookButton from '../../Components/FacebookButton'
 import NextButton from '../../Components/NextButton'
-import {setFB} from '../../Store/Actions/ActionJoin'
+import {setFB,setLogin} from '../../Store/Actions/ActionJoin'
 import { connect }from 'react-redux'
 import {getAvatarList} from '../../Utils/api'
+import {Ionicons,FontAwesome} from '@expo/vector-icons'
+import * as Permissions from 'expo-permissions';
+import * as ImagePicker from 'expo-image-picker';
+
 class Avatar extends React.Component{
     constructor()
     {
         super();
         this.state={
            Icons:[],
-           SelectedIcon:1
+           SelectedIcon:1,
+           ImageBase64:""
         }
         
     }
@@ -29,13 +34,56 @@ class Avatar extends React.Component{
         })
     }
 
+    VerifyPermissions = async ()=>{
+        const result=await Permissions.askAsync(Permissions.CAMERA,Permissions.CAMERA_ROLL)
+        if(result.status !== 'granted')
+        {
+            Alert.alert('Insufficient permissions','You Need to Grant Permissions',[{text:'Kkay'}])
+            return false
+        }
+        return true
+     }
+
+     takeImage=()=>{
+     ImagePicker.launchCameraAsync({allowsEditing:true,aspect:[4,4],base64:true,quality:0.3}).then(
+         image=>{
+            this.setState({ImageBase64:image.base64})
+         }
+     )
+     }
+
+     pickImage=async()=>{
+        const hasPermission=await this.VerifyPermissions() 
+        if(hasPermission)
+        {
+          this.takeImage()
+        }
+      }
+
+    onIconsSelected=(id)=>{
+        this.setState({SelectedIcon:id},()=>{
+            this.setState({ImageBase64:""})
+        })
+    }
+
 
     miniIcon=(itemData)=>{
         return(
-            <View style={{ height:50,width:55,borderColor:`${itemData.item.avatar_id === this.state.SelectedIcon ? "#6665FF":"#1D3451"}`,borderWidth:itemData.item.avatar_id === this.state.SelectedIcon ? 1: 0,alignItems:'center',justifyContent:'center'}}>  
-                <Image source={{uri:itemData.item.a_img_url}} style={{height:40,width:40}}/>
-            </View>
+            <TouchableOpacity onPress={()=>this.onIconsSelected(itemData.item.avatar_id)}>
+                <View style={{ height:50,width:55,borderColor:`${itemData.item.avatar_id === this.state.SelectedIcon ? "#6665FF":"#1D3451"}`,borderWidth:itemData.item.avatar_id === this.state.SelectedIcon ? 1: 0,alignItems:'center',justifyContent:'center'}}>  
+                    <Image source={{uri:itemData.item.a_img_url}} style={{height:40,width:40}}/>
+                </View>
+            </TouchableOpacity>
+           
         )
+    }
+
+    onProceedClick=()=>{
+        let Login=this.props.Login;
+        Login.AvatarId = this.state.SelectedIcon;
+        Login.AvatarBase64 = this.state.ImageBase64
+        this.props.onSetLogin(Login)
+        this.props.navigation.navigate('Genre')
     }
 
     render()
@@ -44,14 +92,22 @@ class Avatar extends React.Component{
             <AppContainer>
                 <BoldText style={style.BoldText}>Choose Your Avatar</BoldText>
                 <View style={style.AvatarContainer}>
-                    <Image source={{uri:this.state.Icons.length > 0 ? this.state.Icons[this.state.SelectedIcon - 1].a_img_url:null}} style={style.Avatar} />
+                    {this.state.ImageBase64 !==  "" ? 
+                    <Image source={{uri: `data:image/jpeg;base64,${this.state.ImageBase64}`}} style={style.AvatarBase64} />:
+                    <Image source={{uri:this.state.Icons.length > 0 ? this.state.Icons[this.state.SelectedIcon - 1].a_img_url:null}} style={style.Avatar} />}
+                   
+                    <View style={style.EditIconContainer}>
+                        <TouchableOpacity onPress={()=>this.pickImage()}>
+                            <FontAwesome name="pencil" size={14} color="white"/>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={style.MiniIconContainer}>
                     <View>
                         <FlatList keyExtractor={(item, index) => item.avatar_id} data={this.state.Icons} renderItem={this.miniIcon} numColumns={5} />
                     </View>
                 </View>
-               <TouchableOpacity onPress={()=>this.props.navigation.navigate('Genre')}>
+               <TouchableOpacity onPress={()=>this.onProceedClick()}>
                     <NextButton>
                         <NormalText style={style.NormalText}>Proceed</NormalText>
                     </NextButton>   
@@ -72,15 +128,23 @@ const style=StyleSheet.create({
         marginVertical:5  
     },
     AvatarContainer:{
-        marginVertical:20  
+        marginVertical:20,
+        alignItems:'center'  
     },
     Avatar:{
         height:100,
-        width:100
+        width:100,
+        resizeMode:'contain'
+    },
+    AvatarBase64:{
+        height:100,
+        width:100,
+        resizeMode:'contain',
+        borderRadius:300
     },
     MiniIconContainer:{
         width:300,
-        height:100,
+        height:200,
         maxWidth:'90%',
         padding:5
     },
@@ -109,6 +173,17 @@ const style=StyleSheet.create({
         fontSize:16,
         color:'#00C08A'
     },
+    EditIconContainer:{
+        width:25,
+        height:25,
+        marginTop:-15,
+        borderRadius:20,
+        backgroundColor:"#16d39a",
+        overflow:'hidden',
+        alignItems:'center',
+        justifyContent:'center',
+        elevation:1
+    }
 })
 
 
@@ -121,7 +196,8 @@ const mapStateToProps= state =>{
 
 const mapDispatchToProps = dispatch =>{
     return{
-        onSetFB:(response)=>dispatch(setFB(response))
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response))
     }
 }
 

@@ -27,7 +27,8 @@ class ProfileDetails extends React.Component{
             Country:"",
             MartialStatus:"",
             Profession:"",
-            EmailId:""
+            EmailId:"",
+            ImageBase64:""
         }
     }
 
@@ -42,9 +43,9 @@ class ProfileDetails extends React.Component{
      }
 
      takeImage=()=>{
-     ImagePicker.launchCameraAsync({allowsEditing:true,aspect:[16,9],base64:true,quality:0.5}).then(
+     ImagePicker.launchCameraAsync({allowsEditing:true,aspect:[4,4],base64:true,quality:0.5}).then(
          image=>{
-            
+            this.setState({ImageBase64:image.base64})
          }
      )
      }
@@ -53,8 +54,8 @@ class ProfileDetails extends React.Component{
     {
         console.log(this.props.Login)
         this.setState({LoginDetails:this.props.Login})
-        this.setState({FirstName:this.props.Login.first_name})
-        this.setState({LastName:this.props.Login.last_name})
+        this.setState({FirstName:this.props.FB.first_name})
+        this.setState({LastName:this.props.FB.last_name})
     }
 
     validation=()=>{
@@ -85,13 +86,14 @@ class ProfileDetails extends React.Component{
                 if(this.state.UsernameAvailable)
                 {
                     let Login=this.props.Login;
-                    Login.UserName=this.state.Username
+                    Login.ScreenName=this.state.Username
                     Login.FirstName=this.state.FirstName
                     Login.LastName=this.state.LastName
                     Login.Country=this.state.Country
                     Login.MartialStatus=this.state.MartialStatus
                     Login.Profession=this.state.Profession
                     Login.EmailId=this.state.EmailId
+                    Login.AvatarBase64=this.state.ImageBase64
                     this.props.onSetLogin(Login)
                     this.props.navigation.navigate('Genre')
                 }
@@ -113,7 +115,11 @@ class ProfileDetails extends React.Component{
         return(
             <AppContainer style={styles.AppContainer}>
                 <View style={styles.ProfilePicContainer}>
-                    <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.profile_pic}} style={styles.ProfilePic}/>
+                    {this.state.ImageBase64 === "" ? 
+                         <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.AvatarFacebook}} style={styles.ProfilePic}/>:
+                         <Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
+                    }
+                   
                     <View style={styles.EditIconContainer}>
                         <TouchableOpacity onPress={()=>this.pickImage()}>
                             <FontAwesome name="pencil" size={14} color="white"/>
@@ -125,31 +131,31 @@ class ProfileDetails extends React.Component{
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
                         <NormalText>Enter First Name</NormalText>
-                        <TextInput value={this.state.FirstName} style={{...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="First Name" placeholderTextColor="#BAC1C9"  />
+                        <TextInput value={this.state.FirstName} style={{...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({FirstName:e})} placeholder="First Name" placeholderTextColor="#BAC1C9"  />
                     </View>
                     <View style={{width:'48%'}}>
                         <NormalText>Enter Last Name</NormalText>
-                        <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
+                        <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({LastName:e})} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
                         <NormalText>Enter Country</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="Country" value="India" placeholderTextColor="#BAC1C9"  />
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Country:e})} placeholder="Country" value="India" placeholderTextColor="#BAC1C9"  />
                     </View>
                     <View style={{width:'48%'}}>
                         <NormalText>Enter Martial Status</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="Martial Status" value="Single" placeholderTextColor="#BAC1C9"  />
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({MartialStatus:e})} placeholder="Martial Status" value="Single" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
                         <NormalText>Enter Country</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="Profession"  placeholderTextColor="#BAC1C9"  />
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Profession:e})} placeholder="Profession"  placeholderTextColor="#BAC1C9"  />
                     </View>
                     <View style={{width:'48%'}}>
                         <NormalText>Enter Martial Status</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder="Enter Email Id" placeholderTextColor="#BAC1C9"  />
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({EmailId:e})} placeholder="Enter Email Id" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.ButtonContainer}>
@@ -218,6 +224,12 @@ const styles=StyleSheet.create({
         height:75,
         resizeMode:'stretch',
         borderRadius:100
+    },
+    ProfilePicBase64:{
+        width:75,
+        height:75,
+        resizeMode:'contain',
+        borderRadius:300
     },
     EditIconContainer:{
         width:25,

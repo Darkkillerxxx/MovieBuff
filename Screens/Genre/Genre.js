@@ -6,6 +6,10 @@ import BoldText from '../../Components/BoldText';
 import NormalText from '../../Components/NormalText';
 import { FlatList } from 'react-native-gesture-handler';
 import NextButton from '../../Components/NextButton';
+import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
+import {setDashboard} from '../../Store/Actions/ActionDashboard'
+import { connect }from 'react-redux'
+import {registerUser} from '../../Utils/api'
 
 class Genre extends React.Component{
     constructor()
@@ -53,6 +57,41 @@ class Genre extends React.Component{
         }
     }
 
+    componentDidMount()
+    {
+        console.log("Genre Redux",this.props.Login)
+    }
+
+
+    OnProceed=()=>{
+        let LoginRedux=this.props.Login;
+        let RegPayload={
+            "Country":"India",
+            "FB Id":LoginRedux.FbId,
+            "ScreenName":LoginRedux.ScreenName,
+            "FirstName":LoginRedux.FirstName,
+            "LastName":LoginRedux.LastName,
+            "MaritalStatus":LoginRedux.MaritalStatus,
+            "Profession":LoginRedux.Profession,
+            "Email Id":LoginRedux.EmailId,
+            "AvatarId":LoginRedux.AvatarId,
+            "AvatarBase64":LoginRedux.AvatarBase64,
+            "AvatarFacebook":LoginRedux.AvatarFacebook,
+            "SelectedGenre":LoginRedux.SelectedGenre,
+            "SelectedRegion":LoginRedux.SelectedRegion
+        }
+        registerUser(RegPayload).then(response=>{
+            console.log(response)
+            if(response.IsSuccess)
+            {
+                this.props.onSetDashbaord(response.Data[0])
+                console.log("Response Genre",response.Data)
+                this.props.navigation.navigate('Dashboard')
+            }
+        })
+      
+    }
+
 
     showRegions=(itemData)=>{
         return(
@@ -80,7 +119,7 @@ class Genre extends React.Component{
                 <View style={style.FlatListContainer}>
                     <FlatList data={this.state.Region} renderItem={this.showRegions} numColumns={2}/>
                 </View>
-                <TouchableOpacity onPress={()=>this.props.navigation.navigate('Dashboard')}>
+                <TouchableOpacity onPress={()=>this.OnProceed()}>
                     <NextButton>
                         <NormalText style={style.NormalText}>Proceed</NormalText>
                     </NextButton>
@@ -132,5 +171,20 @@ const style=StyleSheet.create({
     },
 })
 
+const mapStateToProps= state =>{
+    return{
+        FB:state.FB.FBDetails,
+        Login:state.FB.LoginDetails,
+        Dashboard:state.Dashboard.Dashboard
+    }
+}
 
-export default Genre
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetDashbaord:(response)=>dispatch(setDashboard(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Genre);
