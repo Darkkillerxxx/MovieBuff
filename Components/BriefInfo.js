@@ -4,7 +4,7 @@ import NormalText from './NormalText'
 
 const BriefInfo=(props)=>{
 return(
-    <View style={{...styles.Brief,...props.Brief}}>
+    <View style={{...styles.Brief,...props.style}}>
         <View style={styles.BriefPic}>
             <Image style={styles.Coins} source={props.Image}/>
         </View>

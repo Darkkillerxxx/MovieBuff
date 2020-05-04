@@ -74,9 +74,9 @@ class Genre extends React.Component{
             "MaritalStatus":LoginRedux.MaritalStatus,
             "Profession":LoginRedux.Profession,
             "Email Id":LoginRedux.EmailId,
-            "AvatarId":LoginRedux.AvatarId,
+            "AvatarId":LoginRedux.AvatarBase64 === "" ? LoginRedux.AvatarFacebook === "" ? LoginRedux.AvatarId:"":"",
             "AvatarBase64":LoginRedux.AvatarBase64,
-            "AvatarFacebook":LoginRedux.AvatarFacebook,
+            "AvatarFacebook":LoginRedux.AvatarBase64 === "" ? LoginRedux.AvatarFacebook:"",
             "SelectedGenre":LoginRedux.SelectedGenre,
             "SelectedRegion":LoginRedux.SelectedRegion
         }
@@ -89,7 +89,6 @@ class Genre extends React.Component{
                 this.props.navigation.navigate('Dashboard')
             }
         })
-      
     }
 
 

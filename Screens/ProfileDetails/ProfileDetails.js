@@ -28,7 +28,8 @@ class ProfileDetails extends React.Component{
             MartialStatus:"",
             Profession:"",
             EmailId:"",
-            ImageBase64:""
+            ImageBase64:"",
+            ErrorMessage:""
         }
     }
 
@@ -59,11 +60,19 @@ class ProfileDetails extends React.Component{
     }
 
     validation=()=>{
-        if(this.state.Username.length > 0)
+        if(this.state.Username.length < 3)
         {
-            return true   
+            this.setState({ErrorMessage:"Username Cannot be Less Than 3 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
         }
-        return false
+        else if(this.state.Username.length > 10)
+        {
+            this.setState({ErrorMessage:"Username Cannot be More Than 10 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
+        }
+        return true;
     }
 
 
@@ -108,6 +117,11 @@ class ProfileDetails extends React.Component{
             this.setState({UsernameAvailable:true})
         })
      }
+
+     onFocus=()=>{
+        this.setState({UsernameAvailable:true})
+          this.setState({ErrorMessage:""})
+     }
    
 
     render()
@@ -127,7 +141,7 @@ class ProfileDetails extends React.Component{
                     </View>
                 </View>
                 <NormalText>* Enter Your Screen Name</NormalText>
-                <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} style={this.state.UsernameAvailable ? {...styles.Input,...{width:'100%'}}:{...styles.InputError,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder={this.state.UsernameAvailable ? "Screen Name":`${this.state.Username} is Not Available`} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"}  />
+                <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} style={this.state.UsernameAvailable ? {...styles.Input,...{width:'100%'}}:{...styles.InputError,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder={this.state.UsernameAvailable ? "Screen Name":this.state.ErrorMessage === "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"}  />
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
                         <NormalText>Enter First Name</NormalText>

@@ -18,7 +18,8 @@ class WelcomeScreen extends React.Component{
             FacebookResponse:null,
             Username:"",
             UsernameAvailable:true,
-            isLoading:false
+            isLoading:false,
+            ErrorMessage:""
         }
     }
 
@@ -59,11 +60,19 @@ class WelcomeScreen extends React.Component{
       }
 
       validation=()=>{
-        if(this.state.Username.length > 0)
+        if(this.state.Username.length < 3)
         {
-            return true   
+            this.setState({ErrorMessage:"Username Cannot be Less Than 3 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
         }
-        return false
+        else if(this.state.Username.length > 10)
+        {
+            this.setState({ErrorMessage:"Username Cannot be More Than 10 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
+        }
+        return true;
     }
 
       onProceed=()=>{
@@ -88,6 +97,11 @@ class WelcomeScreen extends React.Component{
       onUserNameChange=(e)=>{
          this.setState({Username:e})
       }
+
+      changeUsernameAvailabilty=()=>{
+          this.setState({UsernameAvailable:true})
+          this.setState({ErrorMessage:""})
+      }
     
 
     render()
@@ -105,7 +119,7 @@ class WelcomeScreen extends React.Component{
                             <NormalText style={styles.WelcomeNormalText}>Welcome To Movie Buff</NormalText> 
                         </View>
                         <View style={styles.InputContainer}>
-                            <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":`${this.state.Username} is Not Available`} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
+                            <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":this.state.ErrorMessage ===  "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
                             <TouchableOpacity onPress={()=>this.onProceed()}>
                                <NextButton >
                                    {this.state.isLoading ? 

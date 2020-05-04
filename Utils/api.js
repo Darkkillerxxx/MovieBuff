@@ -1,4 +1,4 @@
-const base_url="http://a96dd03f.ngrok.io"
+const base_url="https://c592a6aa.ngrok.io"
 
 let Endpoints={
     checkAvailable:"/register",

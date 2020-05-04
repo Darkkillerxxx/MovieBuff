@@ -11,26 +11,29 @@ const CustomModal=(props)=>{
            
         </View>
         <View style={styles.ModalContent}>
-            <NormalText style={styles.ModalContentHeading}>Choose Game Type</NormalText>
+            <NormalText style={styles.ModalContentHeading}>Choose Number of Questions</NormalText>
             <View style={styles.ModalOverView}>
                 <View style={styles.ModalGameStyleButtonSelected}>
-                    <NormalText style={styles.ModalButtonTextStyleSelected}>Random Game</NormalText>
+                    <NormalText style={styles.ModalButtonTextStyleSelected}>5</NormalText>
                 </View>
                 <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>Custom Game</NormalText>
+                    <NormalText style={styles.ModalButtonTextStyleUnselected}>15</NormalText>
+                </View>
+                <View style={styles.ModalGameStyleButtonUnselected}>
+                    <NormalText style={styles.ModalButtonTextStyleUnselected}>25</NormalText>
+                </View>
+                <View style={styles.ModalGameStyleButtonUnselected}>
+                    <NormalText style={styles.ModalButtonTextStyleUnselected}>30</NormalText>
                 </View>
             </View>
 
-            <NormalText style={styles.ModalContentHeading}>Choose Game Time</NormalText>
+            <NormalText style={styles.ModalContentHeading}>Choose Region</NormalText>
             <View style={styles.ModalOverView}>
                 <View style={styles.ModalGameStyleButtonSelected}>
-                    <NormalText style={styles.ModalButtonTextStyleSelected}>15 sec</NormalText>
+                    <NormalText style={styles.ModalButtonTextStyleSelected}>Hollywood</NormalText>
                 </View>
                 <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>30 sec</NormalText>
-                </View>
-                <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>45 sec</NormalText>
+                    <NormalText style={styles.ModalButtonTextStyleUnselected}>Bollywood</NormalText>
                 </View>
             </View>
         </View>
@@ -100,7 +103,7 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
-        marginVertical:10
+        marginVertical:7
     },
     ModalContentPic:{
         height:75,

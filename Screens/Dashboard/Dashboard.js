@@ -9,6 +9,8 @@ import BriefInfo from '../../Components/BriefInfo'
 import CustomModal from '../../Components/Modals/Modal'
 import { Button } from 'react-native-paper';
 import MPModal from '../../Components/Modals/MPModal'
+import { connect }from 'react-redux'
+
 class Dashboard extends React.Component{
     constructor()
     {
@@ -16,12 +18,20 @@ class Dashboard extends React.Component{
         this.state={
             ShowModalSP:false,
             ShowModalMP:false,
+            Dashboard:{}
         }
     }
 
     onProceedToCustom=()=>{
         this.props.navigation.navigate('CustomGame')
         this.setState({ShowModalSP:false})
+    }
+
+    componentDidMount()
+    {
+        console.log("Dasbhoard Redux",this.props.Dashboard)
+        this.setState({Dashboard:this.props.Dashboard})
+        
     }
 
     render()
@@ -31,12 +41,21 @@ class Dashboard extends React.Component{
                 <View style={styles.InfoContainer}>
                     <View style={styles.PicContainer}>
                         <TouchableOpacity onPress={()=>this.props.navigation.navigate('Profile')}>
-                            <Image style={styles.ProfilePic} source={require('../../assets/Temp/User1.png')}></Image>
+                            <View style={styles.ProfilePic}>
+                                <Image style={{width:'100%',height:'100%'}} source={this.state.Dashboard.hasOwnProperty('img_url') ? {uri:this.state.Dashboard.img_url}:require('../../assets/Temp/User1.png')}></Image>
+                            </View>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.BriefContainer}>
-                        <BriefInfo  Image={require('../../assets/coins.png')} value={7200}/>
-                        <BriefInfo Image={require('../../assets/Crown.png')} value={24}/>
+                        <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Dashboard.hasOwnProperty('gold') ? this.state.Dashboard.gold === null ? 0 :this.state.Dashboard.gold:""}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Dashboard.hasOwnProperty('silver') ? this.state.Dashboard.silver === null ? 0 :this.state.Dashboard.silver:""}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Dashboard.hasOwnProperty('bronze') ? this.state.Dashboard.bronze === null ? 0 :this.state.Dashboard.bronze:""}/>
+                        </View>
+                        <View style={{width:'100%',flexDirection:'row'}}>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/coins.png')} value={this.state.Dashboard.hasOwnProperty('u_coins') ? this.state.Dashboard.u_coins:""}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Crown.png')} value={this.state.Dashboard.hasOwnProperty('u_crowns') ? this.state.Dashboard.u_crowns:""}/>
+                        </View>
                     </View>
                 </View>
                 <View style={styles.ImageView}>
@@ -109,8 +128,7 @@ const styles=StyleSheet.create({
     },
     InfoContainer:{
         flexDirection:'row',
-        width:'100%',
-        height:75
+        width:'100%'
     },
     PicContainer:{
         width:"20%",
@@ -118,12 +136,10 @@ const styles=StyleSheet.create({
         opacity:0.8,
         alignItems:'center',
         justifyContent:'center',
-        borderBottomRightRadius:25
+        borderBottomRightRadius:15
     },
     BriefContainer:{
-        flexDirection:'row',
         width:"80%",
-        height:45,
         backgroundColor:"#11233A",
         opacity:0.8,
         padding:10,
@@ -133,7 +149,10 @@ const styles=StyleSheet.create({
     },
     ProfilePic:{
         height:50,
-        width:50
+        width:50,
+        resizeMode:'contain',
+        overflow:'hidden',
+        borderRadius:30
     },
     BackImageContainer:{
         height:250,
@@ -185,4 +204,18 @@ const styles=StyleSheet.create({
     }
 })
 
-export default Dashboard
+
+const mapStateToProps= state =>{
+    return{
+      Dashboard:state.Dashboard.Dashboard
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Dashboard);
