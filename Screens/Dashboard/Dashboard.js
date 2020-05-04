@@ -10,6 +10,7 @@ import CustomModal from '../../Components/Modals/Modal'
 import { Button } from 'react-native-paper';
 import MPModal from '../../Components/Modals/MPModal'
 import { connect }from 'react-redux'
+import {setGame} from '../../Store/Actions/ActionSp'
 
 class Dashboard extends React.Component{
     constructor()
@@ -18,18 +19,51 @@ class Dashboard extends React.Component{
         this.state={
             ShowModalSP:false,
             ShowModalMP:false,
-            Dashboard:{}
+            Dashboard:{},
+            SPNoQuestions:5,
+            SPRegion:[1]
         }
     }
 
+    setSPNoQuestions=(ques)=>{
+        this.setState({SPNoQuestions:ques})
+    }
+
+    setSpRegion=(id)=>{
+        if(this.state.SPRegion.includes(id))
+        {
+            let tempRegion=this.state.SPRegion;
+            const index = tempRegion.indexOf(id);
+            if (index > -1) {
+                tempRegion.splice(index, 1);
+            }
+            this.setState({SPRegion:tempRegion})
+        }
+        else
+        {
+            let tempRegion=this.state.SPRegion;
+            tempRegion.push(id)
+            this.setState({SPRegion:tempRegion})
+        }
+    }
+
+    DismissSpModal=()=>{
+        this.setState({ShowModalSP:false})
+    }
+
     onProceedToCustom=()=>{
+        let TempSp=this.props.SP;
+        TempSp.Questions=this.state.SPNoQuestions;
+        TempSp.Region=this.state.SPRegion;
+        this.props.onSetGame(TempSp)
         this.props.navigation.navigate('CustomGame')
         this.setState({ShowModalSP:false})
     }
 
     componentDidMount()
     {
-        console.log("Dasbhoard Redux",this.props.Dashboard)
+        // console.log("Dasbhoard Redux",this.props.Dashboard)
+        // console.log("Dasbhoard Redux 2",this.props.SP)
         this.setState({Dashboard:this.props.Dashboard})
         
     }
@@ -109,7 +143,7 @@ class Dashboard extends React.Component{
                    </View>
                 </View>
                 <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
-                    <CustomModal ProceedToCustom={this.onProceedToCustom}/>
+                    <CustomModal DismissModal={this.DismissSpModal} SetQuestions={this.setSPNoQuestions} setRegion={this.setSpRegion} Questions={this.state.SPNoQuestions} Region={this.state.SPRegion} SetRegion={this.setSpRegion} ProceedToCustom={this.onProceedToCustom}/>
                 </Modal>   
                 <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
                     <MPModal/>
@@ -207,14 +241,16 @@ const styles=StyleSheet.create({
 
 const mapStateToProps= state =>{
     return{
-      Dashboard:state.Dashboard.Dashboard
+      Dashboard:state.Dashboard.Dashboard,
+      SP:state.SP.GamePayload
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
-        onSetLogin:(response)=>dispatch(setLogin(response))
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetGame:(response)=>dispatch(setGame(response))
     }
 }
 

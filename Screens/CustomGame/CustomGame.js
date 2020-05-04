@@ -7,68 +7,62 @@ import NormalText from '../../Components/NormalText';
 import * as Progress from 'react-native-progress';
 import NextButton from '../../Components/NextButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { connect } from 'react-redux'
+import {BollyWood,HollyWood,Mixed} from '../../Utils/api'
 
 class CustomGame extends React.Component{
     constructor()
     {
         super();
         this.state={
-            Region:[
-                {
-                    id:1,
-                    url1:require('../../assets/Temp/holly2.jpg'),
-                    url2:require('../../assets/Temp/holly1.jpg'),
-                    Name:"English"
-                },
-                {
-                    id:2,
-                    url1:require('../../assets/Temp/bolly2.jpg'),
-                    url2:require('../../assets/Temp/bolly1.jpg'),
-                    Name:"हिन्दी"
-                },
-                {
-                    id:3,
-                    url1:require('../../assets/Temp/m2.jpg'),
-                    url2:require('../../assets/Temp/m1.jpg'),
-                    Name:"मराठी"
-                },
-                {
-                    id:4,
-                    url1:require('../../assets/Temp/g2.jpg'),
-                    url2:require('../../assets/Temp/g1.jpg'),
-                    Name:"ગુજરાતી"
-                },
-                {
-                    id:5,
-                    url1:require('../../assets/Temp/t2.jpg'),
-                    url2:require('../../assets/Temp/t1.jpg'),
-                    Name:"தமிழ்"
-                },
-                {
-                    id:6,
-                    url1:require('../../assets/Temp/f2.jpg'),
-                    url2:require('../../assets/Temp/f1.jpg'),
-                    Name:"française"
-                }
-            ]
+            Region:[],
+            RefreshFlatList:true,
+            CustomSelection:true
         }
     }
 
+    componentDidMount(){
+        console.log("SP Redux 2",this.props.SP)
+        if(this.props.SP.Region.includes(1) && this.props.SP.Region.includes(2))
+        {
+            this.setState({Region:Mixed})
+        }
+        else if(this.props.SP.Region.includes(1))
+        {
+            this.setState({Region:HollyWood})
+        }
+        else
+        {
+            this.setState({Region:BollyWood})
+        }
+    }
+    
+    selectUnselectEra=(id)=>{
+        let TempEra=this.state.Region;
+        TempEra[id-1].Checked=!TempEra[id-1].Checked
+        this.setState({Region:TempEra},()=>{
+            this.setState({RefreshFlatList:!this.state.RefreshFlatList})
+        })
+    }
+    
+    changeSelectionType=(bool)=>{
+        this.setState({CustomSelection:bool})
+    }
 
     RegionCard=(itemData)=>{
        return(
         <View style={style.RegionCard}>
             <View style={{alignItems:'center',justifyContent:'center',marginTop:15}}>
                 <View style={style.TiltImageContainer}>
-                    <Image  source={itemData.item.url1} style={style.TiltImageLeft}/>
-                    <Image  source={itemData.item.url2} style={style.TiltImageRight}/>
+                    <Image  source={{uri:itemData.item.Url1}} style={style.TiltImageLeft}/>
+                    <Image  source={{uri:itemData.item.Url2}} style={style.TiltImageRight}/>
                 </View>
-                
                 <View style={{position:'absolute'}}>
                 <Checkbox
-                status={"unchecked"}
-                onPress={()=>{}}
-                uncheckedColor="white"/>
+                status={itemData.item.Checked ? "checked":"unchecked"}
+                onPress={()=>this.selectUnselectEra(itemData.item.id)}
+                uncheckedColor="white"
+                disabled={false}/>
                 </View>
             </View>
             <NormalText style={style.NormalText}>{itemData.item.Name}</NormalText>
@@ -77,17 +71,28 @@ class CustomGame extends React.Component{
             </View>
         </View>
        )
-       
- 
     }
 
     render()
     {
         return(
             <AppContainer style={style.AppContainer}>
-                <BoldText style={style.BoldText}>Select Genre</BoldText>
+                <BoldText style={style.BoldText}>Select Era</BoldText>
+                <View style={style.ChooseContainer}>
+                    <TouchableOpacity onPress={()=>this.changeSelectionType(false)}>
+                        <View style={!this.state.CustomSelection ? style.ChooseButtonsSelected:style.ChooseButtonsUnselected}>
+                            <NormalText style={!this.state.CustomSelection ? style.ButtonsTextSelected:style.ButtonsTextUnselected}>Random Selection</NormalText>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.changeSelectionType(true)}>
+                        <View style={this.state.CustomSelection ? style.ChooseButtonsSelected:style.ChooseButtonsUnselected}>
+                            <NormalText style={this.state.CustomSelection ? style.ButtonsTextSelected:style.ButtonsTextUnselected}>Custom Selection</NormalText>
+                        </View>
+                    </TouchableOpacity>
+                </View>
                 <View style={style.RegionView}>
-                    <FlatList data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>
+                    {this.state.Region.length > 0 ? 
+                    <FlatList extraData={this.state.RefreshFlatList} data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>:null}
                 </View>
                 <View style={style.ProceedButtonContainer}>
                     <TouchableOpacity style={{width:'100%'}} onPress={()=>this.props.navigation.navigate('SPGameScreen')}>
@@ -107,6 +112,34 @@ const style=StyleSheet.create({
         justifyContent:'flex-start',
         alignItems:'flex-start',
         padding:20
+    },
+    ChooseContainer:{
+        width:"100%",
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'center',
+        marginVertical:5
+    },
+    ChooseButtonsSelected:{
+        padding:10,
+        borderWidth:1,
+        borderColor:'#00C0E4',
+        borderRadius:5,
+        marginHorizontal:5,
+        backgroundColor:"#00C0E4"
+    },
+    ChooseButtonsUnselected:{
+        padding:10,
+        borderWidth:1,
+        borderColor:'#00C0E4',
+        borderRadius:5,
+        marginHorizontal:5
+    },
+    ButtonsTextSelected:{
+        color:"white"
+    },
+    ButtonsTextUnselected:{
+        color:"#00C0E4"
     },
     ProceedButtonContainer:{
         width:'100%',
@@ -129,7 +162,7 @@ const style=StyleSheet.create({
         alignItems:'flex-start',
         justifyContent:'flex-start',
         marginTop:15,
-        height:'85%',
+        height:'75%',
         overflow:'hidden'
     },
     RegionCard:{
@@ -159,4 +192,19 @@ const style=StyleSheet.create({
     },
 })
 
-export default CustomGame
+const mapStateToProps= state =>{
+    return{
+      Dashboard:state.Dashboard.Dashboard,
+      SP:state.SP.GamePayload
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetGame:(response)=>dispatch(setGame(response))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(CustomGame);

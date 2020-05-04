@@ -1,10 +1,13 @@
 import React from 'react'
-import {View,Image, StyleSheet,TouchableOpacity} from 'react-native'
+import {View,Image, StyleSheet,TouchableOpacity,TouchableWithoutFeedback} from 'react-native'
 import NormalText from '../NormalText'
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 
 
 const CustomModal=(props)=>{
+    
+    
+    
     return(
         <View style={styles.Modal}>
         <View style={styles.ModalHeader}>
@@ -13,32 +16,44 @@ const CustomModal=(props)=>{
         <View style={styles.ModalContent}>
             <NormalText style={styles.ModalContentHeading}>Choose Number of Questions</NormalText>
             <View style={styles.ModalOverView}>
-                <View style={styles.ModalGameStyleButtonSelected}>
-                    <NormalText style={styles.ModalButtonTextStyleSelected}>5</NormalText>
-                </View>
-                <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>15</NormalText>
-                </View>
-                <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>25</NormalText>
-                </View>
-                <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>30</NormalText>
-                </View>
+                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(5)}>
+                    <View style={props.Questions === 5 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>5</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(15)}>
+                    <View style={props.Questions === 15 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>15</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(25)}>
+                    <View style={props.Questions === 25 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>25</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(30)}>
+                    <View style={props.Questions === 30 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>30</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
             </View>
 
             <NormalText style={styles.ModalContentHeading}>Choose Region</NormalText>
             <View style={styles.ModalOverView}>
-                <View style={styles.ModalGameStyleButtonSelected}>
-                    <NormalText style={styles.ModalButtonTextStyleSelected}>Hollywood</NormalText>
-                </View>
-                <View style={styles.ModalGameStyleButtonUnselected}>
-                    <NormalText style={styles.ModalButtonTextStyleUnselected}>Bollywood</NormalText>
-                </View>
+                <TouchableWithoutFeedback onPress={()=>props.setRegion(1)}>
+                    <View style={props.Region.includes(1) ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Region.includes(1) ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>Hollywood</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={()=>props.setRegion(2)}>
+                    <View style={props.Region.includes(2) ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
+                            <NormalText style={props.Region.includes(2) ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>Bollywood</NormalText>
+                    </View>
+                </TouchableWithoutFeedback>
             </View>
         </View>
         <View style={styles.ModalFooter}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>props.DismissModal()}>
                 <View style={styles.CloseButtonContainer}>
                     <FontAwesome name="close" size={24} color='white'/>
                 </View>

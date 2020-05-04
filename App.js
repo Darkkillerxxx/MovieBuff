@@ -7,10 +7,12 @@ import {Provider} from 'react-redux'
 import {createStore,combineReducers} from 'redux';
 import JoinReducer from './Store/Reducers/Join'
 import DashboardReducer from './Store/Reducers/Dashboard'
+import SPReducer from './Store/Reducers/SinglePlayer'
 
 const rootReducer=combineReducers({
   FB:JoinReducer,
-  Dashboard:DashboardReducer
+  Dashboard:DashboardReducer,
+  SP:SPReducer
 })
 
 const store=createStore(rootReducer)
