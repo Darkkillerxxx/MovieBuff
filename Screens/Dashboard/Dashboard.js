@@ -10,7 +10,7 @@ import CustomModal from '../../Components/Modals/Modal'
 import { Button } from 'react-native-paper';
 import MPModal from '../../Components/Modals/MPModal'
 import { connect }from 'react-redux'
-import {setGame} from '../../Store/Actions/ActionSp'
+import {setGame,setQuestions} from '../../Store/Actions/ActionSp'
 
 class Dashboard extends React.Component{
     constructor()
@@ -248,9 +248,9 @@ const mapStateToProps= state =>{
 
 const mapDispatchToProps = dispatch =>{
     return{
-        onSetFB:(response)=>dispatch(setFB(response)),
         onSetLogin:(response)=>dispatch(setLogin(response)),
-        onSetGame:(response)=>dispatch(setGame(response))
+        onSetGame:(response)=>dispatch(setGame(response)),
+        onSetQuestions:(response)=>dispatch(setQuestions(response))
     }
 }
 

@@ -8,7 +8,8 @@ import * as Progress from 'react-native-progress';
 import NextButton from '../../Components/NextButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
-import {BollyWood,HollyWood,Mixed} from '../../Utils/api'
+import {BollyWood,HollyWood,Mixed,getQuestions} from '../../Utils/api'
+import { setQuestions } from '../../Store/Actions/ActionSp';
 
 class CustomGame extends React.Component{
     constructor()
@@ -36,6 +37,30 @@ class CustomGame extends React.Component{
             this.setState({Region:BollyWood})
         }
     }
+
+
+    getQuestions=()=>{
+        let SelectedRegions=[]
+        this.state.Region.forEach(element => {
+                if(element.Checked)
+                {
+                    SelectedRegions.push(element.id)
+                }
+        });
+        let payload={
+            isRandom: !this.state.CustomSelection,
+            Region: this.props.SP.Region,
+            "Era": this.state.CustomSelection ? SelectedRegions:[],
+            "noQ": this.props.SP.Questions
+        }
+       getQuestions(payload).then(result=>{
+           if(result.IsSuccess)
+           {
+               this.props.onSetQuestions(result.Data)
+               this.props.navigation.navigate('SPGameScreen')
+           }
+       })
+    }
     
     selectUnselectEra=(id)=>{
         let TempEra=this.state.Region;
@@ -62,7 +87,7 @@ class CustomGame extends React.Component{
                 status={itemData.item.Checked ? "checked":"unchecked"}
                 onPress={()=>this.selectUnselectEra(itemData.item.id)}
                 uncheckedColor="white"
-                disabled={false}/>
+                disabled={!this.state.CustomSelection}/>
                 </View>
             </View>
             <NormalText style={style.NormalText}>{itemData.item.Name}</NormalText>
@@ -95,7 +120,7 @@ class CustomGame extends React.Component{
                     <FlatList extraData={this.state.RefreshFlatList} data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>:null}
                 </View>
                 <View style={style.ProceedButtonContainer}>
-                    <TouchableOpacity style={{width:'100%'}} onPress={()=>this.props.navigation.navigate('SPGameScreen')}>
+                    <TouchableOpacity style={{width:'100%'}} onPress={()=>this.getQuestions()}>
                         <NextButton>
                             <NormalText style={style.NormalText}>Proceed</NormalText>
                         </NextButton>
@@ -203,7 +228,8 @@ const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
         onSetLogin:(response)=>dispatch(setLogin(response)),
-        onSetGame:(response)=>dispatch(setGame(response))
+        onSetGame:(response)=>dispatch(setGame(response)),
+        onSetQuestions:(response)=>dispatch(setQuestions(response))
     }
 }
 
