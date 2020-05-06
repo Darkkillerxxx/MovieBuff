@@ -51,7 +51,8 @@ class CustomGame extends React.Component{
             isRandom: !this.state.CustomSelection,
             Region: this.props.SP.Region,
             "Era": this.state.CustomSelection ? SelectedRegions:[],
-            "noQ": this.props.SP.Questions
+            "noQ": this.props.SP.Questions,
+            "user_id":this.props.Dashboard.Id
         }
        getQuestions(payload).then(result=>{
            if(result.IsSuccess)

@@ -25,39 +25,39 @@ class Result extends React.Component{
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Earned Coins</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/coins.png')} value={200}/>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/coins.png')} value={this.props.Result[0].coins}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Total Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/timer.png')} value="45 Sec"/>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/timer.png')} value={`${this.props.TimeAloted} Sec`}/>
                             </View>
                         </View>
 
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Correct Answers</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/correct.png')} value={10}/>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/correct.png')} value={this.props.CorrectAns}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Wrong Answers</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/wrong.png')} value={5}/>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/wrong.png')} value={this.props.Questions.length - this.props.CorrectAns}/>
                             </View>
                         </View>
 
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
-                                <NormalText style={{margin:5,color:'#8B96A6'}}>Fastest Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value="3 sec"/>
+                                <NormalText style={{margin:5,color:'#8B96A6'}}>Best Time</NormalText>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].bestTime}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
-                            <NormalText style={{margin:5,color:'#8B96A6'}}>Slowest Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/snail.png')} value="9 sec"/>
+                            <NormalText style={{margin:5,color:'#8B96A6'}}>Worst Time</NormalText>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/snail.png')} value={this.props.Result[0].worstTime}/>
                             </View>
                         </View>
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Level</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value={5}/>
+                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].level}/>
                             </View>
                         </View>
                       

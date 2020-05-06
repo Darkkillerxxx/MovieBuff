@@ -8,6 +8,8 @@ import Options from '../../Components/Options'
 import Levelup from '../../Components/Modals/LevelUp'
 import Result from '../../Components/Modals/Result'
 import { connect } from 'react-redux'
+import {getResult,login} from '../../Utils/api'
+import {setDashboard} from '../../Store/Actions/ActionDashboard'
 
 class SPGameScreen extends React.Component{
     constructor()
@@ -23,12 +25,27 @@ class SPGameScreen extends React.Component{
             HasSelected:false,
             UserSelection:null,
             CorrectAns:0,
-            AnsPayload:[]
+            AnsPayload:[],
+            Result:[]
         }
     }
 
     cangeModalType=(type)=>{
-        this.setState({ModalType:type})
+        let SignInPayload={
+            UserId:this.props.Dashboard.Id,
+            ScreenName:"",
+	        FacebookId:""
+         }
+
+         login(SignInPayload).then(result=>{
+            console.log(result) 
+            if(result.IsSuccess)
+             {
+                this.props.onSetDashboard(result.Data[0])
+                this.props.navigation.navigate('Dashboard')
+             }
+         })
+
     }
 
     calcTimerValue=()=>{
@@ -42,11 +59,37 @@ class SPGameScreen extends React.Component{
              {
                 this.setState({Timer:this.state.Timer-1},()=>{
                     this.calcTimerValue()
-                    if(this.state.Timer === 0 && this.state.SelectedQuestion + 1 < this.state.Questions.length)
+                    if(this.state.Timer === 0)
                     {
-                        console.log(this.state.SelectedQuestion,this.state.Questions.length)
-                        this.setState({Timer:this.state.TimeAloted})
-                        this.setState({SelectedQuestion:this.state.SelectedQuestion + 1})
+                        if(this.state.SelectedQuestion + 1 <= this.state.Questions.length)
+                        {
+                            let TempReport=this.state.AnsPayload;
+                            TempReport.push(
+                                {
+                                    QID:this.state.Questions[this.state.SelectedQuestion].Qid,
+                                    isCorrect:false,
+                                    time:this.state.TimeAloted
+                                })
+                    
+                            this.setState({AnsPayload:TempReport},()=>{
+                                console.log("Timer Payload",this.state.AnsPayload)
+                                if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
+                                {
+                                    console.log(this.state.SelectedQuestion,this.state.Questions.length)
+                                    this.setState({Timer:this.state.TimeAloted})
+                                    this.setState({SelectedQuestion:this.state.SelectedQuestion + 1})
+                                }
+                                else
+                                {
+                                    this.fetchResult()
+                                }
+                            })
+                        }
+                        else
+                        {
+                            this.fetchResult()
+                            console.log(this.state.CorrectAns,this.state.AnsPayload) 
+                        }
                     }
                 })
              }
@@ -54,8 +97,24 @@ class SPGameScreen extends React.Component{
             },1000)
     }
 
+    fetchResult=()=>{
+        let payload={
+            Report:this.state.AnsPayload,
+            Ccount:this.state.CorrectAns,
+            userId:this.props.Dashboard.Id.toString()
+        }
+
+        getResult(payload).then(result=>{
+            console.log("Result",result)
+            if(result.IsSuccess)
+            {
+                console.log(result.Data)
+                this.setState({Result:result.Data})
+            }
+        })
+    }
+
     componentDidMount=()=>{
-        // console.log(this.props.SPQuestions)
        this.setState({Questions:this.props.SPQuestions})
         this.Timer()
     }
@@ -76,6 +135,7 @@ class SPGameScreen extends React.Component{
                     time:TimeTaken.toString()
                 })
             this.setState({AnsPayload:TempReport},()=>{
+                console.log("Normal Payload",this.state.AnsPayload)
                 if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                 {
                     setTimeout(()=>{
@@ -86,7 +146,9 @@ class SPGameScreen extends React.Component{
                 }
                 else
                 {
+                    this.setState({Timer:0})
                     console.log(this.state.CorrectAns,this.state.AnsPayload)
+                    this.fetchResult()
                 }
             })
         })
@@ -154,8 +216,8 @@ class SPGameScreen extends React.Component{
                         <Levelup changeModal={this.cangeModalType}/>
                     </Modal> 
 
-                    <Modal visible={this.state.ModalType === "Result" ?  true:false} transparent={true} animationType="slide">
-                        <Result changeModal={this.cangeModalType}/>
+                    <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
+                        <Result TimeAloted={this.state.TimeAloted} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
                    
                     
@@ -257,7 +319,8 @@ const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
         onSetLogin:(response)=>dispatch(setLogin(response)),
-        onSetGame:(response)=>dispatch(setGame(response))
+        onSetGame:(response)=>dispatch(setGame(response)),
+        onSetDashboard:(response)=>dispatch(setDashboard(response))
     }
 }
 

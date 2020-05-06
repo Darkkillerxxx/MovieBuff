@@ -1,4 +1,4 @@
-const base_url="http://0cc15993.ngrok.io"
+const base_url="http://a267b5a8.ngrok.io"
 
 export const BollyWood=[
     {
@@ -120,7 +120,9 @@ let Endpoints={
     checkAvailable:"/register",
     GetAvatars:"/avatar",
     Register:"/profile/",
-    GetQuestions:"/getQuestions/"
+    GetQuestions:"/getQuestions/",
+    GetResult:"/result/",
+    Login:"/login/"
 }
 
 
@@ -189,7 +191,15 @@ export function getQuestions(payload)
 export function getResult(payload)
 {
     console.log("Payload",payload)
-    return makeRequest("POST",payload,null,Endpoints.GetQuestions).then(result=>{
+    return makeRequest("POST",payload,null,Endpoints.GetResult).then(result=>{
+        return result
+    })
+}
+
+export function login(payload)
+{
+    console.log("Payload",payload)
+    return makeRequest("POST",payload,null,Endpoints.Login).then(result=>{
         return result
     })
 }

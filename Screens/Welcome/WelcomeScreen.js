@@ -76,23 +76,23 @@ class WelcomeScreen extends React.Component{
     }
 
       onProceed=()=>{
-        //   if(this.validation())
-        //   {
-        //     this.setState({isLoading:true})
-        //     checkAvailable(this.state.Username).then(response=>{
-        //         this.setState({UsernameAvailable:response.Data.Available},()=>{
-        //             if(this.state.UsernameAvailable)
-        //             {
-        //                 let Login=this.props.Login;
-        //                 Login.ScreenName=this.state.Username
-        //                 this.props.onSetLogin(Login)
-        //                 this.props.navigation.navigate('Avatar')
-        //             }
-        //         })
-        //         this.setState({isLoading:false}) 
-        //     })
-        //   }
-        this.props.navigation.navigate('Dashboard')
+          if(this.validation())
+          {
+            this.setState({isLoading:true})
+            checkAvailable(this.state.Username).then(response=>{
+                this.setState({UsernameAvailable:response.Data.Available},()=>{
+                    if(this.state.UsernameAvailable)
+                    {
+                        let Login=this.props.Login;
+                        Login.ScreenName=this.state.Username
+                        this.props.onSetLogin(Login)
+                        this.props.navigation.navigate('Avatar')
+                    }
+                })
+                this.setState({isLoading:false}) 
+            })
+          }
+        // this.props.navigation.navigate('Dashboard')
       }
 
       onUserNameChange=(e)=>{
