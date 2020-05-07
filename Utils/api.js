@@ -1,4 +1,4 @@
-const base_url="http://a267b5a8.ngrok.io"
+const base_url="http://752ce620.ngrok.io"
 
 export const BollyWood=[
     {

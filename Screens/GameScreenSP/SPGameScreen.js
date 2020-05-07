@@ -114,8 +114,32 @@ class SPGameScreen extends React.Component{
         })
     }
 
+    shuffle = (array)=> {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+      
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+      
+        return array;
+      }
+
     componentDidMount=()=>{
-       this.setState({Questions:this.props.SPQuestions})
+    this.props.SPQuestions.forEach(element => {
+            element.options = this.shuffle(element.options)
+    });
+     this.setState({Questions:this.props.SPQuestions},()=>{
+         console.log("Questions",this.state.Questions)
+     })
         this.Timer()
     }
 
@@ -186,7 +210,7 @@ class SPGameScreen extends React.Component{
                             <View style={style.PicContainer}>
                                 {
                                     this.state.Questions.length > 0 ?
-                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedQuestion].Image}}></Image>:
+                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedQuestion].ImgUrl}}></Image>:
                                     null
                                 }
                              

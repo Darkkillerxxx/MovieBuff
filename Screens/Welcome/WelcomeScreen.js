@@ -6,9 +6,10 @@ import NormalText from '../../Components/NormalText'
 import NextButton from '../../Components/NextButton'
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
 import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
+import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import { connect }from 'react-redux'
 import * as Facebook from 'expo-facebook';
-import {checkAvailable} from '../../Utils/api'
+import {checkAvailable,login} from '../../Utils/api'
  
 class WelcomeScreen extends React.Component{
     constructor()
@@ -19,8 +20,34 @@ class WelcomeScreen extends React.Component{
             Username:"",
             UsernameAvailable:true,
             isLoading:false,
-            ErrorMessage:""
+            ErrorMessage:"",
+            IsReg:true
         }
+    }
+
+    loginToBuff=(Username,FId)=>{
+        let LoggedIn=false
+        let payload={
+            UserId:"",
+            ScreenName:Username,
+	        FacebookId:FId.toString()
+        }
+        return login(payload).then(result=>{
+            console.log("Login result",result)
+            if(result.IsSuccess)
+            {
+                if(result.Data.length > 0)
+                {
+                    this.props.onSetDashboard(result.Data[0])
+                    return true
+                }
+                else
+                {
+                    return false
+                }
+            }
+        })
+      
     }
 
     async logIn() {
@@ -49,7 +76,26 @@ class WelcomeScreen extends React.Component{
                 this.props.onSetLogin(Login)
                 this.props.onSetFB(this.state.FacebookResponse)
                 console.log("FBRedux",this.props.FB)
-                this.props.navigation.navigate('ProfileDetails')
+                // if(this.loginToBuff("",this.state.FacebookResponse.id))
+                // {
+                //     this.props.navigation.navigate('Dashboard')
+                // }
+                // else
+                // {
+                //     this.props.navigation.navigate('ProfileDetails')    
+                // }
+
+                this.loginToBuff("",this.state.FacebookResponse.id).then(result=>{
+                       if(result)
+                       {
+                        this.props.navigation.navigate('Dashboard')
+                       }
+                       else
+                       {
+                        this.props.navigation.navigate('ProfileDetails') 
+                       }
+                })
+                
             })
           } else {
             // type === 'cancel'
@@ -78,19 +124,37 @@ class WelcomeScreen extends React.Component{
       onProceed=()=>{
           if(this.validation())
           {
-            this.setState({isLoading:true})
-            checkAvailable(this.state.Username).then(response=>{
-                this.setState({UsernameAvailable:response.Data.Available},()=>{
-                    if(this.state.UsernameAvailable)
+              if(this.state.IsReg)
+              { 
+                this.setState({isLoading:true})
+                checkAvailable(this.state.Username).then(response=>{
+                    this.setState({UsernameAvailable:response.Data.Available},()=>{
+                        if(this.state.UsernameAvailable)
+                        {
+                            let Login=this.props.Login;
+                            Login.ScreenName=this.state.Username
+                            this.props.onSetLogin(Login)
+                            this.props.navigation.navigate('Avatar')
+                        }
+                    })
+                    this.setState({isLoading:false}) 
+                    })
+              }
+              else
+              {
+                 
+                this.loginToBuff(this.state.Username,"").then(result=>{
+                    if(result)
                     {
-                        let Login=this.props.Login;
-                        Login.ScreenName=this.state.Username
-                        this.props.onSetLogin(Login)
-                        this.props.navigation.navigate('Avatar')
+                     this.props.navigation.navigate('Dashboard')
                     }
-                })
-                this.setState({isLoading:false}) 
-            })
+                    else
+                    {
+                     this.props.navigation.navigate('ProfileDetails') 
+                    }
+             })
+              }
+            
           }
         // this.props.navigation.navigate('Dashboard')
       }
@@ -129,6 +193,10 @@ class WelcomeScreen extends React.Component{
                                     }
                                 </NextButton>
                             </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>this.setState({IsReg:!this.state.IsReg})}>
+                            <NormalText style={{color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
+                            </TouchableOpacity>
+                            
 
                             <NormalText>OR</NormalText>
                             <View style={styles.FacebookContainer}>
@@ -248,7 +316,8 @@ const mapStateToProps= state =>{
 const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
-        onSetLogin:(response)=>dispatch(setLogin(response))
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetDashboard:(response)=>dispatch(setDashboard(response))
     }
 }
 

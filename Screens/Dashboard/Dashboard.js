@@ -19,10 +19,15 @@ class Dashboard extends React.Component{
         this.state={
             ShowModalSP:false,
             ShowModalMP:false,
-            Dashboard:{},
             SPNoQuestions:5,
             SPRegion:[1],
-            DashboardCoins:0
+            DashboardCoins:0,
+            Bronze:0,
+            Coins:0,
+            Crowns:0,
+            Gold:0,
+            ImgUrl:"",
+            Silver:""
         }
     }
 
@@ -64,34 +69,31 @@ class Dashboard extends React.Component{
     componentDidMount()
     {
         console.log("Dasbhoard Redux",this.props.Dashboard)
-        // console.log("Dasbhoard Redux 2",this.props.SP)
-        this.setState({Dashboard:this.props.Dashboard})
+        this.setState({Bronze:this.props.Dashboard.Bronze})
+        this.setState({Coins:this.props.Dashboard.Coins})
+        this.setState({Gold:this.props.Dashboard.Gold})
+        this.setState({Silver:this.props.Dashboard.Silver})
+        this.setState({Crowns:this.props.Dashboard.Crowns})
+        this.setState({ImgUrl:this.props.Dashboard.ImgUrl})
     }
 
-    // componentWillReceiveProps(nextProps)
-    // {   
-    //     if(nextProps.Dashboard.Coins !== this.props.Dashboard.Coins)
-    //     {
-    //         console.log("Value Change")
-    //     }
-    // }
-
-    // static getDerivedStateFromProps(nextProps, prevState){
-    //     console.log(nextProps.Dashboard.Coins,prevState.Dashboard.Coins)
-    //         return { Dasbhoard: nextProps.Dasbhoard};
-    //  }
 
      componentDidUpdate(prevProps,prevState,Ss)
      {
-         console.log(prevProps.Dashboard.Coins,this.props.Dashboard.Coins)
-         if(prevProps.Dashboard.Coins !== this.props.Dashboard.Coins)
+         if(prevProps.Dashboard.Coins !== this.props.Dashboard.Coins || prevProps.Dashboard.GOLD !== this.props.Dashboard.GOLD 
+            || prevProps.Dashboard.Silver !== this.props.Dashboard.Silver || prevProps.Dashboard.Bronze !== this.props.Dashboard.Bronze ||
+            prevProps.Dashboard.Crowns !== this.props.Dashboard.Crowns )
          {
-             console.log("Update State",this.props.Dashboard.Coins)
-             console.log("Update State Object",this.props.Dashboard)
-             let TempDash=this.props.Dashboard
-            this.setState({DashboardCoins:this.props.Dashboard.Coins},()=>{
+            //  console.log("Update State",this.props.Dashboard.Coins)
+            //  console.log("Update State Object",this.props.Dashboard)
+            
+            this.setState({Coins:this.props.Dashboard.Coins},()=>{
                 console.log("Daashbard Coins",this.state.DashboardCoins)
             })
+            this.setState({Gold:this.props.Dashboard.Gold})
+            this.setState({Silver:this.props.Dashboard.Silver})
+            this.setState({Bronze:this.props.Dashboard.Bronze})
+            this.setState({Crowns:this.props.Dashboard.Crowns})
          }
      }
 
@@ -103,20 +105,20 @@ class Dashboard extends React.Component{
                     <View style={styles.PicContainer}>
                         <TouchableOpacity onPress={()=>this.props.navigation.navigate('Profile')}>
                             <View style={styles.ProfilePic}>
-                                <Image style={{width:'100%',height:'100%'}} source={this.state.Dashboard.hasOwnProperty('ImgUrl') ? {uri:this.state.Dashboard.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
+                                <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
                             </View>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.BriefContainer}>
                         {console.log("Gold",this.state.Dashboard)}
                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Dashboard.hasOwnProperty('Gold') ? this.state.Dashboard.Gold === null ? 0 :this.state.Dashboard.Gold:""}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Dashboard.hasOwnProperty('Silver') ? this.state.Dashboard.Silver === null ? 0 :this.state.Dashboard.Silver:""}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Dashboard.hasOwnProperty('Bronze') ? this.state.Dashboard.Bronze === null ? 0 :this.state.Dashboard.Bronze:""}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/>
                         </View>
                         <View style={{width:'100%',flexDirection:'row'}}>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/coins.png')} value={this.state.Dashboard.hasOwnProperty('Coins') ? this.state.Dashboard.Coins:""}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Crown.png')} value={this.state.Dashboard.hasOwnProperty('Crowns') ? this.state.Dashboard.Crowns:""}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/coins.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
                         </View>
                     </View>
                 </View>

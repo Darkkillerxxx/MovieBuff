@@ -54,9 +54,11 @@ class ProfileDetails extends React.Component{
     componentDidMount()
     {
         console.log(this.props.Login)
+        console.log("FB",this.props.FB)
         this.setState({LoginDetails:this.props.Login})
         this.setState({FirstName:this.props.FB.first_name})
         this.setState({LastName:this.props.FB.last_name})
+        
     }
 
     validation=()=>{
