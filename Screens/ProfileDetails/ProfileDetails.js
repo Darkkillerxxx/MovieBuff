@@ -6,11 +6,12 @@ import NormalText from '../../Components/NormalText';
 import NextButton from '../../Components/NextButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
-import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
+import {setFB, setLogin, setPrevPage} from '../../Store/Actions/ActionJoin'
 import { connect }from 'react-redux'
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
-import {checkAvailable} from '../../Utils/api'
+import {checkAvailable,registerUser} from '../../Utils/api'
+import { setDashboard } from '../../Store/Actions/ActionDashboard';
 
 class ProfileDetails extends React.Component{
     constructor()
@@ -29,7 +30,13 @@ class ProfileDetails extends React.Component{
             Profession:"",
             EmailId:"",
             ImageBase64:"",
-            ErrorMessage:""
+            ErrorMessage:"",
+            isFirstNameEmpty:false,
+            isLastNameEmpty:false,
+            isPasswordEmpty:false,
+            Password:"",
+            ConfirmPassword:"",
+            PasswordMatch:true
         }
     }
 
@@ -54,10 +61,12 @@ class ProfileDetails extends React.Component{
     componentDidMount()
     {
         console.log(this.props.Login)
+        console.log(this.props.PrevPage)
         console.log("FB",this.props.FB)
         this.setState({LoginDetails:this.props.Login})
-        this.setState({FirstName:this.props.FB.first_name})
-        this.setState({LastName:this.props.FB.last_name})
+        this.setState({FirstName:this.props.PrevPage === "Avatar" ? "":this.props.FB.first_name})
+        this.setState({LastName:this.props.PrevPage === "Avatar" ? "":this.props.FB.last_name})
+        this.setState({Username:this.props.PrevPage === "Avatar" ? this.props.Login.ScreenName:""})
         
     }
 
@@ -74,6 +83,27 @@ class ProfileDetails extends React.Component{
             this.setState({UsernameAvailable:false})
             return false;
         }
+        else if(this.state.FirstName.length === 0)
+        {
+            this.setState({isFirstNameEmpty:true})
+            return false;
+        }
+        else if(this.state.LastName.length === 0)
+        {
+            this.setState({isLastNameEmpty:true})
+            return false;
+        }
+        else if(this.state.Password.length === 0)
+        {
+            this.setState({isPasswordEmpty:true})
+            return false;
+        }
+        else if(this.state.Password !== this.state.ConfirmPassword)
+        {
+            this.setState({PasswordMatch:false})
+            return false;
+        }
+
         return true;
     }
 
@@ -92,25 +122,84 @@ class ProfileDetails extends React.Component{
         {
             console.log("Here")
         this.setState({isLoading:true})
-        checkAvailable(this.state.Username).then(response=>{
-            this.setState({UsernameAvailable:response.Data.Available},()=>{
-                if(this.state.UsernameAvailable)
+        if(this.props.PrevPage !== "Avatar")
+        {
+            checkAvailable(this.state.Username).then(response=>{
+                this.setState({UsernameAvailable:response.Data.Available},()=>{
+                    if(this.state.UsernameAvailable)
+                    {
+                        let Login=this.props.Login;
+                        Login.ScreenName=this.state.Username
+                        Login.FirstName=this.state.FirstName
+                        Login.LastName=this.state.LastName
+                        Login.Country=this.state.Country
+                        Login.MartialStatus=this.state.MartialStatus
+                        Login.Profession=this.state.Profession
+                        Login.EmailId=this.state.EmailId
+                        Login.AvatarBase64=this.state.ImageBase64
+                        this.props.onSetLogin(Login)
+
+                        let RegPayload={
+                            "Country":"India",
+                            "FB Id":Login.FbId,
+                            "ScreenName":Login.ScreenName,
+                            "FirstName":Login.FirstName,
+                            "LastName":Login.LastName,
+                            "MaritalStatus":Login.MaritalStatus,
+                            "Profession":Login.Profession,
+                            "Email Id":Login.EmailId,
+                            "AvatarId":Login.AvatarBase64 === "" ? Login.AvatarFacebook === "" ? Login.AvatarId:"":"",
+                            "AvatarBase64":Login.AvatarBase64,
+                            "AvatarFacebook":Login.AvatarBase64 === "" ? Login.AvatarFacebook:"",
+                            "SelectedGenre":Login.SelectedGenre,
+                            "SelectedRegion":Login.SelectedRegion
+                        }
+                       
+                        registerUser(RegPayload).then(response=>{
+                            console.log(response)
+                            if(response.IsSuccess)
+                            {
+                                this.props.onSetDashbaord(response.Data[0])
+                                console.log("Response Genre",response.Data)
+                                this.props.navigation.replace('Dashboard')
+                            }
+                        })
+                    }
+                })
+               
+            })
+        }
+        else
+        {
+            let LoginRedux=this.props.Login;
+            let RegPayload={
+                "Country":"India",
+                "FB Id":"",
+                "ScreenName":this.state.Username,
+                "FirstName":this.state.FirstName,
+                "LastName":this.state.LastName,
+                "MaritalStatus":this.state.MartialStatus,
+                "Profession":this.state.Profession,
+                "Email Id":this.state.EmailId,
+                "AvatarId":this.state.ImageBase64 === "" ? LoginRedux.AvatarId:"",
+                "AvatarBase64":this.state.ImageBase64,
+                "AvatarFacebook":"",
+                "SelectedGenre":"",
+                "SelectedRegion":"",
+                "Password":this.state.Password
+            }
+
+            registerUser(RegPayload).then(response=>{
+                console.log(response)
+                if(response.IsSuccess)
                 {
-                    let Login=this.props.Login;
-                    Login.ScreenName=this.state.Username
-                    Login.FirstName=this.state.FirstName
-                    Login.LastName=this.state.LastName
-                    Login.Country=this.state.Country
-                    Login.MartialStatus=this.state.MartialStatus
-                    Login.Profession=this.state.Profession
-                    Login.EmailId=this.state.EmailId
-                    Login.AvatarBase64=this.state.ImageBase64
-                    this.props.onSetLogin(Login)
-                    this.props.navigation.navigate('Genre')
+                    this.props.onSetDashbaord(response.Data[0])
+                    console.log("Response Genre",response.Data)
+                    this.props.navigation.replace('Dashboard')
                 }
             })
-            this.setState({isLoading:false})
-        })
+        }
+       
         }
     }
 
@@ -131,9 +220,12 @@ class ProfileDetails extends React.Component{
         return(
             <AppContainer style={styles.AppContainer}>
                 <View style={styles.ProfilePicContainer}>
-                    {this.state.ImageBase64 === "" ? 
-                         <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.AvatarFacebook}} style={styles.ProfilePic}/>:
-                         <Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
+                    {this.props.PrevPage !== "Avatar" ? 
+                    this.state.ImageBase64 === "" ? 
+                    <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.AvatarFacebook}} style={styles.ProfilePic}/>:
+                    <Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
+                    :
+                    <Image source={{uri:`${this.props.Login.AvatarURL}`}} style={styles.ProfilePicBase64}/>
                     }
                    
                     <View style={styles.EditIconContainer}>
@@ -142,16 +234,19 @@ class ProfileDetails extends React.Component{
                         </TouchableOpacity>
                     </View>
                 </View>
-                <NormalText>* Enter Your Screen Name</NormalText>
-                <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} style={this.state.UsernameAvailable ? {...styles.Input,...{width:'100%'}}:{...styles.InputError,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder={this.state.UsernameAvailable ? "Screen Name":this.state.ErrorMessage === "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"}  />
+                {this.props.PrevPage !== "Avatar" ? 
+                    <NormalText>* Enter Your Screen Name</NormalText>:null}
+                {this.props.PrevPage !== "Avatar" ? 
+                 <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} style={this.state.UsernameAvailable ? {...styles.Input,...{width:'100%'}}:{...styles.InputError,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder={this.state.UsernameAvailable ? "Screen Name":this.state.ErrorMessage === "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"}  />:null}
+        
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
-                        <NormalText>Enter First Name</NormalText>
-                        <TextInput value={this.state.FirstName} style={{...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({FirstName:e})} placeholder="First Name" placeholderTextColor="#BAC1C9"  />
+                        {this.state.isFirstNameEmpty ? <NormalText style={{color:'#ff6961'}}>First Name is Required</NormalText>:<NormalText>(*) Enter First Name</NormalText>}
+                        <TextInput value={this.state.FirstName} style={{...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({FirstName:e},()=>this.setState({isFirstNameEmpty:false}))} placeholder="First Name" placeholderTextColor="#BAC1C9"  />
                     </View>
                     <View style={{width:'48%'}}>
-                        <NormalText>Enter Last Name</NormalText>
-                        <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({LastName:e})} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
+                        {this.state.isLastNameEmpty ? <NormalText style={{color:'#ff6961'}}>Last Name is Required</NormalText>:<NormalText>(*) Enter Last Name</NormalText>}
+                        <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({LastName:e},()=>this.setState({isLastNameEmpty:false}))} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.FLContainer}>
@@ -166,12 +261,22 @@ class ProfileDetails extends React.Component{
                 </View>
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
-                        <NormalText>Enter Country</NormalText>
+                        <NormalText>Enter Profession</NormalText>
                         <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Profession:e})} placeholder="Profession"  placeholderTextColor="#BAC1C9"  />
                     </View>
                     <View style={{width:'48%'}}>
-                        <NormalText>Enter Martial Status</NormalText>
+                        <NormalText>Enter EmailId</NormalText>
                         <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({EmailId:e})} placeholder="Enter Email Id" placeholderTextColor="#BAC1C9"  />
+                    </View>
+                </View>
+                <View style={styles.FLContainer}>
+                    <View style={{width:'48%',marginRight:10}}>
+                    {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:this.state.isPasswordEmpty ? <NormalText style={{color:'#ff6961'}}>Passwords Cannot be Blank</NormalText>:<NormalText>(*) Enter Password</NormalText>}
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({Password:e},()=>this.setState({PasswordMatch:true}))} placeholder="Enter Password"  placeholderTextColor="#BAC1C9"  />
+                    </View>
+                    <View style={{width:'48%'}}>
+                    {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:<NormalText>(*) Re-Enter Password</NormalText>}
+                        <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({ConfirmPassword:e},()=>this.setState({PasswordMatch:true}))} placeholder="Re-Enter Password" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.ButtonContainer}>
@@ -262,14 +367,17 @@ const styles=StyleSheet.create({
 const mapStateToProps= state =>{
     return{
         FB:state.FB.FBDetails,
-        Login:state.FB.LoginDetails
+        Login:state.FB.LoginDetails,
+        PrevPage:state.FB.PrevPage
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
-        onSetLogin:(response)=>dispatch(setLogin(response))
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetPrevPage:(response)=>dispatch(setPrevPage(response)),
+        onSetDashbaord:(response)=>dispatch(setDashboard(response))
     }
 }
 

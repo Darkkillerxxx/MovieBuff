@@ -1,4 +1,4 @@
-import {SET_FB, SET_LOGIN} from '../Actions/ActionType'
+import {SET_FB, SET_LOGIN,SET_PREVPAGE} from '../Actions/ActionType'
 
 
 const initialState={
@@ -16,8 +16,10 @@ const initialState={
         "AvatarBase64":"",
         "AvatarFacebook":"",
         "SelectedGenre":"",
-        "SelectedRegion":""
-    }
+        "SelectedRegion":"",
+        "AvatarURL":""
+    },
+    PrevPage:null
 }
 
 
@@ -35,6 +37,13 @@ const JoinReducer=(state=initialState,action)=>{
                 ...state,
                 LoginDetails:action.data
             }
+        
+        case SET_PREVPAGE:
+            // console.log("InRedux Prev Page")
+            return{
+                    ...state,
+                    PrevPage:action.data
+                }
 
         default:
             return state    

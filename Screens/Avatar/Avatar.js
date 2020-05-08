@@ -5,7 +5,7 @@ import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
 import FacebookButton from '../../Components/FacebookButton'
 import NextButton from '../../Components/NextButton'
-import {setFB,setLogin} from '../../Store/Actions/ActionJoin'
+import {setFB,setLogin,setPrevPage} from '../../Store/Actions/ActionJoin'
 import { connect }from 'react-redux'
 import {getAvatarList} from '../../Utils/api'
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
@@ -82,8 +82,10 @@ class Avatar extends React.Component{
         let Login=this.props.Login;
         Login.AvatarId = this.state.SelectedIcon;
         Login.AvatarBase64 = this.state.ImageBase64
+        Login.AvatarURL=this.state.Icons[this.state.SelectedIcon -1].a_img_url
         this.props.onSetLogin(Login)
-        this.props.navigation.navigate('Genre')
+        this.props.onSetPrevPage('Avatar')
+        this.props.navigation.navigate('ProfileDetails')
     }
 
     render()
@@ -197,7 +199,8 @@ const mapStateToProps= state =>{
 const mapDispatchToProps = dispatch =>{
     return{
         onSetFB:(response)=>dispatch(setFB(response)),
-        onSetLogin:(response)=>dispatch(setLogin(response))
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetPrevPage:(response)=>dispatch(setPrevPage(response))
     }
 }
 

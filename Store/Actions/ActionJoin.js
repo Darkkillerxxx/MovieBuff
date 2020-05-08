@@ -1,4 +1,4 @@
-import {SET_FB, SET_LOGIN} from './ActionType'
+import {SET_FB, SET_LOGIN, SET_PREVPAGE} from './ActionType'
 
 export const setFB=(FBResponse)=>{
     return{
@@ -11,5 +11,13 @@ export const setLogin=(LoginResponse)=>{
     return{
         type:SET_LOGIN,
         data:LoginResponse
+    }
+}
+
+export const setPrevPage=(page)=>{
+    console.log("Action Join")
+    return{
+        type:SET_PREVPAGE,
+        data:page
     }
 }

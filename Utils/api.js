@@ -1,5 +1,5 @@
-const base_url="http://752ce620.ngrok.io"
-
+const base_url="http://13.234.239.216/"
+import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {
         id:1,
@@ -147,8 +147,36 @@ function makeRequest(Type,Payload,Parameters,Endpoint)
               },
             body: JSON.stringify(Payload)
         }).then(response=> {
-           
-           return response.json()   
+            console.log(response.status)
+           if(response.status === 500)
+           {
+            ToastAndroid.show("Our Servers Are Facing Some Issues.Please Try Again After Some Time",ToastAndroid.LONG)
+            let res={
+                IsSuccess:false
+            }   
+            return res
+           }
+           else if(response.status === 400)
+           {
+            ToastAndroid.show("Bad Request",ToastAndroid.LONG)
+            let res={
+                IsSuccess:false
+            }   
+            return res
+           }
+           else if(response.status === 502)
+           {
+            ToastAndroid.show("Bad GateWay",ToastAndroid.LONG)
+            let res={
+                IsSuccess:false
+            }   
+            return res
+           }
+           else
+           {
+            return response.json()
+           }
+              
         })
     }
 }

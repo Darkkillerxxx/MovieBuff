@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Image,Modal,TouchableOpacity } from 'react-native'
+import { View, StyleSheet,Image,Modal,TouchableOpacity,BackHandler, ToastAndroid,Alert } from 'react-native'
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
@@ -35,6 +35,11 @@ class Dashboard extends React.Component{
         this.setState({SPNoQuestions:ques})
     }
 
+    onBackPress=()=>{
+        console.log("Back Pressed")
+       
+    }
+    
     setSpRegion=(id)=>{
         if(this.state.SPRegion.includes(id))
         {

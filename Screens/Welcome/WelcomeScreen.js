@@ -21,16 +21,18 @@ class WelcomeScreen extends React.Component{
             UsernameAvailable:true,
             isLoading:false,
             ErrorMessage:"",
-            IsReg:true
+            IsReg:true,
+            Password:""
         }
     }
 
-    loginToBuff=(Username,FId)=>{
+    loginToBuff=(Username,FId,Password)=>{
         let LoggedIn=false
         let payload={
             UserId:"",
             ScreenName:Username,
-	        FacebookId:FId.toString()
+            FacebookId:FId.toString(),
+            Password:Password
         }
         return login(payload).then(result=>{
             console.log("Login result",result)
@@ -85,14 +87,14 @@ class WelcomeScreen extends React.Component{
                 //     this.props.navigation.navigate('ProfileDetails')    
                 // }
 
-                this.loginToBuff("",this.state.FacebookResponse.id).then(result=>{
+                this.loginToBuff("",this.state.FacebookResponse.id,"").then(result=>{
                        if(result)
                        {
-                        this.props.navigation.navigate('Dashboard')
+                        this.props.navigation.replace('Dashboard')
                        }
                        else
                        {
-                        this.props.navigation.navigate('ProfileDetails') 
+                        this.props.navigation.replace('ProfileDetails') 
                        }
                 })
                 
@@ -134,7 +136,7 @@ class WelcomeScreen extends React.Component{
                             let Login=this.props.Login;
                             Login.ScreenName=this.state.Username
                             this.props.onSetLogin(Login)
-                            this.props.navigation.navigate('Avatar')
+                            this.props.navigation.replace('Avatar')
                         }
                     })
                     this.setState({isLoading:false}) 
@@ -143,14 +145,14 @@ class WelcomeScreen extends React.Component{
               else
               {
                  
-                this.loginToBuff(this.state.Username,"").then(result=>{
+                this.loginToBuff(this.state.Username,"",this.state.Password).then(result=>{
                     if(result)
                     {
-                     this.props.navigation.navigate('Dashboard')
+                     this.props.navigation.replace('Dashboard')
                     }
                     else
                     {
-                     this.props.navigation.navigate('ProfileDetails') 
+                     this.props.navigation.replace('ProfileDetails') 
                     }
              })
               }
@@ -162,6 +164,10 @@ class WelcomeScreen extends React.Component{
       onUserNameChange=(e)=>{
          this.setState({Username:e})
       }
+
+      onPasswordChange=(e)=>{
+        this.setState({Password:e})
+     }
 
       changeUsernameAvailabilty=()=>{
           this.setState({UsernameAvailable:true})
@@ -185,11 +191,14 @@ class WelcomeScreen extends React.Component{
                         </View>
                         <View style={styles.InputContainer}>
                             <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":this.state.ErrorMessage ===  "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
+                            {!this.state.IsReg ? 
+                            <TextInput secureTextEntry={true} onChangeText={this.onPasswordChange} placeholder={"Enter Password"} style={styles.Input} />:null
+                            }
                             <TouchableOpacity onPress={()=>this.onProceed()}>
                                <NextButton >
                                    {this.state.isLoading ? 
                                     <ActivityIndicator size="small" color="#00C08A" />
-                                    :<NormalText style={styles.NormalText}>Join Now</NormalText>
+                                    :<NormalText style={styles.NormalText}>{this.state.IsReg ? "Join Now":"Log-In"}</NormalText>
                                     }
                                 </NextButton>
                             </TouchableOpacity>

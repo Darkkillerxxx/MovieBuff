@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Image,FlatList } from 'react-native';
+import { View, StyleSheet,Image,FlatList,ToastAndroid } from 'react-native';
 import AppContainer from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText';
 import {Checkbox} from 'react-native-paper'
@@ -51,14 +51,18 @@ class CustomGame extends React.Component{
             isRandom: !this.state.CustomSelection,
             Region: this.props.SP.Region,
             "Era": this.state.CustomSelection ? SelectedRegions:[],
-            "noQ": this.props.SP.Questions,
-            "user_id":this.props.Dashboard.Id
+            "noQ": this.props.SP.Questions.toString(),
+            "user_id":this.props.Dashboard.Id.toString()
         }
        getQuestions(payload).then(result=>{
            if(result.IsSuccess)
            {
                this.props.onSetQuestions(result.Data)
                this.props.navigation.navigate('SPGameScreen')
+           }
+           else
+           {
+              
            }
        })
     }
