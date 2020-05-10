@@ -108,7 +108,7 @@ class Dashboard extends React.Component{
             <AppContainer style={styles.AppContainer}>
                 <View style={styles.InfoContainer}>
                     <View style={styles.PicContainer}>
-                        <TouchableOpacity onPress={()=>this.props.navigation.navigate('Profile')}>
+                        <TouchableOpacity>
                             <View style={styles.ProfilePic}>
                                 <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
                             </View>

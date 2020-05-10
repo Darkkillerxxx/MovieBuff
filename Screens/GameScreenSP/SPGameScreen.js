@@ -10,7 +10,12 @@ import Result from '../../Components/Modals/Result'
 import { connect } from 'react-redux'
 import {getResult,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
+import CustomButton from '../../Components/CustomButton'
+import {
+    AdMobBanner,setTestDeviceIDAsync
+  } from 'expo-ads-admob';
 
+ 
 class SPGameScreen extends React.Component{
     constructor()
     {
@@ -30,11 +35,14 @@ class SPGameScreen extends React.Component{
         }
     }
 
+   
+
     cangeModalType=(type)=>{
         let SignInPayload={
             UserId:this.props.Dashboard.Id,
             ScreenName:"",
-	        FacebookId:""
+            FacebookId:this.props.Dashboard.FbId,
+            Password:this.props.Dashboard.Password
          }
 
          login(SignInPayload).then(result=>{
@@ -176,24 +184,52 @@ class SPGameScreen extends React.Component{
                 }
             })
         })
-       
-       
+    }
+
+    onSkipQuestion=()=>{
+
+    }
+
+    QuitGame=()=>{
+        this.props.navigation.replace('Dashboard')
     }
 
 
     render()
     {
         return(
-        <ScrollView style={{height:'100%'}}>
             <AppContainer style={style.AppContainer}>
-
+                <ScrollView>
                     <View style={style.Header}>
-                        <View style={{height:60,width:'100%',flexDirection:'row'}}>
-                            <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',borderBottomRightRadius:25}}>
-                                <NormalText style={{fontSize:24}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
+                        <View style={{height:70,width:'100%',flexDirection:'row'}}>
+                            <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
+                                <TouchableOpacity onPress={()=>this.QuitGame()}>
+                                    <Image source={require('../../assets/quit.png')} style={{width:35,height:35}}/>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
+                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
+                                <View style={style.TimerContainer}>
+                                    <AnimatedCircularProgress
+                                        size={50}
+                                        width={5}
+                                        fill={this.state.TimerValue}
+                                        tintColor="#00e0ff"
+                                        backgroundColor="#3d5875" >
+                                        {
+                                            (fill) => (
+                                            <NormalText>
+                                                { this.state.Timer }
+                                            </NormalText>
+                                            )
+                                        }
+                                    </AnimatedCircularProgress>
+                                </View>
                             </View> 
-                            <View style={{height:'50%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center'}}>
-                                <BriefInfo value={7200}></BriefInfo>
+                            <View style={{width:'25%',backgroundColor:'#11233A'}}>
+                                <TouchableOpacity>
+                                    <CustomButton LeftIcon={null} RightIcon={"fast-forward"}><NormalText>Skip</NormalText></CustomButton>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View> 
@@ -243,9 +279,16 @@ class SPGameScreen extends React.Component{
                     <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
                         <Result TimeAloted={this.state.TimeAloted} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
-                   
+                    <View style={style.Footer}>
+                        <AdMobBanner
+                        bannerSize="banner"
+                        adUnitID="ca-app-pub-7546310836693112/5169065739" // Test ID, Replace with your-admob-unit-id
+                        onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
+                   </View>
+                    </ScrollView>
+                
                     
-                    <View style={style.TimerBar}>
+                    {/* <View style={style.TimerBar}>
                         <View style={style.TimerContainer}>
                             <AnimatedCircularProgress
                                 size={50}
@@ -262,9 +305,10 @@ class SPGameScreen extends React.Component{
                                 }
                             </AnimatedCircularProgress>
                         </View>
-                    </View>
+                    </View> */}
+                    
             </AppContainer>
-            </ScrollView>
+           
         )
     }
 }
@@ -275,21 +319,19 @@ const style=StyleSheet.create({
         alignItems:'center'
     },
     TimerBar:{
-        height:45,
+        height:50,
         width:'100%',
         backgroundColor:"#11233A",
         alignItems:'center'
     },
     TimerContainer:{
-        marginTop:-20,
+        top:5,
         backgroundColor:"#11233A",
         borderRadius:40
     },
     OptionsContainer:{
         width:'100%',
-        marginVertical:15,
-        // borderColor:'white',
-        // borderWidth:1,
+        marginTop:15,
         alignItems:'center'
     },
     Options:{
@@ -312,7 +354,6 @@ const style=StyleSheet.create({
         width:'100%',
         alignItems:'center',
         justifyContent:'center',
-      
         padding:10,
         marginVertical:20
     },
@@ -326,7 +367,18 @@ const style=StyleSheet.create({
         justifyContent:'center',
         alignSelf:'stretch',
         marginTop:20,
-        marginBottom:10
+        marginBottom:30
+    },
+    Footer:
+    {
+        flex:1,
+        alignItems:'center',
+        justifyContent:'center',
+        alignSelf:'stretch',
+        borderColor:'white',
+        borderWidth:1,
+        marginTop:10,
+        height:50
     }
     
 })

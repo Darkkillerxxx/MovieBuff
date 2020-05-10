@@ -29,7 +29,9 @@
     "react-navigation": "^4.3.8",
     "react-navigation-stack": "^2.3.13",
     "react-redux": "^7.2.0",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "expo-sqlite": "~8.1.0",
+    "expo-ads-admob": "~8.1.0"
   },
   "devDependencies": {
     "babel-preset-expo": "~8.1.0",

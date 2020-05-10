@@ -63,7 +63,10 @@ class ProfileDetails extends React.Component{
         console.log(this.props.Login)
         console.log(this.props.PrevPage)
         console.log("FB",this.props.FB)
-        this.setState({LoginDetails:this.props.Login})
+        this.setState({LoginDetails:this.props.Login},()=>{
+            console.log("Login Details",this.state.LoginDetails)
+        })
+        this.setState({ImageBase64:this.props.Login.AvatarBase64})
         this.setState({FirstName:this.props.PrevPage === "Avatar" ? "":this.props.FB.first_name})
         this.setState({LastName:this.props.PrevPage === "Avatar" ? "":this.props.FB.last_name})
         this.setState({Username:this.props.PrevPage === "Avatar" ? this.props.Login.ScreenName:""})
@@ -136,7 +139,8 @@ class ProfileDetails extends React.Component{
                         Login.MartialStatus=this.state.MartialStatus
                         Login.Profession=this.state.Profession
                         Login.EmailId=this.state.EmailId
-                        Login.AvatarBase64=this.state.ImageBase64
+                        Login.AvatarBase64=this.state.ImageBase64,
+                        Login.Password=this.state.Password
                         this.props.onSetLogin(Login)
 
                         let RegPayload={
@@ -148,9 +152,9 @@ class ProfileDetails extends React.Component{
                             "MaritalStatus":Login.MaritalStatus,
                             "Profession":Login.Profession,
                             "Email Id":Login.EmailId,
-                            "AvatarId":Login.AvatarBase64 === "" ? Login.AvatarFacebook === "" ? Login.AvatarId:"":"",
-                            "AvatarBase64":Login.AvatarBase64,
-                            "AvatarFacebook":Login.AvatarBase64 === "" ? Login.AvatarFacebook:"",
+                            "AvatarId":this.state.ImageBase64 === "" ? Login.AvatarFacebook === "" ? Login.AvatarId:"":"",
+                            "AvatarBase64":this.state.ImageBase64,
+                            "AvatarFacebook":this.state.ImageBase64 === "" ? Login.AvatarFacebook:"",
                             "SelectedGenre":Login.SelectedGenre,
                             "SelectedRegion":Login.SelectedRegion
                         }
@@ -159,7 +163,11 @@ class ProfileDetails extends React.Component{
                             console.log(response)
                             if(response.IsSuccess)
                             {
-                                this.props.onSetDashbaord(response.Data[0])
+                                let TempDB=response.Data[0];
+                                TempDB.ScreenName=Login.ScreenName,
+                                TempDB.Password="",
+                                TempDb.FbId=Login.FbId
+                                this.props.onSetDashbaord(TempDB)
                                 console.log("Response Genre",response.Data)
                                 this.props.navigation.replace('Dashboard')
                             }
@@ -193,7 +201,11 @@ class ProfileDetails extends React.Component{
                 console.log(response)
                 if(response.IsSuccess)
                 {
-                    this.props.onSetDashbaord(response.Data[0])
+                    let TempDB=response.Data[0];
+                    TempDB.ScreenName=Login.ScreenName,
+                    TempDB.Password=this.state.Password,
+                    TempDb.FbId=""
+                    this.props.onSetDashbaord(TempDB)
                     console.log("Response Genre",response.Data)
                     this.props.navigation.replace('Dashboard')
                 }
@@ -225,14 +237,15 @@ class ProfileDetails extends React.Component{
                     <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.AvatarFacebook}} style={styles.ProfilePic}/>:
                     <Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
                     :
-                    <Image source={{uri:`${this.props.Login.AvatarURL}`}} style={styles.ProfilePicBase64}/>
+                    this.state.ImageBase64 === "" ? 
+                    <Image source={{uri:`${this.props.Login.AvatarURL}`}} style={styles.ProfilePicBase64}/>:<Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
                     }
                    
-                    <View style={styles.EditIconContainer}>
+                    {/* <View style={styles.EditIconContainer}>
                         <TouchableOpacity onPress={()=>this.pickImage()}>
                             <FontAwesome name="pencil" size={14} color="white"/>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                 </View>
                 {this.props.PrevPage !== "Avatar" ? 
                     <NormalText>* Enter Your Screen Name</NormalText>:null}

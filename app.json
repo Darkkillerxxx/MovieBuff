@@ -23,11 +23,17 @@
     ],
     "ios": {
       "bundleIdentifier": "com.wealthyfox.moviebuff",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935"
+      }
     },
     "android": {
       "package": "com.wealthyfox.moviebuff",
-      "versionCode": 1
+      "versionCode": 1,
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935" 
+      }
     }
   }
 }

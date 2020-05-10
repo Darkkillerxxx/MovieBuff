@@ -1,4 +1,4 @@
-const base_url="http://13.234.239.216/"
+const base_url="http://13.233.12.91/"
 import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {

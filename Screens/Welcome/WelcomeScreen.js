@@ -1,5 +1,5 @@
 import React from 'react'
-import { ActivityIndicator,View,Text,Image, StyleSheet,Button,TouchableOpacity,Alert } from 'react-native';
+import { ActivityIndicator,View,Text,Image, StyleSheet,Button,TouchableOpacity,Alert, ToastAndroid } from 'react-native';
 import AppContiner from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText'
@@ -40,13 +40,21 @@ class WelcomeScreen extends React.Component{
             {
                 if(result.Data.length > 0)
                 {
-                    this.props.onSetDashboard(result.Data[0])
+                    let DBData=result.Data[0];
+                    DBData.Password=Password
+                    DBData.FbId=FId.toString();
+                    DBData.ScreenName=Username;
+                    this.props.onSetDashboard(DBData)
                     return true
                 }
                 else
                 {
                     return false
                 }
+            }
+            else
+            {
+                return false
             }
         })
       
@@ -146,13 +154,14 @@ class WelcomeScreen extends React.Component{
               {
                  
                 this.loginToBuff(this.state.Username,"",this.state.Password).then(result=>{
+                    console.log("149",result)
                     if(result)
                     {
                      this.props.navigation.replace('Dashboard')
                     }
                     else
                     {
-                     this.props.navigation.replace('ProfileDetails') 
+                     ToastAndroid.show("Username Or Password Incorrect",ToastAndroid.SHORT) 
                     }
              })
               }

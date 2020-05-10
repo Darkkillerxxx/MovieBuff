@@ -8,6 +8,13 @@ import {createStore,combineReducers} from 'redux';
 import JoinReducer from './Store/Reducers/Join'
 import DashboardReducer from './Store/Reducers/Dashboard'
 import SPReducer from './Store/Reducers/SinglePlayer'
+import { init } from './Database/Helper'
+
+init().then(()=>{
+  console.log("Initialize Database")
+}).catch((err)=>{
+  console.log("DB Failed",err)
+})
 
 const rootReducer=combineReducers({
   FB:JoinReducer,

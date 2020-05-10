@@ -142,7 +142,7 @@ const style=StyleSheet.create({
         height:100,
         width:100,
         resizeMode:'contain',
-        borderRadius:300
+        borderRadius:400
     },
     MiniIconContainer:{
         width:300,
