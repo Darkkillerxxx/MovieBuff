@@ -70,7 +70,7 @@ class WelcomeScreen extends React.Component{
             permissions,
             declinedPermissions,
           } = await Facebook.logInWithReadPermissionsAsync({
-            permissions: ['public_profile'],
+            permissions: ['email','public_profile','user_friends'],
           });
           if (type === 'success') {
             // Get the user's name using Facebook's Graph API

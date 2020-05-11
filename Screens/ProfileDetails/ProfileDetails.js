@@ -164,9 +164,9 @@ class ProfileDetails extends React.Component{
                             if(response.IsSuccess)
                             {
                                 let TempDB=response.Data[0];
-                                TempDB.ScreenName=Login.ScreenName,
+                                TempDB.ScreenName=this.props.Login.ScreenName,
                                 TempDB.Password="",
-                                TempDb.FbId=Login.FbId
+                                TempDB.FbId=this.props.Login.FbId
                                 this.props.onSetDashbaord(TempDB)
                                 console.log("Response Genre",response.Data)
                                 this.props.navigation.replace('Dashboard')
@@ -202,9 +202,9 @@ class ProfileDetails extends React.Component{
                 if(response.IsSuccess)
                 {
                     let TempDB=response.Data[0];
-                    TempDB.ScreenName=Login.ScreenName,
+                    TempDB.ScreenName=this.props.Login.ScreenName,
                     TempDB.Password=this.state.Password,
-                    TempDb.FbId=""
+                    TempDB.FbId=""
                     this.props.onSetDashbaord(TempDB)
                     console.log("Response Genre",response.Data)
                     this.props.navigation.replace('Dashboard')

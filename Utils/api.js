@@ -1,4 +1,4 @@
-const base_url="http://13.233.12.91/"
+const base_url="https://dsbykshku3.execute-api.ap-south-1.amazonaws.com/dev/"
 import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {
@@ -119,10 +119,11 @@ export const Mixed=[
 let Endpoints={
     checkAvailable:"/register",
     GetAvatars:"/avatar",
-    Register:"/profile/",
-    GetQuestions:"/getQuestions/",
-    GetResult:"/result/",
-    Login:"/login/"
+    Register:"/profile",
+    GetQuestions:"/getQuestions",
+    GetResult:"/result",
+    Login:"/login",
+    AddCoins:'/earncoins'
 }
 
 
@@ -228,6 +229,14 @@ export function login(payload)
 {
     console.log("Payload",payload)
     return makeRequest("POST",payload,null,Endpoints.Login).then(result=>{
+        return result
+    })
+}
+
+export function AddCoins(payload)
+{
+    console.log("Payload",payload)
+    return makeRequest("POST",payload,null,Endpoints.AddCoins).then(result=>{
         return result
     })
 }

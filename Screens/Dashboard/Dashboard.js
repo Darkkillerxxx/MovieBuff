@@ -143,7 +143,7 @@ class Dashboard extends React.Component{
                     </View>
 
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity onPress={()=>this.setState({ShowModalMP:true})}>
+                        <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                             <Coop>
                                 <NormalText style={styles.NormalTextCo}>Play With Friends</NormalText>
                             </Coop>
@@ -154,7 +154,7 @@ class Dashboard extends React.Component{
                 </View>
                 <View style={styles.ToolsContainer}>
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('Leaderboard')}>
+                    <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                         <SmallBtn color1="#009BE7" color2="#009DB2" color3="#00DF9B" color4="#00F57E">
                             <Image style={styles.Podium} source={require('../../assets/podium.png')}/>
                         </SmallBtn>
@@ -162,7 +162,7 @@ class Dashboard extends React.Component{
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                         <SmallBtn color1="#052CB5" color2="#0077E9" color3="#00C0E4" color4="#00EEEF">
                             <Image style={styles.Podium} source={require('../../assets/wheel.png')}/>
                         </SmallBtn>
@@ -170,7 +170,7 @@ class Dashboard extends React.Component{
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
+                    <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                         <SmallBtn color1="#FF8300" color2="#FF9F00" color3="#FFC700" color4="#FFDE00">
                             <Image style={styles.Podium} source={require('../../assets/earn.png')}/>
                         </SmallBtn>

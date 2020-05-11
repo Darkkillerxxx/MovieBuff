@@ -12,7 +12,7 @@ import {getResult,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {
-    AdMobBanner,setTestDeviceIDAsync
+    AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
 
  
@@ -22,8 +22,8 @@ class SPGameScreen extends React.Component{
         super();
         this.state={
             ModalType:"",
-            Timer:15,
-            TimeAloted:15,
+            Timer:20,
+            TimeAloted:20,
             TimerValue:100,
             Questions:[],
             SelectedQuestion:0,
@@ -31,11 +31,10 @@ class SPGameScreen extends React.Component{
             UserSelection:null,
             CorrectAns:0,
             AnsPayload:[],
-            Result:[]
+            Result:[],
+            ImageLoaded:false
         }
     }
-
-   
 
     cangeModalType=(type)=>{
         let SignInPayload={
@@ -45,11 +44,16 @@ class SPGameScreen extends React.Component{
             Password:this.props.Dashboard.Password
          }
 
+         console.log("Login Payload",SignInPayload)
+
          login(SignInPayload).then(result=>{
             console.log(result) 
             if(result.IsSuccess)
              {
-                this.props.onSetDashboard(result.Data[0])
+                 let TempDashboard=result.Data[0]
+                 TempDashboard.FbId=this.props.Dashboard.FbId
+                 TempDashboard.Password=this.props.Dashboard.Password
+                this.props.onSetDashboard(TempDashboard)
                 this.props.navigation.navigate('Dashboard')
              }
          })
@@ -61,43 +65,56 @@ class SPGameScreen extends React.Component{
         this.setState({TimerValue:parseInt(TimerValue)})
     }
 
+    SkipQuestion=()=>{
+        if(this.state.SelectedQuestion + 1 <= this.state.Questions.length)
+        {
+            let TempReport=this.state.AnsPayload;
+            TempReport.push(
+                {
+                    QID:this.state.Questions[this.state.SelectedQuestion].Qid,
+                    isCorrect:false,
+                    time:this.state.TimeAloted
+                })
+    
+            this.setState({AnsPayload:TempReport},()=>{
+                console.log("Timer Payload",this.state.AnsPayload)
+                if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
+                {
+                    console.log(this.state.SelectedQuestion,this.state.Questions.length)
+                    this.setState({Timer:this.state.TimeAloted})
+                    this.setState({SelectedQuestion:this.state.SelectedQuestion + 1})
+                }
+                else
+                {
+                    this.fetchResult()
+                }
+            })
+        }
+        else
+        {
+            this.fetchResult()
+            console.log(this.state.CorrectAns,this.state.AnsPayload) 
+        }
+    }
+
+    // show=async()=>{
+    //     await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712');
+    //     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
+    // }
+
+    // showads=async()=>{
+    //     await AdMobInterstitial.showAdAsync();
+    // }
+
     Timer=()=>{
          setInterval(()=>{
-             if(this.state.Timer > 0)
+             if(this.state.Timer > 0 && this.state.ImageLoaded)
              {
                 this.setState({Timer:this.state.Timer-1},()=>{
                     this.calcTimerValue()
                     if(this.state.Timer === 0)
                     {
-                        if(this.state.SelectedQuestion + 1 <= this.state.Questions.length)
-                        {
-                            let TempReport=this.state.AnsPayload;
-                            TempReport.push(
-                                {
-                                    QID:this.state.Questions[this.state.SelectedQuestion].Qid,
-                                    isCorrect:false,
-                                    time:this.state.TimeAloted
-                                })
-                    
-                            this.setState({AnsPayload:TempReport},()=>{
-                                console.log("Timer Payload",this.state.AnsPayload)
-                                if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
-                                {
-                                    console.log(this.state.SelectedQuestion,this.state.Questions.length)
-                                    this.setState({Timer:this.state.TimeAloted})
-                                    this.setState({SelectedQuestion:this.state.SelectedQuestion + 1})
-                                }
-                                else
-                                {
-                                    this.fetchResult()
-                                }
-                            })
-                        }
-                        else
-                        {
-                            this.fetchResult()
-                            console.log(this.state.CorrectAns,this.state.AnsPayload) 
-                        }
+                       this.SkipQuestion()
                     }
                 })
              }
@@ -106,6 +123,7 @@ class SPGameScreen extends React.Component{
     }
 
     fetchResult=()=>{
+        // this.showads()
         let payload={
             Report:this.state.AnsPayload,
             Ccount:this.state.CorrectAns,
@@ -142,6 +160,7 @@ class SPGameScreen extends React.Component{
       }
 
     componentDidMount=()=>{
+        console.log("Dashboard",this.props.Dashboard)
     this.props.SPQuestions.forEach(element => {
             element.options = this.shuffle(element.options)
     });
@@ -149,11 +168,13 @@ class SPGameScreen extends React.Component{
          console.log("Questions",this.state.Questions)
      })
         this.Timer()
+        // this.show();
+       
     }
 
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
-        this.setState({Timer:this.state.TimeAloted})
+        this.setState({ImageLoaded:false})
         this.setState({HasSelected:true},()=>{
             if(id === 4)
             {
@@ -171,8 +192,10 @@ class SPGameScreen extends React.Component{
                 if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                 {
                     setTimeout(()=>{
+                        this.setState({Timer:this.state.TimeAloted})
                         this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
                             this.setState({HasSelected:false})
+                            
                         }) 
                     },2500)
                 }
@@ -186,9 +209,7 @@ class SPGameScreen extends React.Component{
         })
     }
 
-    onSkipQuestion=()=>{
-
-    }
+   
 
     QuitGame=()=>{
         this.props.navigation.replace('Dashboard')
@@ -227,7 +248,7 @@ class SPGameScreen extends React.Component{
                                 </View>
                             </View> 
                             <View style={{width:'25%',backgroundColor:'#11233A'}}>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={()=>this.SkipQuestion()}>
                                     <CustomButton LeftIcon={null} RightIcon={"fast-forward"}><NormalText>Skip</NormalText></CustomButton>
                                 </TouchableOpacity>
                             </View>
@@ -246,7 +267,7 @@ class SPGameScreen extends React.Component{
                             <View style={style.PicContainer}>
                                 {
                                     this.state.Questions.length > 0 ?
-                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedQuestion].ImgUrl}}></Image>:
+                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedQuestion].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>:
                                     null
                                 }
                              
@@ -279,12 +300,12 @@ class SPGameScreen extends React.Component{
                     <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
                         <Result TimeAloted={this.state.TimeAloted} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
-                    <View style={style.Footer}>
+                    {/* <View style={style.Footer}>
                         <AdMobBanner
                         bannerSize="banner"
-                        adUnitID="ca-app-pub-7546310836693112/5169065739" // Test ID, Replace with your-admob-unit-id
+                        adUnitID="ca-app-pub-3940256099942544/6300978111" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
                         onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
-                   </View>
+                   </View> */}
                     </ScrollView>
                 
                     

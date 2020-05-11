@@ -18,22 +18,30 @@ const CustomModal=(props)=>{
             <View style={styles.ModalOverView}>
                 <TouchableWithoutFeedback onPress={()=>props.SetQuestions(5)}>
                     <View style={props.Questions === 5 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>5</NormalText>
+                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>5 Questions</NormalText>
+                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>100 Seconds</NormalText>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={()=>props.SetQuestions(15)}>
                     <View style={props.Questions === 15 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>15</NormalText>
+                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>15 Questions</NormalText>
+                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>250 Seconds</NormalText>
                     </View>
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(25)}>
+               
+            </View>
+
+            <View style={styles.ModalOverView}>
+                 <TouchableWithoutFeedback onPress={()=>props.SetQuestions(25)}>
                     <View style={props.Questions === 25 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>25</NormalText>
+                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>25 Questions</NormalText>
+                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>500 Seconds</NormalText>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={()=>props.SetQuestions(30)}>
                     <View style={props.Questions === 30 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>30</NormalText>
+                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>30 Questions</NormalText>
+                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>600 Seconds</NormalText>
                     </View>
                 </TouchableWithoutFeedback>
             </View>
@@ -95,7 +103,8 @@ const styles=StyleSheet.create({
         paddingHorizontal:15,
         paddingVertical:6,
         marginHorizontal:5,
-        borderRadius:5
+        borderRadius:5,
+        alignItems:'center'
     },
     ModalButtonTextStyleUnselected:{
         fontSize:14,
@@ -108,7 +117,8 @@ const styles=StyleSheet.create({
         paddingHorizontal:15,
         paddingVertical:7,
         marginHorizontal:5,
-        borderRadius:5
+        borderRadius:5,
+        alignItems:'center'
     },
     ModalButtonTextStyleSelected:{
         fontSize:14,
@@ -129,7 +139,8 @@ const styles=StyleSheet.create({
         fontSize:18
     },
     ModalContentHeading:{
-        fontSize:15
+        fontSize:15,
+        marginTop:10
     },
     ModalContent:{
         backgroundColor:'#34495E',
