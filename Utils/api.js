@@ -123,19 +123,77 @@ let Endpoints={
     GetQuestions:"/getQuestions",
     GetResult:"/result",
     Login:"/login",
-    AddCoins:'/earncoins'
+    AddCoins:'/earncoins',
+    Leaderboard:'/leaderBoard'
 }
 
-
+ShowErrorCodes=(status)=>{
+    let res
+    switch(status)
+    {
+        case 500:
+            ToastAndroid.show("Our Servers Are Facing Some Issues.Please Try Again After Some Time",ToastAndroid.LONG)
+            res={
+                IsSuccess:false
+            }   
+            return res
+       
+        case 400:
+            ToastAndroid.show("This is a Bad Request.Please Contact Support",ToastAndroid.LONG)
+            res={
+                IsSuccess:false
+            }   
+            return res
+        
+        case 502:
+            ToastAndroid.show("Bad Gateway",ToastAndroid.LONG)
+            res={
+                IsSuccess:false
+            }   
+            return res
+  
+        case 404:
+            ToastAndroid.show("Server Not Found.Please Contact Support",ToastAndroid.LONG)
+            res={
+                IsSuccess:false
+            }   
+            return res
+        
+        case 403:
+            ToastAndroid.show("Forbidden",ToastAndroid.LONG)
+            res={
+                IsSuccess:false
+            }   
+            return res
+        case 503:
+            ToastAndroid.show("Looks Like We Cannot Reach our Servers.Please Try Again Fter Some Time And If Problem Persist Please Contact Support ",ToastAndroid.LONG)
+            res={
+              IsSuccess:false
+              }   
+              return res
+        
+        
+        default:
+            return null
+    }
+}
 
 
 function makeRequest(Type,Payload,Parameters,Endpoint)
 {   
     if(Type === "GET")
     {
-       return fetch(base_url+Endpoint+Parameters).then(response => response.json()).then(result=> {
-           return result
-       } )
+       return fetch(base_url+Endpoint+Parameters).then(response => {  
+            if(response.status === 200)
+            {
+                return response.json()
+            }
+            else
+            {
+              return ShowErrorCodes(response.status)
+            }   
+            
+        })
     }
     else
     {
@@ -149,33 +207,14 @@ function makeRequest(Type,Payload,Parameters,Endpoint)
             body: JSON.stringify(Payload)
         }).then(response=> {
             console.log(response.status)
-           if(response.status === 500)
+           
+           if(response.status === 200)
            {
-            ToastAndroid.show("Our Servers Are Facing Some Issues.Please Try Again After Some Time",ToastAndroid.LONG)
-            let res={
-                IsSuccess:false
-            }   
-            return res
-           }
-           else if(response.status === 400)
-           {
-            ToastAndroid.show("Bad Request",ToastAndroid.LONG)
-            let res={
-                IsSuccess:false
-            }   
-            return res
-           }
-           else if(response.status === 502)
-           {
-            ToastAndroid.show("Bad GateWay",ToastAndroid.LONG)
-            let res={
-                IsSuccess:false
-            }   
-            return res
+            return response.json()
            }
            else
            {
-            return response.json()
+            return ShowErrorCodes(response.status) 
            }
               
         })
@@ -194,7 +233,7 @@ export function checkAvailable(ScreenName)
 
 export function getAvatarList()
 {
-    let Parameters="/"
+    let Parameters=""
 
    return makeRequest("GET",null,Parameters,Endpoints.GetAvatars).then(result=>{
        return result

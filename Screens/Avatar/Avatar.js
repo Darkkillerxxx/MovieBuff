@@ -30,7 +30,12 @@ class Avatar extends React.Component{
         console.log("Avatar Login Redux",this.props.Login)
 
         getAvatarList().then(result=>{
-            this.setState({Icons:result.Data})
+            console.log("Avatar List",result)
+            if(result.IsSuccess)
+            {
+                this.setState({Icons:result.Data})
+            }   
+           
         })
     }
 

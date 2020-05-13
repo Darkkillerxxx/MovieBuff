@@ -10,15 +10,15 @@ const RewardModal=props=>{
             </View>
             <View style={styles.ModalContent}>
                 <Image source={require('../../assets/confetti.png')} style={{height:50,width:50}}/>
-                <NormalText style={{fontSize:16,marginVertical:10}}>Thank You For Watching the Ad.</NormalText>
-                <NormalText style={{fontSize:12}}>You Have Been Awarded Some Coins.</NormalText>
+                <NormalText style={{fontSize:16,marginVertical:10}}>{props.FirstMsg}</NormalText>
+                <NormalText style={{fontSize:14}}>{props.SecondMsg}</NormalText>
                 <View style={styles.WinContainerSelected}>
                  <Image source={require('../../assets/coinbig.png')} style={styles.Coins}/>
-                 <NormalText style={{color:"#8B96A6"}}>{50} Coins</NormalText>
+                 <NormalText style={{color:"#8B96A6"}}>{props.Coins} Coins</NormalText>
              </View>
             </View>
             <View style={styles.ModalFooter}>
-                <TouchableOpacity onPress={()=>this.props.CloseModal()}>
+                <TouchableOpacity onPress={()=>props.DismissModal()}>
                     <View style={styles.CloseButtonContainer}>
                         <FontAwesome name="close" size={24} color='white'/>
                     </View>

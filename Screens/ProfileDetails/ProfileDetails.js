@@ -12,7 +12,7 @@ import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import {checkAvailable,registerUser} from '../../Utils/api'
 import { setDashboard } from '../../Store/Actions/ActionDashboard';
-
+import {insertUser} from '../../Database/Helper'
 class ProfileDetails extends React.Component{
     constructor()
     {
@@ -167,6 +167,9 @@ class ProfileDetails extends React.Component{
                                 TempDB.ScreenName=this.props.Login.ScreenName,
                                 TempDB.Password="",
                                 TempDB.FbId=this.props.Login.FbId
+                                TempDB.isNew=true
+                                TempDB.Coins=100
+                                insertUser(JSON.stringify(TempDB))
                                 this.props.onSetDashbaord(TempDB)
                                 console.log("Response Genre",response.Data)
                                 this.props.navigation.replace('Dashboard')
@@ -202,9 +205,12 @@ class ProfileDetails extends React.Component{
                 if(response.IsSuccess)
                 {
                     let TempDB=response.Data[0];
-                    TempDB.ScreenName=this.props.Login.ScreenName,
-                    TempDB.Password=this.state.Password,
+                    TempDB.ScreenName=this.props.Login.ScreenName
+                    TempDB.Password=this.state.Password
                     TempDB.FbId=""
+                    TempDB.isNew=true
+                    TempDB.Coins=100
+                    insertUser(JSON.stringify(TempDB))
                     this.props.onSetDashbaord(TempDB)
                     console.log("Response Genre",response.Data)
                     this.props.navigation.replace('Dashboard')
@@ -260,26 +266,6 @@ class ProfileDetails extends React.Component{
                     <View style={{width:'48%'}}>
                         {this.state.isLastNameEmpty ? <NormalText style={{color:'#ff6961'}}>Last Name is Required</NormalText>:<NormalText>(*) Enter Last Name</NormalText>}
                         <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({LastName:e},()=>this.setState({isLastNameEmpty:false}))} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
-                    </View>
-                </View>
-                <View style={styles.FLContainer}>
-                    <View style={{width:'48%',marginRight:10}}>
-                        <NormalText>Enter Country</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Country:e})} placeholder="Country" value="India" placeholderTextColor="#BAC1C9"  />
-                    </View>
-                    <View style={{width:'48%'}}>
-                        <NormalText>Enter Martial Status</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({MartialStatus:e})} placeholder="Martial Status" value="Single" placeholderTextColor="#BAC1C9"  />
-                    </View>
-                </View>
-                <View style={styles.FLContainer}>
-                    <View style={{width:'48%',marginRight:10}}>
-                        <NormalText>Enter Profession</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({Profession:e})} placeholder="Profession"  placeholderTextColor="#BAC1C9"  />
-                    </View>
-                    <View style={{width:'48%'}}>
-                        <NormalText>Enter EmailId</NormalText>
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({EmailId:e})} placeholder="Enter Email Id" placeholderTextColor="#BAC1C9"  />
                     </View>
                 </View>
                 <View style={styles.FLContainer}>

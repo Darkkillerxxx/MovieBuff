@@ -6,8 +6,8 @@ const Options=(props)=>{
 
     return(
         <ImageBackground style={style.Options} source={require('../assets/opt.png')}>
-               <View style={{width:210,height:50,backgroundColor:props.back,borderWidth:1,borderColor:'white',justifyContent:'center',alignItems:'center'}}>
-                <NormalText style={{fontSize:15,color:props.color}}>{props.value}</NormalText>
+               <View style={{width:235,height:55,backgroundColor:props.back,borderWidth:1,borderColor:'white',justifyContent:'center',alignItems:'center'}}>
+                <NormalText style={{fontSize:15,color:props.color,textAlign:'center'}}>{props.value}</NormalText>
                </View>
                
         </ImageBackground>
@@ -16,8 +16,8 @@ const Options=(props)=>{
 
 const style=StyleSheet.create({
     Options:{
-        width:280,
-        height:70,
+        width:300,
+        height:75,
         justifyContent:'center',
         alignItems:'center',
         resizeMode:'stretch',

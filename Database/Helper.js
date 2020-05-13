@@ -1,20 +1,93 @@
 import * as SQLite from 'expo-sqlite';
 
-const db=SQLite.openDatabase('buff.db')
+const db = SQLite.openDatabase('buff.db')
 
-export const init=()=>{
+// export const init=()=>{
     
-    const promise=new Promise((resolve,reject)=>{
-        db.transaction((tx)=>{
-            tx.executeSql('CTREATE TABLE IF NOT EXISTS (UserId TEXT,FbId TEXT,ScreenName TEXT,Password TEXT,DBData TEXT);',[]);
-        },
-        ()=>{
-            resolve()
-        },
-        (_,err)=>{
-            reject(err)
-        })
-       
-    })
-    return promise
-}
+//     const promise=new Promise((resolve,reject)=>{
+//         db.transaction((tx)=>{
+//             // console.log(tx)
+//             tx.executeSql('CREATE TABLE users (DBData TEXT);',[]);
+//         },
+//         ()=>{
+//             resolve()
+//         },
+//         (_,err)=>{
+//             console.log(err)
+//             reject(err)
+//         })
+//     })
+//     return promise
+// }
+
+export const init = () => {
+    const promise = new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY NOT NULL, DBData TEXT);',
+          [],
+          () => {
+            resolve();
+          },
+          (_, err) => {
+            reject(err);
+          }
+        );
+      });
+    });
+    return promise;
+  };
+
+  export const insertUser = (DbObject) => {
+    const promise = new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          tx.executeSql(
+            `INSERT INTO Users (DBData) VALUES (?);`,
+            [DbObject],
+            (_, result) => {
+              resolve(result);
+            },
+            (_, err) => {
+              reject(err);
+            }
+          );
+        });
+      });
+      return promise;
+};
+
+export const fetchUser = () => {
+    const promise = new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          tx.executeSql(
+            `SELECT * FROM Users;`,
+            [],
+            (_, result) => {
+              resolve(result);
+            },
+            (_, err) => {
+              reject(err);
+            }
+          );
+        });
+      });
+      return promise;
+};
+
+export const UpdateUser = (DBData) => {
+    const promise = new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          tx.executeSql(
+            `UPDATE Users SET DBData = ? WHERE id = 1;`,
+            [DBData],
+            (_, result) => {
+              resolve(result);
+            },
+            (_, err) => {
+              reject(err);
+            }
+          );
+        });
+      });
+      return promise;
+};

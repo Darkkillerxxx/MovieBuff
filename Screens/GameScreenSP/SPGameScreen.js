@@ -1,6 +1,6 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid } from 'react-native'
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo from '../../Components/BriefInfo';
@@ -11,6 +11,8 @@ import { connect } from 'react-redux'
 import {getResult,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
+import {UpdateUser} from '../../Database/Helper'
+
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
@@ -53,6 +55,11 @@ class SPGameScreen extends React.Component{
                  let TempDashboard=result.Data[0]
                  TempDashboard.FbId=this.props.Dashboard.FbId
                  TempDashboard.Password=this.props.Dashboard.Password
+                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+                    console.log("Update",result)
+                 }).catch(err=>{
+                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                 })
                 this.props.onSetDashboard(TempDashboard)
                 this.props.navigation.navigate('Dashboard')
              }

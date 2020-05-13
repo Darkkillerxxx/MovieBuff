@@ -8,15 +8,31 @@ import {createStore,combineReducers} from 'redux';
 import JoinReducer from './Store/Reducers/Join'
 import DashboardReducer from './Store/Reducers/Dashboard'
 import SPReducer from './Store/Reducers/SinglePlayer'
-import { init } from './Database/Helper'
+import { init,insertUser } from './Database/Helper'
 
 init().then(()=>{
   console.log("Initialize Database")
+
+  // insertUser("Hello").then((result)=>{  
+  //     console.log("Write Result Successfull",result)
+   
+  // }).catch((err)=>{
+  //   console.log("Write Failed",err)
+  // })
+
+  // fetch().then((result)=>{  
+  //       console.log("Fetch Successfull",result)
+  //   }).catch((err)=>{
+  //     console.log("Fetch Failed",err)
+  //   })
+
 }).catch((err)=>{
   console.log("DB Failed",err)
 })
 
-const rootReducer=combineReducers({
+
+
+ const rootReducer=combineReducers({
   FB:JoinReducer,
   Dashboard:DashboardReducer,
   SP:SPReducer
@@ -26,8 +42,8 @@ const store=createStore(rootReducer)
 
 const LoadFonts=()=>{
   return Fonts.loadAsync({
-    'Roboto':require('./assets/Fonts/Roboto-Light.ttf'),
-    'Roboto-bold':require('./assets/Fonts/Roboto-Bold.ttf')
+    'Roboto':require('./assets/Fonts/Badaboom.ttf'),
+    'Roboto-bold':require('./assets/Fonts/Badaboom.ttf')
   })
 }
 

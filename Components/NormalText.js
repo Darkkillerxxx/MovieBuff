@@ -12,8 +12,8 @@ const NormalText=(props)=>{
 
 const styles=StyleSheet.create({
     NormalText:{
-        fontFamily:'Roboto',
-        fontSize:12,
+        fontFamily:'Roboto-bold',
+        fontSize:16,
         color:'white'
     }
 })

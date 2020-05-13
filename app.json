@@ -8,7 +8,7 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/mini-icon.png",
+    "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash-buff.png",
       "resizeMode": "cover",
@@ -21,15 +21,19 @@
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "com.wealthyfox.moviebuff",
+      "bundleIdentifier": "com.naxbit.moviebuff",
       "buildNumber": "1.0.0",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935"
       }
     },
     "android": {
-      "package": "com.wealthyfox.moviebuff",
+      "package": "com.naxbit.moviebuff",
       "versionCode": 1,
+      "permissions":[
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935" 
       }

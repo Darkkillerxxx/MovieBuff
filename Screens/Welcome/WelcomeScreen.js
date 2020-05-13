@@ -10,7 +10,8 @@ import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import { connect }from 'react-redux'
 import * as Facebook from 'expo-facebook';
 import {checkAvailable,login} from '../../Utils/api'
- 
+import {fetchUser,insertUser} from '../../Database/Helper'
+
 class WelcomeScreen extends React.Component{
     constructor()
     {
@@ -25,6 +26,7 @@ class WelcomeScreen extends React.Component{
             Password:""
         }
     }
+    
 
     loginToBuff=(Username,FId,Password)=>{
         let LoggedIn=false
@@ -44,6 +46,11 @@ class WelcomeScreen extends React.Component{
                     DBData.Password=Password
                     DBData.FbId=FId.toString();
                     DBData.ScreenName=Username;
+                    insertUser(JSON.stringify(DBData)).then(result=>{
+                        console.log("Update",result)
+                     }).catch(err=>{
+                         ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                     })
                     this.props.onSetDashboard(DBData)
                     return true
                 }
@@ -182,6 +189,25 @@ class WelcomeScreen extends React.Component{
           this.setState({UsernameAvailable:true})
           this.setState({ErrorMessage:""})
       }
+
+      componentDidMount()
+      {
+          console.log("Welcome Screen")
+        fetchUser().then(result => {
+            if(result.rows.length > 0)
+            {
+                let JSONUser=JSON.parse(result.rows._array[0].DBData)
+                this.props.onSetDashboard(JSONUser)       
+                this.props.navigation.navigate('Dashboard')
+            }
+            else
+            {
+                console.log("Stay")
+            }
+        }).catch(err=>{
+            console.log(err)
+        })
+      }
     
 
     render()
@@ -216,13 +242,13 @@ class WelcomeScreen extends React.Component{
                             </TouchableOpacity>
                             
 
-                            <NormalText>OR</NormalText>
+                            {/* <NormalText>OR</NormalText>
                             <View style={styles.FacebookContainer}>
                                 <View style={styles.FacebookIconContainer}>
                                     <Image source={require('../../assets/facebook.png')}/>
                                 </View>
                                 <Button onPress={this.logIn.bind(this)} title="Log-in with Facebook" color="#4c5f87"/>
-                            </View>
+                            </View> */}
                         </View>
                         <View style={styles.Terms}>
                             <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our <Text style={{borderBottomColor:'blue',color:'blue'}}>Terms and Conditions</Text></NormalText>
