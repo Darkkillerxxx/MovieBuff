@@ -30,6 +30,7 @@ class SPGameScreen extends React.Component{
             Questions:[],
             SelectedQuestion:0,
             HasSelected:false,
+            SelectedOptions:null,
             UserSelection:null,
             CorrectAns:0,
             AnsPayload:[],
@@ -139,6 +140,7 @@ class SPGameScreen extends React.Component{
 
         getResult(payload).then(result=>{
             console.log("Result",result)
+            ToastAndroid.show(`Result ${result.IsSuccess}`,ToastAndroid.LONG)
             if(result.IsSuccess)
             {
                 console.log(result.Data)
@@ -162,7 +164,6 @@ class SPGameScreen extends React.Component{
           array[currentIndex] = array[randomIndex];
           array[randomIndex] = temporaryValue;
         }
-      
         return array;
       }
 
@@ -181,45 +182,52 @@ class SPGameScreen extends React.Component{
 
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
+        console.log("Id",id)
         this.setState({ImageLoaded:false})
-        this.setState({HasSelected:true},()=>{
-            if(id === 4)
-            {
-                this.setState({CorrectAns:this.state.CorrectAns+1})
-            }
-            let TempReport=this.state.AnsPayload;
-            TempReport.push(
+        if(!this.state.HasSelected)
+        {
+            this.setState({HasSelected:true},()=>{
+
+                this.setState({SelectedOptions:id})
+                if(id === 4)
                 {
-                    QID:options.Qid,
-                    isCorrect:id === 4,
-                    time:TimeTaken.toString()
+                    this.setState({CorrectAns:this.state.CorrectAns+1})
+                }
+                let TempReport=this.state.AnsPayload;
+                TempReport.push(
+                    {
+                        QID:options.Qid,
+                        isCorrect:id === 4,
+                        time:TimeTaken.toString()
+                    })
+                this.setState({AnsPayload:TempReport},()=>{
+                    console.log("Normal Payload",this.state.AnsPayload)
+                    if(this.state.SelectedQuestion+1 < this.state.Questions.length)
+                    {
+                        setTimeout(()=>{
+                            this.setState({Timer:this.state.TimeAloted})
+                            this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
+                                this.setState({HasSelected:false})
+                                
+                            }) 
+                        },2500)
+                    }
+                    else
+                    {
+                        this.setState({Timer:0})
+                        console.log(this.state.CorrectAns,this.state.AnsPayload)
+                        this.fetchResult()
+                    }
                 })
-            this.setState({AnsPayload:TempReport},()=>{
-                console.log("Normal Payload",this.state.AnsPayload)
-                if(this.state.SelectedQuestion+1 < this.state.Questions.length)
-                {
-                    setTimeout(()=>{
-                        this.setState({Timer:this.state.TimeAloted})
-                        this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
-                            this.setState({HasSelected:false})
-                            
-                        }) 
-                    },2500)
-                }
-                else
-                {
-                    this.setState({Timer:0})
-                    console.log(this.state.CorrectAns,this.state.AnsPayload)
-                    this.fetchResult()
-                }
             })
-        })
+        }
+       
     }
 
    
 
     QuitGame=()=>{
-        this.props.navigation.replace('Dashboard')
+        this.cangeModalType(null)
     }
 
 
@@ -236,7 +244,7 @@ class SPGameScreen extends React.Component{
                                 </TouchableOpacity>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
-                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
+                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText> {this.state.Questions.length}</NormalText></NormalText>
                                 <View style={style.TimerContainer}>
                                     <AnimatedCircularProgress
                                         size={50}
@@ -283,19 +291,19 @@ class SPGameScreen extends React.Component{
                         
                             <View style={style.OptionsContainer}>
                                 <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"white"} color={this.state.HasSelected ? "white":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
                                 </TouchableOpacity>
                                 
                                 <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"white"} color={this.state.HasSelected ? "white":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
-                                    <Options back={this.state.HasSelected ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"white"} color={this.state.HasSelected ? "white":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"white"} color={this.state.HasSelected ? "white":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
                                 </TouchableOpacity>
                             </View>:null}
                         </View>

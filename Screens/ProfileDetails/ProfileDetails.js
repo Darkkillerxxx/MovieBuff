@@ -55,7 +55,7 @@ class ProfileDetails extends React.Component{
          image=>{
             this.setState({ImageBase64:image.base64})
          }
-     )
+        )
      }
 
     componentDidMount()
@@ -168,7 +168,7 @@ class ProfileDetails extends React.Component{
                                 TempDB.Password="",
                                 TempDB.FbId=this.props.Login.FbId
                                 TempDB.isNew=true
-                                TempDB.Coins=100
+                                TempDB.Coins=500
                                 insertUser(JSON.stringify(TempDB))
                                 this.props.onSetDashbaord(TempDB)
                                 console.log("Response Genre",response.Data)
@@ -209,7 +209,7 @@ class ProfileDetails extends React.Component{
                     TempDB.Password=this.state.Password
                     TempDB.FbId=""
                     TempDB.isNew=true
-                    TempDB.Coins=100
+                    TempDB.Coins=500
                     insertUser(JSON.stringify(TempDB))
                     this.props.onSetDashbaord(TempDB)
                     console.log("Response Genre",response.Data)

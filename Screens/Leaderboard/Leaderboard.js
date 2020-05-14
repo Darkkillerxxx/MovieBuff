@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet,View, Image,ScrollView } from 'react-native';
+import { StyleSheet,View, Image,ScrollView,FlatList } from 'react-native';
 import AppContainer from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText';
 import NormalText from '../../Components/NormalText';
@@ -8,9 +8,59 @@ class Leaderboard extends React.Component{
     constructor()
     {
         super();
+        this.state={
+            LB:[],
+            UId:null
+        }
     }
+
+    componentDidMount()
+    {
+        const {Leaderboard,UserId}=this.props.navigation.state.params
+        this.setState({LB:Leaderboard})
+        this.setState({UId:UserId})
+    }
+
+    ShowSeperateStanding=()=>{
+        let ShowStandings=true
+        this.state.LB.forEach(element => {
+            if(element.LeaderBoard[0].userId === this.state.UId)
+            {
+                ShowStandings=false
+            }
+        });
+        return ShowStandings
+    }
+
+
     render()
     {
+        let ShowUsers=this.state.LB.map((result,index)=>{
+            return(
+                index !== this.state.LB.length - 1 ?
+                <View key={index} style={result.UserRank === 1 || result.LeaderBoard[0].userId === this.state.UId  ? style.BoardFirst:style.Board}>
+                    <Image style={{height:50,width:50,borderRadius:200,borderColor:'white',borderWidth:1}} source={{uri:result.LeaderBoard[0].URL}}></Image>
+                    <View style={style.Info}>
+                        <NormalText style={{fontSize:18}}>{result.LeaderBoard[0].NAME}</NormalText>
+                        <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level {result.LeaderBoard[0].Level}</NormalText>
+                    </View>
+                    <View style={result.UserRank === 1 ? style.PositionF:result.UserRank === 2 || result.UserRank === 3 ? style.PositionSF : style.Position}>
+                        <NormalText style={{fontSize:18}}>{result.UserRank}</NormalText>
+                    </View>
+                </View>:
+                this.ShowSeperateStanding() ? 
+                <View key={index} style={style.BoardFirst}>
+                    <Image style={{height:50,width:50,borderRadius:200,borderColor:'white',borderWidth:1}} source={{uri:result.LeaderBoard[0].URL}}></Image>
+                    <View style={style.Info}>
+                        <NormalText style={{fontSize:18}}>{result.LeaderBoard[0].NAME}</NormalText>
+                        <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level {result.LeaderBoard[0].Level}</NormalText>
+                    </View>
+                    <View style={result.UserRank === 1 ? style.PositionF:result.UserRank === 2 || result.UserRank === 3 ? style.PositionSF : style.Position}>
+                        <NormalText style={{fontSize:18}}>{result.UserRank}</NormalText>
+                    </View>
+                </View>:null
+            )
+        })
         return(
             <AppContainer style={style.AppContainer}>
                 <BoldText style={style.BoldText}>Leaderboard</BoldText>
@@ -26,106 +76,7 @@ class Leaderboard extends React.Component{
                     </View>
                 </View>
                 <ScrollView style={style.LeaderboardContainer}>
-                    <View style={style.BoardFirst}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User1.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Darkkillerxxx</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 24</NormalText>
-                        </View>
-                        <View style={style.PositionF}>
-                            <NormalText style={{fontSize:18}}>1</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User2.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Kanak</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.PositionSF}>
-                            <NormalText style={{fontSize:18,color:"#FDD54F"}}>2</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User3.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Jurgen Klopp</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.PositionSF}>
-                            <NormalText style={{fontSize:18,color:"#FDD54F"}}>3</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User4.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Adwait</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 47</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>4</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User5.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Per Gaurdiola</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>5</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User6.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>John Doe</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>6</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User6.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>John Doe</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>7</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User6.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>John Doe</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>8</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.Board}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User6.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>John Doe</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 42</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>9</NormalText>
-                        </View>
-                    </View>
-                    <View style={style.UserBoard}>
-                        <Image style={{height:50,width:50}} source={require('../../assets/Temp/User6.png')}></Image>
-                        <View style={style.Info}>
-                            <NormalText style={{fontSize:18}}>Kiki</NormalText>
-                            <NormalText style={{fontSize:18,color:"#8B96A6"}}>Level 2</NormalText>
-                        </View>
-                        <View style={style.Position}>
-                            <NormalText style={{fontSize:18}}>346</NormalText>
-                        </View>
-                    </View>
+                    {ShowUsers}
                 </ScrollView>
                 
             </AppContainer>

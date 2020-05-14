@@ -280,3 +280,13 @@ export function AddCoins(payload)
     })
 }
 
+export function GetLeaderBoard(UserId)
+{
+    console.log("UserId",UserId)
+    let Parameters="/"+UserId
+
+    return makeRequest("GET",null,Parameters,Endpoints.Leaderboard).then(result=>{
+        return result
+    })
+}
+

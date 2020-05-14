@@ -96,9 +96,9 @@ class CustomGame extends React.Component{
                 </View>
             </View>
             <NormalText style={style.NormalText}>{itemData.item.Name}</NormalText>
-            <View style={style.ProgressBarContianer}>
+            {/* <View style={style.ProgressBarContianer}>
                 <Progress.Bar borderColor="#11233A" unfilledColor="#11233A" color="#59D654" progress={0.1} width={120}/>  
-            </View>
+            </View> */}
         </View>
        )
     }

@@ -13,7 +13,7 @@ import { connect }from 'react-redux'
 import {setGame,setQuestions} from '../../Store/Actions/ActionSp'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import {fetchUser,UpdateUser} from '../../Database/Helper'
-import {AddCoins} from '../../Utils/api.js'
+import {AddCoins,GetLeaderBoard} from '../../Utils/api.js'
 import RewardModal from '../../Components/Modals/RewardModal'
 import DashboardReducer from '../../Store/Reducers/Dashboard';
 
@@ -94,6 +94,23 @@ class Dashboard extends React.Component{
         this.setState({ShowInsuffModal:false})
     }
 
+    onLBPressed=()=>{
+        GetLeaderBoard(this.props.Dashboard.Id.toString()).then(result=>{
+            if(result.IsSuccess)
+            {
+                ToastAndroid.show("LeaderBoard Fetch Successfully",ToastAndroid.SHORT)
+                this.props.navigation.navigate("Leaderboard",{
+                    Leaderboard:result.Data,
+                    UserId:this.props.Dashboard.Id
+                })
+            }
+            else
+            {
+                ToastAndroid.show("You Need to Play Atleast One Game To Access The Leaderboard",ToastAndroid.SHORT)
+            }
+        })
+    }
+
     componentDidMount()
     {
         console.log("Dasbhoard Redux",this.props.Dashboard)
@@ -108,31 +125,17 @@ class Dashboard extends React.Component{
         {
             if(this.props.Dashboard.isNew)
             {
-                console.log("Assign Coins")
-                let EarnCoinsPayload={
-                    "Id":this.props.Dashboard.Id,
-                    "CoinsToAdd":100,
-                    "ResourceID":8,
-                    "Credit":"True",
-                    "Debit":"False"
-                }
-
-                AddCoins(EarnCoinsPayload).then(result=>{
-                    if(result.IsSuccess)
-                    {
-                        console.log("Coins Added Successfully")
-                        let DashboardRedux=this.props.Dashboard;
-                        DashboardRedux.isNew=false
-                        DashboardRedux.Coins=100
-                        this.props.onSetDashbaord(DashboardRedux)
-                        UpdateUser(JSON.stringify(DashboardRedux)).then(result=>{
-                            console.log("Update",result)
-                            this.setState({ShowSignUpModal:true})
-                        }).catch(err=>{
-                             ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
-                         })
-                    }
-                })
+              console.log("Coins Added Successfully")
+              let DashboardRedux=this.props.Dashboard;
+              DashboardRedux.isNew=false
+              DashboardRedux.Coins=500
+              this.props.onSetDashbaord(DashboardRedux)
+              UpdateUser(JSON.stringify(DashboardRedux)).then(result=>{
+                  console.log("Update",result)
+                  this.setState({ShowSignUpModal:true})
+              }).catch(err=>{
+                   ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+               })
             }
         }
     }
@@ -211,7 +214,7 @@ class Dashboard extends React.Component{
                 </View>
                 <View style={styles.ToolsContainer}>
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('Leaderboard')}>
+                    <TouchableOpacity onPress={()=>this.onLBPressed()}>
                         <SmallBtn color1="#009BE7" color2="#009DB2" color3="#00DF9B" color4="#00F57E">
                             <Image style={styles.Podium} source={require('../../assets/podium.png')}/>
                         </SmallBtn>
@@ -241,7 +244,7 @@ class Dashboard extends React.Component{
                     <MPModal/>
                 </Modal>  
                 <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
-                    <RewardModal Coins={100} FirstMsg={"Thank You For Registering To Filmy Buzz"} SecondMsg={"Here Is Your Sign Up Reward"} DismissModal={this.DismissRewardModal}/>
+                    <RewardModal Coins={500} FirstMsg={"Thank You For Registering To Filmy Buzz"} SecondMsg={"Here Is Your Sign Up Reward"} DismissModal={this.DismissRewardModal}/>
                 </Modal> 
                 <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
                     <RewardModal Coins={this.state.SPNoQuestions * 2} FirstMsg={"You Have Insufficient Balance to Play This Quest"} SecondMsg={"Total Coins You Need To Play This Quest Are"} DismissModal={this.DismissInsuffModal}/>
