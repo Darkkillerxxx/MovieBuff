@@ -242,13 +242,13 @@ class WelcomeScreen extends React.Component{
                             </TouchableOpacity>
                             
 
-                            {/* <NormalText>OR</NormalText>
+                            <NormalText>OR</NormalText>
                             <View style={styles.FacebookContainer}>
                                 <View style={styles.FacebookIconContainer}>
                                     <Image source={require('../../assets/facebook.png')}/>
                                 </View>
                                 <Button onPress={this.logIn.bind(this)} title="Log-in with Facebook" color="#4c5f87"/>
-                            </View> */}
+                            </View>
                         </View>
                         <View style={styles.Terms}>
                             <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our <Text style={{borderBottomColor:'blue',color:'blue'}}>Terms and Conditions</Text></NormalText>

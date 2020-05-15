@@ -29,6 +29,7 @@ class SPGameScreen extends React.Component{
             TimerValue:100,
             Questions:[],
             SelectedQuestion:0,
+            SelectedImage:0,
             HasSelected:false,
             SelectedOptions:null,
             UserSelection:null,
@@ -206,10 +207,18 @@ class SPGameScreen extends React.Component{
                     {
                         setTimeout(()=>{
                             this.setState({Timer:this.state.TimeAloted})
-                            this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
-                                this.setState({HasSelected:false})
-                                
-                            }) 
+                            this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
+                                let ImgWait=setInterval(()=>{
+                                    if(this.state.ImageLoaded)
+                                    {
+                                        this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
+                                            this.setState({HasSelected:false})
+                                            clearInterval(ImgWait)    
+                                        }) 
+                                    }
+                                },1500)
+                            })
+                           
                         },2500)
                     }
                     else
@@ -244,7 +253,7 @@ class SPGameScreen extends React.Component{
                                 </TouchableOpacity>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
-                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText> {this.state.Questions.length}</NormalText></NormalText>
+                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
                                 <View style={style.TimerContainer}>
                                     <AnimatedCircularProgress
                                         size={50}
@@ -282,7 +291,7 @@ class SPGameScreen extends React.Component{
                             <View style={style.PicContainer}>
                                 {
                                     this.state.Questions.length > 0 ?
-                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedQuestion].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>:
+                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>:
                                     null
                                 }
                              

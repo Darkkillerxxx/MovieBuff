@@ -11,12 +11,13 @@ import { Button } from 'react-native-paper';
 import MPModal from '../../Components/Modals/MPModal'
 import { connect }from 'react-redux'
 import {setGame,setQuestions} from '../../Store/Actions/ActionSp'
+import {setLogin} from '../../Store/Actions/ActionJoin'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
-import {fetchUser,UpdateUser} from '../../Database/Helper'
+import {fetchUser,UpdateUser,DeleteUser} from '../../Database/Helper'
 import {AddCoins,GetLeaderBoard} from '../../Utils/api.js'
 import RewardModal from '../../Components/Modals/RewardModal'
 import DashboardReducer from '../../Store/Reducers/Dashboard';
-
+import SettingsModal from '../../Components/Modals/SettingsModal'
 
 class Dashboard extends React.Component{
     constructor()
@@ -35,7 +36,8 @@ class Dashboard extends React.Component{
             ImgUrl:"",
             Silver:"",
             ShowSignUpModal:false,
-            ShowInsuffModal:false
+            ShowInsuffModal:false,
+            ShowSettings:false
         }
     }
 
@@ -92,6 +94,10 @@ class Dashboard extends React.Component{
     
     DismissInsuffModal=()=>{
         this.setState({ShowInsuffModal:false})
+    }
+
+    DismissSettingsModal=()=>{
+        this.setState({ShowSettings:false})
     }
 
     onLBPressed=()=>{
@@ -162,6 +168,51 @@ class Dashboard extends React.Component{
          }
      }
 
+     Logout=()=>{
+
+        DeleteUser().then(result=>{
+            
+            let DefaultLogin={
+                "Country":"india",
+                "FbId": "",
+                "ScreenName":"",
+                "FirstName":"",
+                "LastName":"",
+                "MaritalStatus":"true",
+                "Profession":"",
+                "EmailId":"",
+                "AvatarId":1,
+                "AvatarBase64":"",
+                "AvatarFacebook":"",
+                "SelectedGenre":"",
+                "SelectedRegion":"",
+                "AvatarURL":""
+            }
+            this.props.onSetDashbaord({})
+            this.props.onSetLogin(DefaultLogin)
+            this.props.navigation.replace('Welcome')
+
+        }).catch(err=>{
+            console.log("Error Deleting User",err)
+        })
+      
+     }
+
+     onLogOutPressed=()=>{
+        Alert.alert(
+            'Log Out From Filmy Buzz',
+            'Are You Sure You Want To Logout ???',
+           [ {
+                text: 'Yes',
+                onPress: () => this.Logout()
+            },
+            {
+                text: 'No',
+                onPress: () => console.log('Ask me later pressed')
+            }],
+            { cancelable: false });
+     }
+
     render()
     {
         return(
@@ -222,7 +273,7 @@ class Dashboard extends React.Component{
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                    <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
                         <SmallBtn color1="#052CB5" color2="#0077E9" color3="#00C0E4" color4="#00EEEF">
                             <Image style={styles.Podium} source={require('../../assets/wheel.png')}/>
                         </SmallBtn>
@@ -237,6 +288,12 @@ class Dashboard extends React.Component{
                     </TouchableOpacity>
                    </View>
                 </View>
+
+
+
+                {/* Modals From Here */}
+
+
                 <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
                     <CustomModal DismissModal={this.DismissSpModal} SetQuestions={this.setSPNoQuestions} setRegion={this.setSpRegion} Questions={this.state.SPNoQuestions} Region={this.state.SPRegion} SetRegion={this.setSpRegion} ProceedToCustom={this.onProceedToCustom}/>
                 </Modal>   
@@ -248,7 +305,12 @@ class Dashboard extends React.Component{
                 </Modal> 
                 <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
                     <RewardModal Coins={this.state.SPNoQuestions * 2} FirstMsg={"You Have Insufficient Balance to Play This Quest"} SecondMsg={"Total Coins You Need To Play This Quest Are"} DismissModal={this.DismissInsuffModal}/>
-                </Modal>     
+                </Modal>
+                <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
+                    <SettingsModal Logout={this.onLogOutPressed} DismissModal={this.DismissSettingsModal} />
+                </Modal>
+
+                {/* Modals Ends Here      */}
             </AppContainer>
         )
     }

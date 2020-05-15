@@ -91,3 +91,21 @@ export const UpdateUser = (DBData) => {
       });
       return promise;
 };
+
+export const DeleteUser = () => {
+  const promise = new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `DELETE FROM Users WHERE id = 1;`,
+          [],
+          (_, result) => {
+            resolve(result);
+          },
+          (_, err) => {
+            reject(err);
+          }
+        );
+      });
+    });
+    return promise;
+};
