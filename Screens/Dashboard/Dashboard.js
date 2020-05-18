@@ -223,14 +223,15 @@ class Dashboard extends React.Component{
                             <View style={styles.ProfilePic}>
                                 <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
                             </View>
+                            <NormalText style={{textAlign:'center',marginTop:10}}>{this.props.Dashboard.ScreenName}</NormalText>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.BriefContainer}>
                         {console.log("Gold",this.state.Dashboard)}
                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/>
+                             <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
+                             <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
+                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
                         </View>
                         <View style={{width:'100%',flexDirection:'row'}}>
                             <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/coins.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
@@ -246,44 +247,43 @@ class Dashboard extends React.Component{
 
                 <View style={styles.Container}>
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity onPress={()=>this.setState({ShowModalSP:true})}>
-                            <SinglePlayer>
+                        <TouchableOpacity style={{width:'100%'}} onPress={()=>this.setState({ShowModalSP:true})}>
+                            <SinglePlayer icon={"user"}>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.SPContainer}>
-                        <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
-                            <Coop>
-                                <NormalText style={styles.NormalTextCo}>Play With Friends</NormalText>
-                            </Coop>
+                        <TouchableOpacity style={{width:'100%'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                            <SinglePlayer icon={"users"}>
+                                <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
+                            </SinglePlayer>
                         </TouchableOpacity>
                     </View>
-
-                   
                 </View>
+
                 <View style={styles.ToolsContainer}>
                    <View style={styles.Tools}>
                     <TouchableOpacity onPress={()=>this.onLBPressed()}>
-                        <SmallBtn color1="#009BE7" color2="#009DB2" color3="#00DF9B" color4="#00F57E">
-                            <Image style={styles.Podium} source={require('../../assets/podium.png')}/>
+                        <SmallBtn>
+                            <Image style={styles.Podium} source={require('../../assets/Leaderboard.png')}/>
                         </SmallBtn>
                     </TouchableOpacity>
                    </View>
 
                    <View style={styles.Tools}>
                     <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
-                        <SmallBtn color1="#052CB5" color2="#0077E9" color3="#00C0E4" color4="#00EEEF">
-                            <Image style={styles.Podium} source={require('../../assets/wheel.png')}/>
+                        <SmallBtn>
+                            <Image style={styles.Podium} source={require('../../assets/Setting.png')}/>
                         </SmallBtn>
                     </TouchableOpacity>
                    </View>
 
                    <View style={styles.Tools}>
                     <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
-                        <SmallBtn color1="#FF8300" color2="#FF9F00" color3="#FFC700" color4="#FFDE00">
-                            <Image style={styles.Podium} source={require('../../assets/earn.png')}/>
+                        <SmallBtn>
+                            <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
                         </SmallBtn>
                     </TouchableOpacity>
                    </View>
@@ -333,16 +333,31 @@ const styles=StyleSheet.create({
         opacity:0.8,
         alignItems:'center',
         justifyContent:'center',
-        borderBottomRightRadius:15
+        borderBottomLeftRadius:15,
+        borderTopLeftRadius:15,
+        borderLeftColor:'#E5BE1C',
+        borderBottomColor:'#E5BE1C',
+        borderTopColor:'#E5BE1C',
+        borderLeftWidth:2,
+        borderBottomWidth:2,
+        borderTopWidth:2
     },
     BriefContainer:{
         width:"80%",
+        height:'100%',
         backgroundColor:"#11233A",
         opacity:0.8,
         padding:10,
         marginBottom:15,
+        paddingRight:15,
         borderBottomRightRadius:15,
-        borderTopRightRadius:15
+        borderTopRightRadius:15,
+        borderBottomColor:'#E5BE1C',
+        borderTopColor:'#E5BE1C',
+        borderRightColor:'#E5BE1C',
+        borderRightWidth:2,
+        borderBottomWidth:2,
+        borderTopWidth:2
     },
     ProfilePic:{
         height:50,
@@ -371,6 +386,7 @@ const styles=StyleSheet.create({
     Container:{
         width:'100%',
         flexDirection:'row',
+        marginVertical:15
         
     },
     SPContainer:{
@@ -380,13 +396,14 @@ const styles=StyleSheet.create({
     },
     NormalTextSP:{
         fontSize:15,
-        color:'#00C08A'
+        color:'white'
     },
     NormalTextCo:{
         fontSize:15,
         color:"#FF5D60"
     },
     ToolsContainer:{
+        marginTop:15,
         flexDirection:'row',
         width:'100%'
     },
@@ -396,8 +413,9 @@ const styles=StyleSheet.create({
         justifyContent:'center'
     },
     Podium:{
-        width:30,
-        height:30
+        width:50,
+        height:50,
+        resizeMode:'contain'
     }
 })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet,View,Button} from 'react-native'
+import { StyleSheet,View,Button, ImageBackground,Image} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from './NormalText';
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
@@ -8,21 +8,14 @@ const SinglePlayer=(props)=>{
         // <View style={styles.ButtonContainer}>
         //     {props.children}
         // </View>
+        <View style={{width:'100%',height:50,alignItems:'center'}}>
+            <FontAwesome name={props.icon} size={18} color={'white'} style={{marginVertical:5}}/>
+            {props.children}
+            <Image source={require('../assets/Yellow.png')} style={{width:'100%',height:75,resizeMode:'contain',marginTop:-60,zIndex:-1}} />
+        </View>
+    //    <ImageBackground  style={styles.InnerButton}>
 
-        <LinearGradient
-            start={{x: 0, y: 0}} 
-            end={{x: 1, y: 0}}
-             colors={['#008BD9', '#00AECD', '#00DA97',"#00F56F"]}
-             style={styles.ButtonContainer}>
-            <View style={styles.InnerButton}>
-                <View style={styles.InnerButtonView1}>
-                    <FontAwesome name="user" size={18} color="#00C08A"/>
-                </View>
-                <View style={styles.InnerButtonView}>
-                    {props.children}
-                </View>
-            </View>
-        </LinearGradient>
+    //    </ImageBackground>
     )
 }
 
@@ -38,13 +31,13 @@ const styles=StyleSheet.create({
         justifyContent:'center'
     },
     InnerButton:{
-        height:36,
-        width:'97%',
+        height:70,
+        width:70,
         borderRadius:20,
-        backgroundColor:"#1D3451",
         flexDirection:'row',
         justifyContent:'center',
-        alignItems:'center'
+        alignItems:'center',
+        resizeMode:'contain'
     },
     InnerButtonView:{
         flexDirection:'row',

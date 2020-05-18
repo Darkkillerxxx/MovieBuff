@@ -67,9 +67,11 @@ class WelcomeScreen extends React.Component{
       
     }
 
+    
+
     async logIn() {
         try {
-          await Facebook.initializeAsync('829108874264339');
+          await Facebook.initializeAsync('671419343403898');
           const {
             type,
             token,
@@ -77,7 +79,7 @@ class WelcomeScreen extends React.Component{
             permissions,
             declinedPermissions,
           } = await Facebook.logInWithReadPermissionsAsync({
-            permissions: ['email','public_profile','user_friends'],
+            permissions: ['email'],
           });
           if (type === 'success') {
             // Get the user's name using Facebook's Graph API
@@ -117,8 +119,9 @@ class WelcomeScreen extends React.Component{
           } else {
             // type === 'cancel'
           }
-        } catch ({ message }) {
+        } catch (message) {
           alert(`Facebook Login Error: ${message}`);
+          console.log("Facebook Error",message)
         }
       }
 
@@ -192,6 +195,7 @@ class WelcomeScreen extends React.Component{
 
       componentDidMount()
       {
+          ToastAndroid.show("V 1.0.6",ToastAndroid.SHORT)
           console.log("Welcome Screen")
         fetchUser().then(result => {
             if(result.rows.length > 0)
@@ -221,8 +225,7 @@ class WelcomeScreen extends React.Component{
                             <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}  />
                         </View>
                         <View style={styles.JoiningView}>
-                            <BoldText style={styles.WelcomeText}>Welcome</BoldText>
-                            <NormalText style={styles.WelcomeNormalText}>Welcome To Movie Buff</NormalText> 
+                            <BoldText style={styles.WelcomeText}>Welcome to Filmy Buzz</BoldText>
                         </View>
                         <View style={styles.InputContainer}>
                             <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":this.state.ErrorMessage ===  "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
@@ -238,17 +241,14 @@ class WelcomeScreen extends React.Component{
                                 </NextButton>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={()=>this.setState({IsReg:!this.state.IsReg})}>
-                            <NormalText style={{color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
+                            <NormalText style={{fontSize:15,color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
                             </TouchableOpacity>
-                            
-
+                        
                             <NormalText>OR</NormalText>
-                            <View style={styles.FacebookContainer}>
-                                <View style={styles.FacebookIconContainer}>
-                                    <Image source={require('../../assets/facebook.png')}/>
-                                </View>
-                                <Button onPress={this.logIn.bind(this)} title="Log-in with Facebook" color="#4c5f87"/>
-                            </View>
+                            
+                            <TouchableOpacity onPress={this.logIn.bind(this)}>
+                                <Image source={require('../../assets/Fb.png')} style={{height:100,resizeMode:'contain'}} />
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.Terms}>
                             <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our <Text style={{borderBottomColor:'blue',color:'blue'}}>Terms and Conditions</Text></NormalText>
@@ -287,7 +287,8 @@ const styles=StyleSheet.create({
         color:'#00C08A'
     },
     WelcomeText:{
-        fontSize:25,
+        fontSize:22,
+        marginVertical:10
     },
     WelcomeNormalText:{
         marginHorizontal:'10%',
@@ -298,6 +299,7 @@ const styles=StyleSheet.create({
         alignItems:'center'
     },
     Input:{
+        fontFamily:'Niagara',
         borderRadius:5,
         borderColor:'#BAC1C9',
         borderWidth:1,
@@ -309,6 +311,7 @@ const styles=StyleSheet.create({
         textAlign:'center'
     },
     InputError:{
+        fontFamily:'Niagara',
         borderRadius:5,
         borderColor:'#ff6961',
         borderWidth:1,
@@ -345,7 +348,8 @@ const styles=StyleSheet.create({
         marginVertical:10
     },
     TermsText:{
-        fontSize:10
+        fontSize:12,
+        textAlign:'center'
     }
 
 })

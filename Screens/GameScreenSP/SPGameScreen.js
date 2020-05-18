@@ -36,7 +36,8 @@ class SPGameScreen extends React.Component{
             CorrectAns:0,
             AnsPayload:[],
             Result:[],
-            ImageLoaded:false
+            ImageLoaded:false,
+            OptionsDisabled:false
         }
     }
 
@@ -116,19 +117,19 @@ class SPGameScreen extends React.Component{
     // }
 
     Timer=()=>{
-         setInterval(()=>{
-             if(this.state.Timer > 0 && this.state.ImageLoaded)
-             {
-                this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
-                    if(this.state.Timer === 0)
-                    {
-                       this.SkipQuestion()
-                    }
-                })
-             }
+        //  setInterval(()=>{
+        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
+        //      {
+        //         this.setState({Timer:this.state.Timer-1},()=>{
+        //             this.calcTimerValue()
+        //             if(this.state.Timer === 0)
+        //             {
+        //                this.SkipQuestion()
+        //             }
+        //         })
+        //      }
             
-            },1000)
+        //     },1000)
     }
 
     fetchResult=()=>{
@@ -201,6 +202,7 @@ class SPGameScreen extends React.Component{
                         isCorrect:id === 4,
                         time:TimeTaken.toString()
                     })
+                this.setState({OptionsDisabled:true})
                 this.setState({AnsPayload:TempReport},()=>{
                     console.log("Normal Payload",this.state.AnsPayload)
                     if(this.state.SelectedQuestion+1 < this.state.Questions.length)
@@ -213,10 +215,11 @@ class SPGameScreen extends React.Component{
                                     {
                                         this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
                                             this.setState({HasSelected:false})
+                                            this.setState({OptionsDisabled:false})
                                             clearInterval(ImgWait)    
                                         }) 
                                     }
-                                },1500)
+                                },500)
                             })
                            
                         },2500)
@@ -248,9 +251,7 @@ class SPGameScreen extends React.Component{
                     <View style={style.Header}>
                         <View style={{height:70,width:'100%',flexDirection:'row'}}>
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
-                                <TouchableOpacity onPress={()=>this.QuitGame()}>
-                                    <Image source={require('../../assets/quit.png')} style={{width:35,height:35}}/>
-                                </TouchableOpacity>
+                                
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
                                 <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
@@ -271,9 +272,16 @@ class SPGameScreen extends React.Component{
                                     </AnimatedCircularProgress>
                                 </View>
                             </View> 
-                            <View style={{width:'25%',backgroundColor:'#11233A'}}>
-                                <TouchableOpacity onPress={()=>this.SkipQuestion()}>
+                            <View style={{width:'25%',backgroundColor:'#11233A',flexDirection:'row',alignItems:'center',justifyContent:'space-around'}}>
+                                {/* <TouchableOpacity onPress={()=>this.SkipQuestion()}>
                                     <CustomButton LeftIcon={null} RightIcon={"fast-forward"}><NormalText>Skip</NormalText></CustomButton>
+                                </TouchableOpacity> */}
+                                 <TouchableOpacity onPress={()=>this.SkipQuestion()}>
+                                    <Image source={require('../../assets/Skip.png')} style={{width:35,height:35,resizeMode:'contain'}}/>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={()=>this.QuitGame()}>
+                                    <Image source={require('../../assets/quit.png')} style={{width:35,height:35,resizeMode:'contain'}}/>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -291,7 +299,21 @@ class SPGameScreen extends React.Component{
                             <View style={style.PicContainer}>
                                 {
                                     this.state.Questions.length > 0 ?
-                                    <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>:
+                                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                        <View style={style.Pic1}>
+                                            <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>
+                                        </View>
+                                        {this.state.SelectedImage + 1 < this.state.Questions.length  ? 
+                                        <View style={style.Pic2}>
+                                            <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage+1].ImgUrl}}></Image>
+                                        </View>:null
+                                        }
+                                        {this.state.SelectedImage + 2 < this.state.Questions.length ?
+                                            <View style={style.Pic3}>
+                                                <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage+2].ImgUrl}}></Image>
+                                            </View>:null 
+                                        }
+                                    </View>:
                                     null
                                 }
                              
@@ -299,19 +321,19 @@ class SPGameScreen extends React.Component{
                             {this.state.Questions.length > 0 ? 
                         
                             <View style={style.OptionsContainer}>
-                                <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
+                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
                                     <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
                                 </TouchableOpacity>
                                 
-                                <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
+                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
                                     <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
+                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
                                     <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
                                 </TouchableOpacity>
 
-                                <TouchableOpacity onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
+                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
                                     <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
                                 </TouchableOpacity>
                             </View>:null}
@@ -384,16 +406,41 @@ const style=StyleSheet.create({
         height:100
     },
     PicContainer:{
+        flexDirection:'row',
         alignItems:'center',
         justifyContent:'center',
         width:'100%',
         height:150
     },
+    Pic1:{
+        height:'100%',
+        width:175,
+        borderRadius:10,
+        overflow:'hidden',
+        elevation:1
+    },
+    Pic2:{
+        height:'90%',
+        width:150,
+        marginLeft:-135,
+        borderRadius:10,
+        overflow:'hidden',
+        zIndex:-1,
+        elevation:1
+    },
+    Pic3:{
+        height:'80%',
+        width:150,
+        marginLeft:-135,
+        borderRadius:10,
+        overflow:'hidden',
+        zIndex:-2,
+        elevation:1
+    },
     Pic:{
         height:'100%',
         width:200,
-        resizeMode:'contain',
-        borderRadius:2
+        resizeMode:'stretch'
     },
     QuestionContainer:{
         width:'100%',

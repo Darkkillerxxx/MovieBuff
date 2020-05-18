@@ -43,7 +43,9 @@ const store=createStore(rootReducer)
 const LoadFonts=()=>{
   return Fonts.loadAsync({
     'Roboto':require('./assets/Fonts/Badaboom.ttf'),
-    'Roboto-bold':require('./assets/Fonts/Badaboom.ttf')
+    'Roboto-bold':require('./assets/Fonts/Badaboom.ttf'),
+    'Comic':require('./assets/Fonts/Comic.ttf'),
+    'Niagara':require('./assets/Fonts/Niagara.ttf')
   })
 }
 

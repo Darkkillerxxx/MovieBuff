@@ -4,25 +4,22 @@ import NormalText from './NormalText'
 
 const BriefInfo=(props)=>{
 return(
-    <View style={{...styles.Brief,...props.style}}>
-        <View style={styles.BriefPic}>
-            <Image style={styles.Coins} source={props.Image}/>
+        <View style={{...styles.Brief,...props.style}}>
+            <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:5}}>
+                <Image source={props.Image} style={{width:25,height:25}}/>
+                <NormalText style={{fontSize:12,marginTop:3}}>{props.value}</NormalText>
+            </View>
+            <Image resizeMode="contain" source={require('../assets/Purple.png')} style={{width:'100%',height:30,resizeMode:'contain',zIndex:-1,marginTop:-25}}/>
         </View>
-        <View style={styles.BriefNumbers}>
-            <NormalText style={styles.NormalText}>{props.value}</NormalText>
-        </View>
-    </View>
     )
 
 }
 
 const styles=StyleSheet.create({
     Brief:{
-        flexDirection:'row',
         width:'50%',
         height:25,
         marginRight:5,
-        backgroundColor:"#11233A",
         borderRadius:15
     },
     BriefPic:{

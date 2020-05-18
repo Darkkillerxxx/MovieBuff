@@ -1,25 +1,13 @@
 import React from 'react'
-import { StyleSheet,View,Button} from 'react-native'
+import { StyleSheet,View,Button, ImageBackground} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from './NormalText';
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 const SmallBtn=(props)=>{
     return(
-        // <View style={styles.ButtonContainer}>
-        //     {props.children}
-        // </View>
-
-        <LinearGradient
-            start={{x: 0, y: 0}} 
-            end={{x: 1, y: 0}}
-             colors={[props.color1,props.color2,props.color3,props.color4]}
-             style={styles.ButtonContainer}>
-            <View style={styles.InnerButton}>
-                <View style={styles.InnerButtonView1}>
-                   {props.children}
-                </View>
-            </View>
-        </LinearGradient>
+        <ImageBackground resizeMode="contain" source={require('../assets/Silverbtn.png')} style={styles.InnerButton}>
+            {props.children}
+        </ImageBackground>
     )
 }
 
@@ -34,12 +22,12 @@ const styles=StyleSheet.create({
         justifyContent:'center'
     },
     InnerButton:{
-        height:36,
-        width:'97%',
-        backgroundColor:"#1D3451",
+        height:75,
+        width:'100%',
         flexDirection:'row',
         justifyContent:'center',
-        alignItems:'center'
+        alignItems:'center',
+        marginTop:10
     },
     InnerButtonView:{
         flexDirection:'row',

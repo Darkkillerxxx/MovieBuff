@@ -7,7 +7,7 @@ const Options=(props)=>{
     return(
         <ImageBackground style={style.Options} source={require('../assets/opt.png')}>
                <View style={{width:235,height:55,backgroundColor:props.back,borderWidth:1,borderColor:'white',justifyContent:'center',alignItems:'center'}}>
-                <NormalText style={{fontSize:15,color:props.color,textAlign:'center'}}>{props.value}</NormalText>
+                <NormalText style={{fontSize:18,color:props.color,textAlign:'center'}}>{props.value}</NormalText>
                </View>
                
         </ImageBackground>
