@@ -36,6 +36,7 @@ class WelcomeScreen extends React.Component{
             FacebookId:FId.toString(),
             Password:Password
         }
+        console.log("Login Pay",payload)
         return login(payload).then(result=>{
             console.log("Login result",result)
             if(result.IsSuccess)
@@ -46,6 +47,8 @@ class WelcomeScreen extends React.Component{
                     DBData.Password=Password
                     DBData.FbId=FId.toString();
                     DBData.ScreenName=Username;
+                    // console.log(DBData)
+                    // DBData.Level="";
                     insertUser(JSON.stringify(DBData)).then(result=>{
                         console.log("Update",result)
                      }).catch(err=>{
@@ -111,7 +114,7 @@ class WelcomeScreen extends React.Component{
                        }
                        else
                        {
-                        this.props.navigation.replace('ProfileDetails') 
+                        this.props.navigation.navigate('ProfileDetails') 
                        }
                 })
                 
@@ -225,7 +228,8 @@ class WelcomeScreen extends React.Component{
                             <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}  />
                         </View>
                         <View style={styles.JoiningView}>
-                            <BoldText style={styles.WelcomeText}>Welcome to Filmy Buzz</BoldText>
+                            <BoldText style={styles.WelcomeText}>Welcome To</BoldText>
+                            <BoldText style={styles.WelcomeText}>Filmy Buzz</BoldText>
                         </View>
                         <View style={styles.InputContainer}>
                             <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":this.state.ErrorMessage ===  "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
@@ -287,8 +291,7 @@ const styles=StyleSheet.create({
         color:'#00C08A'
     },
     WelcomeText:{
-        fontSize:22,
-        marginVertical:10
+        fontSize:22
     },
     WelcomeNormalText:{
         marginHorizontal:'10%',

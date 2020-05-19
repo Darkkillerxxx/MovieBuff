@@ -6,21 +6,19 @@ const BriefInfo=(props)=>{
 return(
         <View style={{...styles.Brief,...props.style}}>
             <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:5}}>
-                <Image source={props.Image} style={{width:25,height:25}}/>
+                <Image source={props.Image} style={{...{width:25,height:25},...props.ImageStyle}}/>
                 <NormalText style={{fontSize:12,marginTop:3}}>{props.value}</NormalText>
             </View>
-            <Image resizeMode="contain" source={require('../assets/Purple.png')} style={{width:'100%',height:30,resizeMode:'contain',zIndex:-1,marginTop:-25}}/>
+            <Image resizeMode="contain" source={require('../assets/Purple.png')} style={{width:'100%',height:25,resizeMode:'stretch',zIndex:-1,marginTop:-25}}/>
         </View>
     )
-
 }
 
 const styles=StyleSheet.create({
     Brief:{
         width:'50%',
         height:25,
-        marginRight:5,
-        borderRadius:15
+        marginRight:5
     },
     BriefPic:{
         width:'20%',

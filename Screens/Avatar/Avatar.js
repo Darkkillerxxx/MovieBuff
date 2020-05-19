@@ -90,7 +90,7 @@ class Avatar extends React.Component{
         Login.AvatarURL=this.state.Icons[this.state.SelectedIcon -1].a_img_url
         this.props.onSetLogin(Login)
         this.props.onSetPrevPage('Avatar')
-        this.props.navigation.navigate('ProfileDetails')
+        this.props.navigation.replace('ProfileDetails')
     }
 
     render()

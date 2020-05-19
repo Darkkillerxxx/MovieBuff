@@ -223,25 +223,26 @@ class Dashboard extends React.Component{
                             <View style={styles.ProfilePic}>
                                 <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
                             </View>
-                            <NormalText style={{textAlign:'center',marginTop:10}}>{this.props.Dashboard.ScreenName}</NormalText>
+                            <NormalText style={{textAlign:'center'}}>{this.props.Dashboard.ScreenName}</NormalText>
+                            {/* <NormalText style={{textAlign:'center'}}>Level 1</NormalText> */}
                         </TouchableOpacity>
                     </View>
                     <View style={styles.BriefContainer}>
                         {console.log("Gold",this.state.Dashboard)}
                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
-                             <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
-                             <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
+                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
+                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
                         </View>
                         <View style={{width:'100%',flexDirection:'row'}}>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/coins.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
-                            <BriefInfo style={{width:'33.33%'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginLeft:-5,marginBottom:5}} Image={require('../../assets/TreasureBox.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:20,marginBottom:5,resizeMode:'contain'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
                         </View>
                     </View>
                 </View>
                 <View style={styles.ImageView}>
                     <View style={styles.BackImageContainer}>
-                        <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}  />
+                        <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}/>
                     </View>
                 </View>
 

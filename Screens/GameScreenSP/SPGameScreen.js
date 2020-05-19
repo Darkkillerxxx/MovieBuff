@@ -1,9 +1,9 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid,Alert } from 'react-native'
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import BriefInfo from '../../Components/BriefInfo';
+import BriefInfo2 from '../../Components/BriefInfo2';
 import Options from '../../Components/Options'
 import Levelup from '../../Components/Modals/LevelUp'
 import Result from '../../Components/Modals/Result'
@@ -37,7 +37,8 @@ class SPGameScreen extends React.Component{
             AnsPayload:[],
             Result:[],
             ImageLoaded:false,
-            OptionsDisabled:false
+            OptionsDisabled:false,
+            EarnedCoins:0
         }
     }
 
@@ -58,6 +59,7 @@ class SPGameScreen extends React.Component{
                  let TempDashboard=result.Data[0]
                  TempDashboard.FbId=this.props.Dashboard.FbId
                  TempDashboard.Password=this.props.Dashboard.Password
+                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
                  UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
                     console.log("Update",result)
                  }).catch(err=>{
@@ -90,9 +92,7 @@ class SPGameScreen extends React.Component{
                 console.log("Timer Payload",this.state.AnsPayload)
                 if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
                 {
-                    console.log(this.state.SelectedQuestion,this.state.Questions.length)
-                    this.setState({Timer:this.state.TimeAloted})
-                    this.setState({SelectedQuestion:this.state.SelectedQuestion + 1})
+                   this.MoveToNextQuestion()
                 }
                 else
                 {
@@ -117,19 +117,18 @@ class SPGameScreen extends React.Component{
     // }
 
     Timer=()=>{
-        //  setInterval(()=>{
-        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
-        //      {
-        //         this.setState({Timer:this.state.Timer-1},()=>{
-        //             this.calcTimerValue()
-        //             if(this.state.Timer === 0)
-        //             {
-        //                this.SkipQuestion()
-        //             }
-        //         })
-        //      }
-            
-        //     },1000)
+         setInterval(()=>{
+             if(this.state.Timer > 0 && this.state.ImageLoaded)
+             {
+                this.setState({Timer:this.state.Timer-1},()=>{
+                    this.calcTimerValue()
+                    if(this.state.Timer === 0)
+                    {
+                       this.SkipQuestion()
+                    }
+                })
+             }
+            },1000)
     }
 
     fetchResult=()=>{
@@ -182,6 +181,22 @@ class SPGameScreen extends React.Component{
        
     }
 
+    MoveToNextQuestion=()=>{
+        this.setState({Timer:this.state.TimeAloted})
+        this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
+            let ImgWait=setInterval(()=>{
+                if(this.state.ImageLoaded)
+                {
+                    this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
+                        this.setState({HasSelected:false})
+                        this.setState({OptionsDisabled:false})
+                        clearInterval(ImgWait)    
+                    }) 
+                }
+            },500)
+        })
+    }
+
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
         console.log("Id",id)
@@ -193,6 +208,7 @@ class SPGameScreen extends React.Component{
                 this.setState({SelectedOptions:id})
                 if(id === 4)
                 {
+                    this,this.setState({EarnedCoins:this.state.EarnedCoins + 10})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
                 }
                 let TempReport=this.state.AnsPayload;
@@ -208,21 +224,8 @@ class SPGameScreen extends React.Component{
                     if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                     {
                         setTimeout(()=>{
-                            this.setState({Timer:this.state.TimeAloted})
-                            this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
-                                let ImgWait=setInterval(()=>{
-                                    if(this.state.ImageLoaded)
-                                    {
-                                        this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
-                                            this.setState({HasSelected:false})
-                                            this.setState({OptionsDisabled:false})
-                                            clearInterval(ImgWait)    
-                                        }) 
-                                    }
-                                },500)
-                            })
-                           
-                        },2500)
+                           this.MoveToNextQuestion()
+                        },1000)
                     }
                     else
                     {
@@ -239,7 +242,18 @@ class SPGameScreen extends React.Component{
    
 
     QuitGame=()=>{
-        this.cangeModalType(null)
+        Alert.alert(
+            'Quit',
+            'Are You Sure You Want To Quit ???',
+           [ {
+                text: 'Yes',
+                onPress: () => this.cangeModalType(null)
+            },
+            {
+                text: 'No',
+                onPress: () => console.log('Ask me later pressed')
+            }],
+            { cancelable: false });
     }
 
 
@@ -251,7 +265,7 @@ class SPGameScreen extends React.Component{
                     <View style={style.Header}>
                         <View style={{height:70,width:'100%',flexDirection:'row'}}>
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
-                                
+                                <BriefInfo2 style={{width:'90%',borderColor:'#E5BE1C',borderWidth:1}} Image={require('../../assets/coins.png')} value={this.state.EarnedCoins}/>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
                                 <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
@@ -349,7 +363,7 @@ class SPGameScreen extends React.Component{
                     {/* <View style={style.Footer}>
                         <AdMobBanner
                         bannerSize="banner"
-                        adUnitID="ca-app-pub-3940256099942544/6300978111" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
+                        adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
                         onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
                    </View> */}
                     </ScrollView>
@@ -390,6 +404,9 @@ const style=StyleSheet.create({
         width:'100%',
         backgroundColor:"#11233A",
         alignItems:'center'
+    },
+    EarnedCoinsContainer:{
+
     },
     TimerContainer:{
         top:5,

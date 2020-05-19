@@ -78,32 +78,38 @@ class ProfileDetails extends React.Component{
         {
             this.setState({ErrorMessage:"Username Cannot be Less Than 3 Letter"})
             this.setState({UsernameAvailable:false})
+            console.log(1)
             return false;
         }
         else if(this.state.Username.length > 10)
         {
             this.setState({ErrorMessage:"Username Cannot be More Than 10 Letter"})
             this.setState({UsernameAvailable:false})
+            console.log(2)
             return false;
         }
         else if(this.state.FirstName.length === 0)
         {
             this.setState({isFirstNameEmpty:true})
+            console.log(3)
             return false;
         }
         else if(this.state.LastName.length === 0)
         {
             this.setState({isLastNameEmpty:true})
+            console.log(4)
             return false;
         }
-        else if(this.state.Password.length === 0)
+        else if(this.state.Password.length === 0 && this.props.PrevPage === "Avatar")
         {
             this.setState({isPasswordEmpty:true})
+            console.log(5)
             return false;
         }
-        else if(this.state.Password !== this.state.ConfirmPassword)
+        else if(this.state.Password !== this.state.ConfirmPassword && this.props.PrevPage === "Avatar")
         {
             this.setState({PasswordMatch:false})
+            console.log(6)
             return false;
         }
 
@@ -156,7 +162,8 @@ class ProfileDetails extends React.Component{
                             "AvatarBase64":this.state.ImageBase64,
                             "AvatarFacebook":this.state.ImageBase64 === "" ? Login.AvatarFacebook:"",
                             "SelectedGenre":Login.SelectedGenre,
-                            "SelectedRegion":Login.SelectedRegion
+                            "SelectedRegion":Login.SelectedRegion,
+                            "Password":this.state.Password
                         }
                        
                         registerUser(RegPayload).then(response=>{
@@ -269,14 +276,16 @@ class ProfileDetails extends React.Component{
                     </View>
                 </View>
                 <View style={styles.FLContainer}>
+                    {this.props.PrevPage === "Avatar" ?  
                     <View style={{width:'48%',marginRight:10}}>
                     {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:this.state.isPasswordEmpty ? <NormalText style={{color:'#ff6961'}}>Passwords Cannot be Blank</NormalText>:<NormalText>(*) Enter Password</NormalText>}
                         <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({Password:e},()=>this.setState({PasswordMatch:true}))} placeholder="Enter Password"  placeholderTextColor="#BAC1C9"  />
-                    </View>
+                    </View>:null}
+                    {this.props.PrevPage === "Avatar" ? 
                     <View style={{width:'48%'}}>
                     {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:<NormalText>(*) Re-Enter Password</NormalText>}
                         <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({ConfirmPassword:e},()=>this.setState({PasswordMatch:true}))} placeholder="Re-Enter Password" placeholderTextColor="#BAC1C9"  />
-                    </View>
+                    </View>:null}
                 </View>
                 <View style={styles.ButtonContainer}>
                     <TouchableOpacity onPress={()=>this.onProceed()} style={{width:300,alignItems:'center'}}>

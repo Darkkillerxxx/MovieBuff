@@ -9,7 +9,7 @@ const SinglePlayer=(props)=>{
         //     {props.children}
         // </View>
         <View style={{width:'100%',height:50,alignItems:'center'}}>
-            <FontAwesome name={props.icon} size={18} color={'white'} style={{marginVertical:5}}/>
+            <FontAwesome name={props.icon} size={24} color={'white'} style={{marginVertical:5}}/>
             {props.children}
             <Image source={require('../assets/Yellow.png')} style={{width:'100%',height:75,resizeMode:'contain',marginTop:-60,zIndex:-1}} />
         </View>

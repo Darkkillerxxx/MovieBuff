@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet,TouchableOpacity,Image } from 'react-native';
 import NextButton from '../NextButton'
 import NormalText from '../NormalText'
-import BriefInfo from '../BriefInfo';
+import BriefInfo2 from '../BriefInfo2';
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 
 class Result extends React.Component{
@@ -25,39 +25,39 @@ class Result extends React.Component{
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Earned Coins</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/coins.png')} value={this.props.Result[0].coins}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/coins.png')} value={this.props.Result[0].coins}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Total Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/timer.png')} value={`${this.props.TimeAloted} Sec`}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/timer.png')} value={`${this.props.TimeAloted} Sec`}/>
                             </View>
                         </View>
 
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Correct Answers</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/correct.png')} value={this.props.CorrectAns}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/correct.png')} value={this.props.CorrectAns}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Wrong Answers</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/wrong.png')} value={this.props.Questions.length - this.props.CorrectAns}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/wrong.png')} value={this.props.Questions.length - this.props.CorrectAns}/>
                             </View>
                         </View>
 
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Best Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].bestTime}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].bestTime}/>
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Worst Time</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/snail.png')} value={this.props.Result[0].worstTime}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/snail.png')} value={this.props.Result[0].worstTime}/>
                             </View>
                         </View>
                         <View style={styles.InfoContainer}>
                             <View style={{width:'50%',alignItems:'center'}}>
                                 <NormalText style={{margin:5,color:'#8B96A6'}}>Level</NormalText>
-                                <BriefInfo Brief={styles.BriefInfo} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].level}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/cheetah.png')} value={this.props.Result[0].level}/>
                             </View>
                         </View>
                       
@@ -76,8 +76,8 @@ class Result extends React.Component{
 }
 
 const styles=StyleSheet.create({
-    BriefInfo:{
-        width:'90%'
+    BriefInfo2:{
+        width:'100%',
     },
     Modal:{
         backgroundColor:'white',
