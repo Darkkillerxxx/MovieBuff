@@ -29,7 +29,7 @@ class Result extends React.Component{
                             </View>
                             <View style={{width:'50%',alignItems:'center'}}>
                             <NormalText style={{margin:5,color:'#8B96A6'}}>Total Time</NormalText>
-                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/timer.png')} value={`${this.props.TimeAloted} Sec`}/>
+                                <BriefInfo2 Brief={styles.BriefInfo2} Image={require('../../assets/timer.png')} value={`${this.props.TimteAloted} Sec`}/>
                             </View>
                         </View>
 

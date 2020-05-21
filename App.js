@@ -45,7 +45,8 @@ const LoadFonts=()=>{
     'Roboto':require('./assets/Fonts/Badaboom.ttf'),
     'Roboto-bold':require('./assets/Fonts/Badaboom.ttf'),
     'Comic':require('./assets/Fonts/Comic.ttf'),
-    'Niagara':require('./assets/Fonts/Niagara.ttf')
+    'Niagara':require('./assets/Fonts/Niagara.ttf'),
+    'Budmo':require('./assets/Fonts/budmo.ttf')
   })
 }
 

@@ -7,6 +7,7 @@ import BriefInfo2 from '../../Components/BriefInfo2';
 import Options from '../../Components/Options'
 import Levelup from '../../Components/Modals/LevelUp'
 import Result from '../../Components/Modals/Result'
+import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {getResult,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
@@ -44,7 +45,7 @@ class SPGameScreen extends React.Component{
 
     cangeModalType=(type)=>{
         let SignInPayload={
-            UserId:this.props.Dashboard.Id,
+            UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
             ScreenName:"",
             FacebookId:this.props.Dashboard.FbId,
             Password:this.props.Dashboard.Password
@@ -117,18 +118,18 @@ class SPGameScreen extends React.Component{
     // }
 
     Timer=()=>{
-         setInterval(()=>{
-             if(this.state.Timer > 0 && this.state.ImageLoaded)
-             {
-                this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
-                    if(this.state.Timer === 0)
-                    {
-                       this.SkipQuestion()
-                    }
-                })
-             }
-            },1000)
+        //  setInterval(()=>{
+        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
+        //      {
+        //         this.setState({Timer:this.state.Timer-1},()=>{
+        //             this.calcTimerValue()
+        //             if(this.state.Timer === 0)
+        //             {
+        //                this.SkipQuestion()
+        //             }
+        //         })
+        //      }
+        //     },1000)
     }
 
     fetchResult=()=>{
@@ -268,7 +269,19 @@ class SPGameScreen extends React.Component{
                                 <BriefInfo2 style={{width:'90%',borderColor:'#E5BE1C',borderWidth:1}} Image={require('../../assets/coins.png')} value={this.state.EarnedCoins}/>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
-                                <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText>
+                                {/* <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText> */}
+                                <View style={style.ProgressBarContainer}>
+                                    <NormalText style={{...{marginRight:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:15,color:'#E15158'}}}>{this.state.SelectedQuestion+1}</NormalText>
+                                    <View>
+                                        <Image source={require('../../assets/progressOuter.png')} style={{width:'100%',height:25,resizeMode:'stretch'}}/>
+                                        <View style={style.ProgressInner}>
+                                            <View style={style.ProgressbarStrip}>
+                                                <Image source={require('../../assets/ProgressInner.png')} style={{width:`${((this.state.SelectedQuestion+1) / this.state.Questions.length) *100}%`,height:'100%',resizeMode:'stretch'}}></Image>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <NormalText style={{...{marginLeft:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:15,color:'#E15158'}}}>{this.state.Questions.length}</NormalText>
+                                </View>
                                 <View style={style.TimerContainer}>
                                     <AnimatedCircularProgress
                                         size={50}
@@ -336,19 +349,19 @@ class SPGameScreen extends React.Component{
                         
                             <View style={style.OptionsContainer}>
                                 <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
                                 </TouchableOpacity>
                                 
                                 <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"white":"white"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "white":"white":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
+                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
                                 </TouchableOpacity>
                             </View>:null}
                         </View>
@@ -358,7 +371,7 @@ class SPGameScreen extends React.Component{
                     </Modal> 
 
                     <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
-                        <Result TimeAloted={this.state.TimeAloted} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
+                        <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
                     {/* <View style={style.Footer}>
                         <AdMobBanner
@@ -367,27 +380,6 @@ class SPGameScreen extends React.Component{
                         onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
                    </View> */}
                     </ScrollView>
-                
-                    
-                    {/* <View style={style.TimerBar}>
-                        <View style={style.TimerContainer}>
-                            <AnimatedCircularProgress
-                                size={50}
-                                width={5}
-                                fill={this.state.TimerValue}
-                                tintColor="#00e0ff"
-                                backgroundColor="#3d5875" >
-                                {
-                                    (fill) => (
-                                    <NormalText>
-                                        { this.state.Timer }
-                                    </NormalText>
-                                    )
-                                }
-                            </AnimatedCircularProgress>
-                        </View>
-                    </View> */}
-                    
             </AppContainer>
            
         )
@@ -395,6 +387,27 @@ class SPGameScreen extends React.Component{
 }
 
 const style=StyleSheet.create({
+    ProgressBarContainer:{
+        width:150,
+        height:18,
+        marginVertical:10,
+        flexDirection:'row'
+    },
+    ProgressInner:{
+        width:120,
+        height:19,
+        marginTop:-22,
+        marginLeft:3,
+        marginBottom:2,
+        borderRadius:10,
+        overflow:'hidden'
+    },
+    ProgressbarStrip:{
+        width:'83%',
+        height:'100%',
+        resizeMode:'stretch',
+        overflow:'hidden'
+    },
     AppContainer:{
         justifyContent:'flex-end',
         alignItems:'center'
@@ -484,8 +497,6 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         alignSelf:'stretch',
-        borderColor:'white',
-        borderWidth:1,
         marginTop:10,
         height:50
     }

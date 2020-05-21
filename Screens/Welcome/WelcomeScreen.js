@@ -201,6 +201,7 @@ class WelcomeScreen extends React.Component{
           ToastAndroid.show("V 1.0.6",ToastAndroid.SHORT)
           console.log("Welcome Screen")
         fetchUser().then(result => {
+            console.log("Debug Welcome",result)
             if(result.rows.length > 0)
             {
                 let JSONUser=JSON.parse(result.rows._array[0].DBData)

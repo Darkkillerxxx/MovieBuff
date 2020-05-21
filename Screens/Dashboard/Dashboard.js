@@ -119,7 +119,7 @@ class Dashboard extends React.Component{
 
     componentDidMount()
     {
-        console.log("Dasbhoard Redux",this.props.Dashboard)
+        // console.log("Dasbhoard Redux",this.props.Dashboard)
         this.setState({Bronze:this.props.Dashboard.Bronze})
         this.setState({Coins:this.props.Dashboard.Coins})
         this.setState({Gold:this.props.Dashboard.Gold})
@@ -188,8 +188,10 @@ class Dashboard extends React.Component{
                 "SelectedRegion":"",
                 "AvatarURL":""
             }
+            console.log("Delete User",result)
             this.props.onSetDashbaord({})
             this.props.onSetLogin(DefaultLogin)
+            console.log('Welcome')
             this.props.navigation.replace('Welcome')
 
         }).catch(err=>{
@@ -276,7 +278,7 @@ class Dashboard extends React.Component{
                    <View style={styles.Tools}>
                     <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
                         <SmallBtn>
-                            <Image style={styles.Podium} source={require('../../assets/Setting.png')}/>
+                            <Image style={{...styles.Podium,...{height:35,width:35}}} source={require('../../assets/Setting.png')}/>
                         </SmallBtn>
                     </TouchableOpacity>
                    </View>
@@ -294,9 +296,9 @@ class Dashboard extends React.Component{
 
                 {/* Modals From Here */}
 
-
+                
                 <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
-                    <CustomModal DismissModal={this.DismissSpModal} SetQuestions={this.setSPNoQuestions} setRegion={this.setSpRegion} Questions={this.state.SPNoQuestions} Region={this.state.SPRegion} SetRegion={this.setSpRegion} ProceedToCustom={this.onProceedToCustom}/>
+                    <CustomModal Heading="SP" Type="SP" DismissModal={this.DismissSpModal} SetQuestions={this.setSPNoQuestions} setRegion={this.setSpRegion} Questions={this.state.SPNoQuestions} Region={this.state.SPRegion} SetRegion={this.setSpRegion} ProceedToCustom={this.onProceedToCustom}/>
                 </Modal>   
                 <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
                     <MPModal/>

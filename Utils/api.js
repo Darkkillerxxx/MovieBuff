@@ -1,4 +1,4 @@
-const base_url="https://dsbykshku3.execute-api.ap-south-1.amazonaws.com/dev/"
+const base_url="https://9gq7wxspl9.execute-api.ap-south-1.amazonaws.com/dev/"
 import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {
