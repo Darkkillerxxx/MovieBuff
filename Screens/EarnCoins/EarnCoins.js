@@ -1,6 +1,6 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer';
-import {StyleSheet,View,Image,TouchableOpacity,Modal} from 'react-native';
+import {StyleSheet,View,Image,TouchableOpacity,Modal, ToastAndroid} from 'react-native';
 import NormalText from '../../Components/NormalText';
 import BoldText from '../../Components/BoldText';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -25,12 +25,14 @@ class EarnCoins extends React.Component{
 
     async componentDidMount()
     {
-        await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); 
+        //ca-app-pub-3341671606021251/4823652626
+        await AdMobRewarded.setAdUnitID('ca-app-pub-3341671606021251/4823652626');
         await AdMobRewarded.requestAdAsync();
         console.log(this.props.Dashboard)
        
         await AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
             console.log("Reward")
+            ToastAndroid.show("Reward",ToastAndroid.SHORT)
             this.setState({RewardUserVideo:true})
         })
 
@@ -40,8 +42,10 @@ class EarnCoins extends React.Component{
             
             let payload={
                 "Id":this.props.Dashboard.Id.toString(),
-                "CoinsToAdd":50,
-                "ResourceID":1                                                                                                                                                      
+                "CoinsToAdd":100,
+                "ResourceID":1,
+                "Credit":"True",
+                "Debit":"False"                                                                                                                                                      
             }
 
             console.log(payload)
@@ -55,13 +59,18 @@ class EarnCoins extends React.Component{
         })
     }
 
-    componentWillUnmount(){
-        AdMobRewarded.removeAllListeners()
-    }
+    // componentWillUnmount(){
+    //     AdMobRewarded.removeAllListeners()
+    // }
 
     showRewarderdVideo=async()=>{
          AdMobRewarded.showAdAsync().catch((err)=>{
-             console.log("Ad is Not Ready")
+             console.log("Ad is Not Ready",err)
+             ToastAndroid.show("Ad Not Ready",ToastAndroid.SHORT)
+             
+            //  AdMobRewarded.requestAdAsync().catch(err=>{
+            //      console.log("Fetch Error",err)
+            //  })
          });
     }
 
@@ -74,7 +83,7 @@ class EarnCoins extends React.Component{
                 </View>
                 <ScrollView>
                     <View style={styles.CardContainer}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.showRewarderdVideo()}>
                             <View style={styles.Card}>
                                 <Image style={styles.CardImage} source={require('../../assets/video.png')} />
                                 <NormalText style={{fontSize:14}}>Watch Ads</NormalText>
@@ -84,7 +93,8 @@ class EarnCoins extends React.Component{
                         <View style={styles.Card}>
                             <Image style={styles.CardImage} source={require('../../assets/star.png')} />
                             <NormalText style={{fontSize:14}}>Rate Us</NormalText>
-                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText>
+                            {/* <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText> */}
+                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
                         </View>
                     </View>
                     <View style={styles.CardContainer}>
@@ -95,12 +105,14 @@ class EarnCoins extends React.Component{
                         <View style={styles.Card}>
                             <Image style={styles.CardImage} source={require('../../assets/facebookbig.png')} />
                             <NormalText style={{fontSize:14}}>Complete Profile</NormalText>
-                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText>
+                            {/* <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText> */}
+                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
                         </View>
                         <View style={styles.Card}>
                             <Image style={styles.CardImage} source={require('../../assets/coinbig.png')} />
                             <NormalText style={{fontSize:14}}>Buy Coins</NormalText>
-                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>Costs Real Money</NormalText>
+                            {/* <NormalText style={{fontSize:14,color:"#8B96A6"}}>Costs Real Money</NormalText> */}
+                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
                         </View>
                     </View>
                 </ScrollView>

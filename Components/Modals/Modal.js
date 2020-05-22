@@ -27,6 +27,10 @@ class CustomModal extends React.Component{
                 this.props.ProceedToCustom()
             }
         }
+        else if(this.props.Type === "Reward")
+        {
+            this.props.DismissModal()
+        }
         else
         {
             this.props.changeModal("Level")
@@ -44,12 +48,32 @@ class CustomModal extends React.Component{
                         <LinearGradient start={{x: 0, y: 0}} end={{x: 0, y: 1}} colors={['#81CBB7', '#70AAB6', '#5E5DB4',"#4F1DB3","#8113B8","#B613BD"]} style={styles.Modal3}>
                             <ImageBackground resizeMode='stretch' source={require('../../assets/ModalHead.png')} style={styles.ModalHeader}>
                                 <View style={{width:'100%',height:'60%',alignItems:'center',justifyContent:'center'}}>
-                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold'}}>{this.props.Type === "SP" ? "Choose Game":this.props.Type === "Result" ? "Result":""}</NormalText>
+                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold'}}>
+                                        {this.props.Type === "SP" ? 
+                                        "Choose Game":this.props.Type === "Result" ?
+                                         "Result":this.props.Type === "Opt" ?
+                                          "Options":this.props.Type === "Reward" ?
+                                          "Reward":this.props.Type === "Insuff" ? 
+                                          "Insufficient Balance":<View></View>}</NormalText>
                                 </View>
                             </ImageBackground>
                             {this.props.Type === "SP" ? 
                             <NormalText style={{fontSize:16,fontFamily:'Roboto-bold'}}>{this.state.Part === 1 ? "Choose Region":"Choose Game Type"}</NormalText>
                             :<View></View>}
+
+                            {
+                                this.props.Type === "Reward" ? 
+                                <View style={{marginVertical:12}}>
+                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold',textAlign:'center'}}>Thank You For Registering With Us</NormalText>
+                                    <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',textAlign:'center',marginVertical:10}}>Here Are Some Coins</NormalText>
+                                </View>:
+                                this.props.Type === "Insuff" ? 
+                                <View style={{marginVertical:12}}>
+                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold',textAlign:'center'}}>You Have Insufficent Coins To Play</NormalText>
+                                    <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',textAlign:'center',marginVertical:10}}>Total Coins You Need Are</NormalText>
+                                </View>:<View></View>
+                                
+                            }
                             
                             {
                             this.props.Type === "SP" ?
@@ -110,7 +134,7 @@ class CustomModal extends React.Component{
 
                                         <View style={{width:'50%',alignItems:'center'}}>
                                             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
-                                                <Image source={require('../../assets/coins.png')} style={{width:25,height:25,marginRight:10}}></Image>
+                                                <Image source={require('../../assets/coins2.png')} style={{width:25,height:20,marginRight:10,resizeMode:'stretch'}}></Image>
                                                 <NormalText>Earned Coins</NormalText>    
                                             </View>
                                             <View style={styles.ModalButton}>
@@ -190,25 +214,46 @@ class CustomModal extends React.Component{
                                         </View> 
                                           
                                     </View>
-                                </View>:<View></View>
+                                </View>:
+                                this.props.Type === "Opt" ?
+                                 <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
+                                    <NormalText style={{fontSize:20,marginVertical:10}}>Help</NormalText>
+                                    <TouchableOpacity onPress={()=>this.props.Logout()}>
+                                        <NormalText style={{fontSize:20,marginVertical:10}}>Logout</NormalText>    
+                                    </TouchableOpacity>
+                                    
+                                 </View>:
+                                 this.props.Type === "Reward" || this.props.Type === "Insuff" ? 
+                                   
+                                    <View style={{...styles.ModalButton,...{width:'50%',height:100}}}>
+                                            <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
+                                                <Image source={require('../../assets/Treasure.png')} style={{width:50,height:50,resizeMode:'stretch'}}/>
+                                                <NormalText>{this.props.Coins} Coins</NormalText>
+                                            </ImageBackground>
+                                        </View>
+                                 :
+                                 <View></View>
                             }
                            
                            
                             
                             <View style={{flex:1,justifyContent:'space-around',alignItems:'center',flexDirection:'row'}}>
                                 
-                                {this.props.Type === "SP" ?
+                                {this.props.Type === "SP" || this.props.Type === "Opt" ?
                                 <TouchableOpacity onPress={()=>this.props.DismissModal()} style={{width:'50%'}}>
                                     <SinglePlayer icon={"close"}>
                                         <NormalText style={styles.NormalTextSP}>Cancel</NormalText>
                                     </SinglePlayer>
                                 </TouchableOpacity>:<View></View>}
                                
-                                <TouchableOpacity style={{width:'50%'}} onPress={()=>this.changeParts()}>
-                                    <SinglePlayer icon={"arrow-right"}>
-                                        <NormalText style={styles.NormalTextSP}>Proceed</NormalText>
-                                    </SinglePlayer>
-                                </TouchableOpacity>
+                               {this.props.Type !== "Opt" ? 
+                                    <TouchableOpacity style={{width:'50%'}} onPress={()=>this.changeParts()}>
+                                        <SinglePlayer icon={"arrow-right"}>
+                                            <NormalText style={styles.NormalTextSP}>Proceed</NormalText>
+                                        </SinglePlayer>
+                                    </TouchableOpacity>:null
+                                }
+                              
                               
                             </View>
                         </LinearGradient>
@@ -368,70 +413,3 @@ const styles=StyleSheet.create({
 
 
 export default CustomModal
-
-
-
-{/* <View style={styles.Modal}>
-        <View style={styles.ModalHeader}>
-           
-        </View>
-        <View style={styles.ModalContent}>
-            <NormalText style={styles.ModalContentHeading}>Choose Number of Questions</NormalText>
-            <View style={styles.ModalOverView}>
-                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(5)}>
-                    <View style={props.Questions === 5 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>5 Questions</NormalText>
-                            <NormalText style={props.Questions === 5 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>100 Seconds</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(15)}>
-                    <View style={props.Questions === 15 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>15 Questions</NormalText>
-                            <NormalText style={props.Questions === 15 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>250 Seconds</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-               
-            </View>
-
-            <View style={styles.ModalOverView}>
-                 <TouchableWithoutFeedback onPress={()=>props.SetQuestions(25)}>
-                    <View style={props.Questions === 25 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>25 Questions</NormalText>
-                            <NormalText style={props.Questions === 25 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>500 Seconds</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={()=>props.SetQuestions(30)}>
-                    <View style={props.Questions === 30 ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>30 Questions</NormalText>
-                            <NormalText style={props.Questions === 30 ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>600 Seconds</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
-
-            <NormalText style={styles.ModalContentHeading}>Choose Region</NormalText>
-            <View style={styles.ModalOverView}>
-                <TouchableWithoutFeedback onPress={()=>props.setRegion(1)}>
-                    <View style={props.Region.includes(1) ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Region.includes(1) ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>Hollywood</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={()=>props.setRegion(2)}>
-                    <View style={props.Region.includes(2) ? styles.ModalGameStyleButtonSelected:styles.ModalGameStyleButtonUnselected}>
-                            <NormalText style={props.Region.includes(2) ? styles.ModalButtonTextStyleSelected:styles.ModalButtonTextStyleUnselected}>Bollywood</NormalText>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
-        </View>
-        <View style={styles.ModalFooter}>
-            <TouchableOpacity onPress={()=>props.DismissModal()}>
-                <View style={styles.CloseButtonContainer}>
-                    <FontAwesome name="close" size={24} color='white'/>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>props.ProceedToCustom()}>
-                <View style={styles.PlayButtonContainer}>
-                    <FontAwesome name="play" size={24} color='white'/>
-                </View>
-            </TouchableOpacity>
-        </View>             
-    </View> */}

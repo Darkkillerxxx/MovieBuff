@@ -6,7 +6,6 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo2 from '../../Components/BriefInfo2';
 import Options from '../../Components/Options'
 import Levelup from '../../Components/Modals/LevelUp'
-import Result from '../../Components/Modals/Result'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {getResult,login} from '../../Utils/api'
@@ -108,32 +107,37 @@ class SPGameScreen extends React.Component{
         }
     }
 
-    // show=async()=>{
-    //     await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712');
-    //     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
-    // }
+    show=async()=>{
+        await AdMobInterstitial.setAdUnitID('ca-app-pub-3341671606021251/5015224314');
+        await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
+    }
 
-    // showads=async()=>{
-    //     await AdMobInterstitial.showAdAsync();
-    // }
+    showads=async()=>{
+        await AdMobInterstitial.showAdAsync();
+    }
 
     Timer=()=>{
-        //  setInterval(()=>{
-        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
-        //      {
-        //         this.setState({Timer:this.state.Timer-1},()=>{
-        //             this.calcTimerValue()
-        //             if(this.state.Timer === 0)
-        //             {
-        //                this.SkipQuestion()
-        //             }
-        //         })
-        //      }
-        //     },1000)
+         setInterval(()=>{
+             if(this.state.Timer > 0 && this.state.ImageLoaded)
+             {
+                this.setState({Timer:this.state.Timer-1},()=>{
+                    this.calcTimerValue()
+                    if(this.state.Timer === 0)
+                    {
+                       this.SkipQuestion()
+                    }
+                })
+             }
+            },1000)
     }
 
     fetchResult=()=>{
-        // this.showads()
+        let ShowInterstital=Math.random() * 10
+        console.log("Show Ads",ShowInterstital)
+        if(Math.floor(ShowInterstital) < 5)
+        {
+            this.showads()
+        }
         let payload={
             Report:this.state.AnsPayload,
             Ccount:this.state.CorrectAns,
@@ -178,7 +182,7 @@ class SPGameScreen extends React.Component{
          console.log("Questions",this.state.Questions)
      })
         this.Timer()
-        // this.show();
+        this.show();
        
     }
 
@@ -240,6 +244,14 @@ class SPGameScreen extends React.Component{
        
     }
 
+    componentWillUnmount()
+    {
+        this.setState({SelectedQuestion:this.state.Questions.length - 1},()=>{
+            this.setState({Timer:0})
+        })
+     
+    }
+
    
 
     QuitGame=()=>{
@@ -266,12 +278,16 @@ class SPGameScreen extends React.Component{
                     <View style={style.Header}>
                         <View style={{height:70,width:'100%',flexDirection:'row'}}>
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
-                                <BriefInfo2 style={{width:'90%',borderColor:'#E5BE1C',borderWidth:1}} Image={require('../../assets/coins.png')} value={this.state.EarnedCoins}/>
+                                {/* <BriefInfo2 style={{width:'90%',borderColor:'#E5BE1C',borderWidth:1}} Image={require('../../assets/coins.png')} value={this.state.EarnedCoins}/> */}
+                                <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
+                                    <Image source={require('../../assets/Coins3.png')} style={{width:20,height:20,marginBottom:5,resizeMode:'stretch'}}></Image>
+                                    <NormalText>{this.state.EarnedCoins}</NormalText>
+                                </View>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
                                 {/* <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText> */}
                                 <View style={style.ProgressBarContainer}>
-                                    <NormalText style={{...{marginRight:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:15,color:'#E15158'}}}>{this.state.SelectedQuestion+1}</NormalText>
+                                    <NormalText style={{...{marginRight:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:17,color:'#E15158'}}}>{this.state.SelectedQuestion+1}</NormalText>
                                     <View>
                                         <Image source={require('../../assets/progressOuter.png')} style={{width:'100%',height:25,resizeMode:'stretch'}}/>
                                         <View style={style.ProgressInner}>
@@ -280,7 +296,7 @@ class SPGameScreen extends React.Component{
                                             </View>
                                         </View>
                                     </View>
-                                    <NormalText style={{...{marginLeft:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:15,color:'#E15158'}}}>{this.state.Questions.length}</NormalText>
+                                    <NormalText style={{...{marginLeft:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:17,color:'#E15158'}}}>{this.state.Questions.length}</NormalText>
                                 </View>
                                 <View style={style.TimerContainer}>
                                     <AnimatedCircularProgress
@@ -373,12 +389,12 @@ class SPGameScreen extends React.Component{
                     <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
-                    {/* <View style={style.Footer}>
+                    <View style={style.Footer}>
                         <AdMobBanner
                         bannerSize="banner"
                         adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
                         onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
-                   </View> */}
+                   </View>
                     </ScrollView>
             </AppContainer>
            
@@ -440,7 +456,8 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         width:'100%',
-        height:150
+        height:150,
+        marginTop:10
     },
     Pic1:{
         height:'100%',
@@ -451,8 +468,8 @@ const style=StyleSheet.create({
     },
     Pic2:{
         height:'90%',
-        width:150,
-        marginLeft:-135,
+        width:170,
+        marginLeft:-155,
         borderRadius:10,
         overflow:'hidden',
         zIndex:-1,
@@ -468,8 +485,8 @@ const style=StyleSheet.create({
         elevation:1
     },
     Pic:{
-        height:'100%',
-        width:200,
+        height:'110%',
+        width:210,
         resizeMode:'stretch'
     },
     QuestionContainer:{

@@ -236,7 +236,7 @@ class Dashboard extends React.Component{
                              <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
                         </View>
-                        <View style={{width:'100%',flexDirection:'row'}}>
+                        <View style={{width:'100%',flexDirection:'row',marginTop:10}}>
                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginLeft:-5,marginBottom:5}} Image={require('../../assets/TreasureBox.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:20,marginBottom:5,resizeMode:'contain'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
                         </View>
@@ -256,12 +256,13 @@ class Dashboard extends React.Component{
                             </SinglePlayer>
                         </TouchableOpacity>
                     </View>
-
+                    
                     <View style={styles.SPContainer}>
                         <TouchableOpacity style={{width:'100%'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                             <SinglePlayer icon={"users"}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
+                            <NormalText style={{marginTop:20,textAlign:'center',color:'yellow'}}>Comming Soon !!!</NormalText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -284,7 +285,7 @@ class Dashboard extends React.Component{
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
                         <SmallBtn>
                             <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
                         </SmallBtn>
@@ -304,13 +305,13 @@ class Dashboard extends React.Component{
                     <MPModal/>
                 </Modal>  
                 <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
-                    <RewardModal Coins={500} FirstMsg={"Thank You For Registering To Filmy Buzz"} SecondMsg={"Here Is Your Sign Up Reward"} DismissModal={this.DismissRewardModal}/>
+                    <CustomModal Heading="Reward" Type="Reward" Coins="500" DismissModal={this.DismissRewardModal} />
                 </Modal> 
                 <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
-                    <RewardModal Coins={this.state.SPNoQuestions * 2} FirstMsg={"You Have Insufficient Balance to Play This Quest"} SecondMsg={"Total Coins You Need To Play This Quest Are"} DismissModal={this.DismissInsuffModal}/>
+                    <CustomModal Heading="Insuff" Type="Insuff" Coins={this.state.SPNoQuestions * 2} DismissModal={this.DismissRewardModal} />
                 </Modal>
                 <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
-                    <SettingsModal Logout={this.onLogOutPressed} DismissModal={this.DismissSettingsModal} />
+                    <CustomModal Heading="Opt" Type="Opt" Logout={this.onLogOutPressed} DismissModal={this.DismissSettingsModal}/>
                 </Modal>
 
                 {/* Modals Ends Here      */}
@@ -406,7 +407,7 @@ const styles=StyleSheet.create({
         color:"#FF5D60"
     },
     ToolsContainer:{
-        marginTop:15,
+        marginTop:5,
         flexDirection:'row',
         width:'100%'
     },
