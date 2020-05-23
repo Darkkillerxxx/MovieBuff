@@ -18,6 +18,7 @@ import {AddCoins,GetLeaderBoard} from '../../Utils/api.js'
 import RewardModal from '../../Components/Modals/RewardModal'
 import DashboardReducer from '../../Store/Reducers/Dashboard';
 import SettingsModal from '../../Components/Modals/SettingsModal'
+import { ScrollView } from 'react-native-gesture-handler';
 
 class Dashboard extends React.Component{
     constructor()
@@ -27,7 +28,7 @@ class Dashboard extends React.Component{
             ShowModalSP:false,
             ShowModalMP:false,
             SPNoQuestions:5,
-            SPRegion:[1],
+            SPRegion:[],
             DashboardCoins:0,
             Bronze:0,
             Coins:0,
@@ -219,6 +220,7 @@ class Dashboard extends React.Component{
     {
         return(
             <AppContainer style={styles.AppContainer}>
+                <ScrollView>
                 <View style={styles.InfoContainer}>
                     <View style={styles.PicContainer}>
                         <TouchableOpacity>
@@ -232,13 +234,13 @@ class Dashboard extends React.Component{
                     <View style={styles.BriefContainer}>
                         {console.log("Gold",this.state.Dashboard)}
                         <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
-                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
-                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
+                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginBottom:5}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
+                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginBottom:5}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginBottom:5}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
                         </View>
                         <View style={{width:'100%',flexDirection:'row',marginTop:10}}>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35,marginLeft:-5,marginBottom:5}} Image={require('../../assets/TreasureBox.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:20,marginBottom:5,resizeMode:'contain'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:45,marginLeft:-5,marginBottom:5}} Image={require('../../assets/TreasureBox.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
+                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5,resizeMode:'contain'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
                         </View>
                     </View>
                 </View>
@@ -273,6 +275,7 @@ class Dashboard extends React.Component{
                         <SmallBtn>
                             <Image style={styles.Podium} source={require('../../assets/Leaderboard.png')}/>
                         </SmallBtn>
+                        <NormalText style={{textAlign:'center'}}>Leaderboard</NormalText>
                     </TouchableOpacity>
                    </View>
 
@@ -281,6 +284,7 @@ class Dashboard extends React.Component{
                         <SmallBtn>
                             <Image style={{...styles.Podium,...{height:35,width:35}}} source={require('../../assets/Setting.png')}/>
                         </SmallBtn>
+                        <NormalText style={{textAlign:'center'}}>Settings</NormalText>
                     </TouchableOpacity>
                    </View>
 
@@ -289,6 +293,7 @@ class Dashboard extends React.Component{
                         <SmallBtn>
                             <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
                         </SmallBtn>
+                        <NormalText style={{textAlign:'center'}}>Earn Coins</NormalText>
                     </TouchableOpacity>
                    </View>
                 </View>
@@ -305,15 +310,27 @@ class Dashboard extends React.Component{
                     <MPModal/>
                 </Modal>  
                 <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
-                    <CustomModal Heading="Reward" Type="Reward" Coins="500" DismissModal={this.DismissRewardModal} />
+                    <CustomModal 
+                        Heading="Reward" 
+                        Type="Reward" 
+                        FMsg={"Thank You For Registering With Us"} 
+                        SMsg={"Here Are Some Coins"}
+                        Coins="500" 
+                        DismissModal={this.DismissRewardModal} />
                 </Modal> 
                 <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
-                    <CustomModal Heading="Insuff" Type="Insuff" Coins={this.state.SPNoQuestions * 2} DismissModal={this.DismissRewardModal} />
+                    <CustomModal 
+                        Heading="Insuff" 
+                        Type="Insuff" 
+                        FMsg={"You Have Insufficient Coins To Play"} 
+                        SMsg={"Toal Coins You Need You Need To Play Are"}                        
+                        Coins={this.state.SPNoQuestions * 2} 
+                        DismissModal={this.DismissRewardModal} />
                 </Modal>
                 <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
                     <CustomModal Heading="Opt" Type="Opt" Logout={this.onLogOutPressed} DismissModal={this.DismissSettingsModal}/>
                 </Modal>
-
+                </ScrollView>
                 {/* Modals Ends Here      */}
             </AppContainer>
         )
@@ -399,7 +416,7 @@ const styles=StyleSheet.create({
         justifyContent:'center'
     },
     NormalTextSP:{
-        fontSize:15,
+        fontSize:18,
         color:'white'
     },
     NormalTextCo:{

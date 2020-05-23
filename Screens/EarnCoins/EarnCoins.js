@@ -4,9 +4,11 @@ import {StyleSheet,View,Image,TouchableOpacity,Modal, ToastAndroid} from 'react-
 import NormalText from '../../Components/NormalText';
 import BoldText from '../../Components/BoldText';
 import { ScrollView } from 'react-native-gesture-handler';
-import {AddCoins} from '../../Utils/api'
+import {setDashboard} from '../../Store/Actions/ActionDashboard'
+import {AddCoins,login} from '../../Utils/api'
 import { connect } from 'react-redux'
-import RewardModal from '../../Components/Modals/RewardModal' 
+import CustomModal from '../../Components/Modals/Modal'
+import {UpdateUser} from '../../Database/Helper'
 import {
   AdMobRewarded
   } from 'expo-ads-admob';
@@ -19,7 +21,8 @@ class EarnCoins extends React.Component{
         this.state={
             RewardUserVideo:false,
             ShowModal:false,
-            AssignCoins:false
+            AssignCoins:false,
+            ShowAds:false
         }
     }
 
@@ -36,10 +39,16 @@ class EarnCoins extends React.Component{
             this.setState({RewardUserVideo:true})
         })
 
-       await AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
-            console.log("Close")
-            // Hit Api
-            
+        await AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
+            console.log("Check",this.state.RewardUserVideo)
+            if(this.state.RewardUserVideo)
+            {
+                this.rewardUser()
+            }
+        })
+    }
+
+    rewardUser=()=>{
             let payload={
                 "Id":this.props.Dashboard.Id.toString(),
                 "CoinsToAdd":100,
@@ -48,17 +57,17 @@ class EarnCoins extends React.Component{
                 "Debit":"False"                                                                                                                                                      
             }
 
-            console.log(payload)
+            console.log("Sending Payload form Adreward Video",payload)
 
             AddCoins(payload).then((result)=>{
                 if(result.IsSuccess)
                 {
-                    this.setState({ShowModal:true})
+                    this.setState({ShowModal:true},()=>{
+                        // this.setState({RewardUserVideo:false})
+                    })
                 }
             })
-        })
     }
-
     // componentWillUnmount(){
     //     AdMobRewarded.removeAllListeners()
     // }
@@ -74,6 +83,35 @@ class EarnCoins extends React.Component{
          });
     }
 
+    DismissRewardModal=()=>{
+        let SignInPayload={
+            UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
+            ScreenName:"",
+            FacebookId:this.props.Dashboard.FbId,
+            Password:this.props.Dashboard.Password
+         }
+
+         
+         login(SignInPayload).then(result=>{
+            console.log(result) 
+            if(result.IsSuccess)
+             {
+                 this.setState({ShowModal:false})
+                 let TempDashboard=result.Data[0]
+                 TempDashboard.FbId=this.props.Dashboard.FbId
+                 TempDashboard.Password=this.props.Dashboard.Password
+                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
+                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+                    console.log("Update",result)
+                 }).catch(err=>{
+                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                 })
+                this.props.onSetDashboard(TempDashboard)
+                this.props.navigation.navigate('Dashboard')
+             }
+         })
+    }
+
     render()
     {
         return(
@@ -87,7 +125,7 @@ class EarnCoins extends React.Component{
                             <View style={styles.Card}>
                                 <Image style={styles.CardImage} source={require('../../assets/video.png')} />
                                 <NormalText style={{fontSize:14}}>Watch Ads</NormalText>
-                                <NormalText style={{fontSize:14,color:"#8B96A6"}}>+50 Coins</NormalText>
+                                <NormalText style={{fontSize:14,color:"#8B96A6"}}>+100 Coins</NormalText>
                             </View>
                         </TouchableOpacity>
                         <View style={styles.Card}>
@@ -117,7 +155,13 @@ class EarnCoins extends React.Component{
                     </View>
                 </ScrollView>
                 <Modal visible={this.state.ShowModal} transparent={true} animationType="slide">
-                    <RewardModal/>
+                <CustomModal 
+                    Heading="Reward" 
+                    Type="Reward" 
+                    FMsg={"Thank You For Watching Ad"} 
+                    SMsg={"Here Is Your Reward"}
+                    Coins="100" 
+                    DismissModal={this.DismissRewardModal} />
                 </Modal>
                
               

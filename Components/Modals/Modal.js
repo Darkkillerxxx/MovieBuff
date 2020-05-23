@@ -11,7 +11,8 @@ class CustomModal extends React.Component{
     {
         super()
         this.state={
-            Part:1
+            Part:1,
+            ErrorCode:0
         }
     }
 
@@ -20,8 +21,15 @@ class CustomModal extends React.Component{
         {
             if(this.state.Part === 1)
             {
-                this.setState({Part:2})
-            }
+                if(this.props.Region.length > 0)
+                {
+                    this.setState({Part:2})
+                }
+                else
+                {
+                    this.setState({ErrorCode:1})
+                }
+        }
             else
             {
                 this.props.ProceedToCustom()
@@ -57,21 +65,18 @@ class CustomModal extends React.Component{
                                           "Insufficient Balance":<View></View>}</NormalText>
                                 </View>
                             </ImageBackground>
-                            {this.props.Type === "SP" ? 
-                            <NormalText style={{fontSize:16,fontFamily:'Roboto-bold'}}>{this.state.Part === 1 ? "Choose Region":"Choose Game Type"}</NormalText>
+                            {this.props.Type === "SP" ?
+                            this.state.ErrorCode === 1 ?  
+                            <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',color:'red'}}>Need To Select Atleat One Region</NormalText>:null
                             :<View></View>}
 
                             {
-                                this.props.Type === "Reward" ? 
+                                this.props.Type === "Reward" || this.props.Type === "Insuff" ? 
                                 <View style={{marginVertical:12}}>
-                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold',textAlign:'center'}}>Thank You For Registering With Us</NormalText>
-                                    <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',textAlign:'center',marginVertical:10}}>Here Are Some Coins</NormalText>
+                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold',textAlign:'center'}}>{this.props.FMsg}</NormalText>
+                                    <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',textAlign:'center',marginVertical:10}}>{this.props.SMsg}</NormalText>
                                 </View>:
-                                this.props.Type === "Insuff" ? 
-                                <View style={{marginVertical:12}}>
-                                    <NormalText style={{fontSize:18,fontFamily:'Roboto-bold',textAlign:'center'}}>You Have Insufficent Coins To Play</NormalText>
-                                    <NormalText style={{fontSize:16,fontFamily:'Roboto-bold',textAlign:'center',marginVertical:10}}>Total Coins You Need Are</NormalText>
-                                </View>:<View></View>
+                                <View></View>
                                 
                             }
                             
@@ -79,27 +84,34 @@ class CustomModal extends React.Component{
                             this.props.Type === "SP" ?
                                 this.state.Part === 1 ? 
                                 <View style={{width:'100%'}}>
-                                    <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(1)}>
+                                    
+                                    <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>{
+                                        this.setState({ErrorCode:0})
+                                        this.props.setRegion(2)}
+                                        }>
+                                        <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(2) ? "#FED31F":"#4B0E88"}`}}}>
+                                            <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
+                                                <NormalText style={{fontSize:20}}>Bollywood</NormalText>
+                                            </ImageBackground>
+                                        </View>
+                                    </TouchableOpacity>
+                                   
+                                    <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>{
+                                        this.setState({ErrorCode:0})
+                                        this.props.setRegion(1)}}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(1) ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>Hollywood</NormalText>
+                                                <NormalText style={{fontSize:20}}>Hollywood</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(2)}>
-                                        <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(2) ? "#FED31F":"#4B0E88"}`}}}>
-                                            <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>Bollywood</NormalText>
-                                            </ImageBackground>
-                                        </View>
-                                    </TouchableOpacity>
                                 </View>:
                                 <View style={{width:'100%'}}>
                                      <TouchableOpacity onPress={()=>this.props.SetQuestions(5)} style={styles.ModalButtonTouchable}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 5 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>5 Questions    100 Secs    -50 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>5 Questions    100 Secs    -50 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -107,7 +119,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity onPress={()=>this.props.SetQuestions(15)} style={styles.ModalButtonTouchable}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 15 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>15 Questions    300 Secs    -150 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>15 Questions    300 Secs    -150 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -115,7 +127,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.SetQuestions(25)}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 25 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>25 Questions    500 Secs    -250 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>25 Questions    500 Secs    -250 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -123,7 +135,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.SetQuestions(30)}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 30 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText>30 Questions    600 Secs    -300 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>30 Questions    600 Secs    -300 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -237,19 +249,19 @@ class CustomModal extends React.Component{
                            
                            
                             
-                            <View style={{flex:1,justifyContent:'space-around',alignItems:'center',flexDirection:'row'}}>
+                            <View style={{justifyContent:'space-around',alignItems:'center',flexDirection:'row',marginVertical:30}}>
                                 
                                 {this.props.Type === "SP" || this.props.Type === "Opt" ?
                                 <TouchableOpacity onPress={()=>this.props.DismissModal()} style={{width:'50%'}}>
                                     <SinglePlayer icon={"close"}>
-                                        <NormalText style={styles.NormalTextSP}>Cancel</NormalText>
+                                        <NormalText style={{fontSize:20}}>Cancel</NormalText>
                                     </SinglePlayer>
                                 </TouchableOpacity>:<View></View>}
                                
                                {this.props.Type !== "Opt" ? 
                                     <TouchableOpacity style={{width:'50%'}} onPress={()=>this.changeParts()}>
                                         <SinglePlayer icon={"arrow-right"}>
-                                            <NormalText style={styles.NormalTextSP}>Proceed</NormalText>
+                                            <NormalText style={{fontSize:20}}>Proceed</NormalText>
                                         </SinglePlayer>
                                     </TouchableOpacity>:null
                                 }
@@ -353,36 +365,34 @@ const styles=StyleSheet.create({
     },
     Modal:{
         borderRadius:15,
-        height:475,
         width:'90%',
         alignItems:'center',
         justifyContent:'center',
         alignSelf:'center',
         backgroundColor:'#4C0E8B',
-        marginTop:50
+        marginTop:50,
+        paddingVertical:5
     },
     Modal1:{
         borderRadius:15,
-        height:'97%',
         width:'97%',
         alignItems:'center',
         alignSelf:'center',
         backgroundColor:'#FFD41F',
-        padding:1
+        paddingVertical:5
     },
     Modal2:{
         borderRadius:15,
-        height:'98%',
         width:'98%',
         alignItems:'center',
         justifyContent:'center',
         backgroundColor:'white',
         alignSelf:'center',
-        marginTop:2
+        marginTop:2,
+        paddingVertical:5
     },
     Modal3:{
         borderRadius:15,
-        height:'95%',
         width:'95%',
         alignItems:'center',
         backgroundColor:'white',

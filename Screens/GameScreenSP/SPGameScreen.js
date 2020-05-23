@@ -24,8 +24,8 @@ class SPGameScreen extends React.Component{
         super();
         this.state={
             ModalType:"",
-            Timer:20,
-            TimeAloted:20,
+            Timer:15,
+            TimeAloted:15,
             TimerValue:100,
             Questions:[],
             SelectedQuestion:0,
