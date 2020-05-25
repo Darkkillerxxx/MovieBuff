@@ -138,11 +138,19 @@ class CustomGame extends React.Component{
                     {this.state.Region.length > 0 ? 
                     <FlatList extraData={this.state.RefreshFlatList} data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>:null}
                 </View>
-                <View style={{width:'100%',flex:1,borderColor:'white',alignItems:'center',justifyContent:'center'}}>
-                    <SinglePlayer icon={"arrow-right"}>
-                    <NormalText style={{fontSize:20}}>Proceed</NormalText>
-                    </SinglePlayer>
-                </View>
+                        <View style={{width:'100%',alignItems:'center'}}>
+                        <TouchableOpacity style={{width:200,height:100}} onPress={()=>this.getQuestions()}>
+                            <View style={{width:'100%',flex:1,borderColor:'white',alignItems:'center',justifyContent:'center'}}>
+                                <SinglePlayer icon={"arrow-right"}>
+                                <NormalText style={{fontSize:20}}>Proceed</NormalText>
+                                </SinglePlayer>
+                            </View>
+                        </TouchableOpacity>
+
+                        </View>
+                    
+       
+               
             </AppContainer>
         )
     }

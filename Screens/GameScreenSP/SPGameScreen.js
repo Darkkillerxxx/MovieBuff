@@ -1,6 +1,6 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid,Alert } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid,Alert,Dimensions } from 'react-native'
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo2 from '../../Components/BriefInfo2';
@@ -12,7 +12,7 @@ import {getResult,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
-
+import * as Animatable from 'react-native-animatable';
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
@@ -38,8 +38,45 @@ class SPGameScreen extends React.Component{
             Result:[],
             ImageLoaded:false,
             OptionsDisabled:false,
-            EarnedCoins:0
+            EarnedCoins:0,
+            back:false,
+            DimensionsHeight:0,
+            CoinDimension:0,
+            StartCoinAnimation:false
         }
+    }
+
+    show=async()=>{
+        await AdMobInterstitial.setAdUnitID('ca-app-pub-3341671606021251/5015224314');
+        await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
+    }
+
+    showads=async()=>{
+        await AdMobInterstitial.showAdAsync();
+    }
+
+   
+
+    checkAnswer=(id,step)=>{
+       if(this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[id].Id)
+       {
+           if(step === 0)
+           {
+               return true
+           }
+        if(this.state.Questions[this.state.SelectedQuestion].options[id].Id === 4)
+        {
+            return true
+        }
+        else
+        {
+            return false
+        }
+       }
+       else
+       {
+            return false
+       }
     }
 
     cangeModalType=(type)=>{
@@ -107,28 +144,21 @@ class SPGameScreen extends React.Component{
         }
     }
 
-    show=async()=>{
-        await AdMobInterstitial.setAdUnitID('ca-app-pub-3341671606021251/5015224314');
-        await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
-    }
-
-    showads=async()=>{
-        await AdMobInterstitial.showAdAsync();
-    }
+   
 
     Timer=()=>{
-         setInterval(()=>{
-             if(this.state.Timer > 0 && this.state.ImageLoaded)
-             {
-                this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
-                    if(this.state.Timer === 0)
-                    {
-                       this.SkipQuestion()
-                    }
-                })
-             }
-            },1000)
+        //  setInterval(()=>{
+        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
+        //      {
+        //         this.setState({Timer:this.state.Timer-1},()=>{
+        //             this.calcTimerValue()
+        //             if(this.state.Timer === 0)
+        //             {
+        //                this.SkipQuestion()
+        //             }
+        //         })
+        //      }
+        //     },1000)
     }
 
     fetchResult=()=>{
@@ -157,14 +187,11 @@ class SPGameScreen extends React.Component{
 
     shuffle = (array)=> {
         var currentIndex = array.length, temporaryValue, randomIndex;
-      
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
-      
           // Pick a remaining element...
           randomIndex = Math.floor(Math.random() * currentIndex);
           currentIndex -= 1;
-      
           // And swap it with the current element.
           temporaryValue = array[currentIndex];
           array[currentIndex] = array[randomIndex];
@@ -183,6 +210,8 @@ class SPGameScreen extends React.Component{
      })
         this.Timer()
         this.show();
+
+        console.log("Dimensions",this.state.Dimensions)
        
     }
 
@@ -213,6 +242,7 @@ class SPGameScreen extends React.Component{
                 this.setState({SelectedOptions:id})
                 if(id === 4)
                 {
+                    this.setState({StartCoinAnimation:true})
                     this,this.setState({EarnedCoins:this.state.EarnedCoins + 10})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
                 }
@@ -230,12 +260,14 @@ class SPGameScreen extends React.Component{
                     {
                         setTimeout(()=>{
                            this.MoveToNextQuestion()
+                           this.setState({StartCoinAnimation:false})
                         },1000)
                     }
                     else
                     {
                         this.setState({Timer:0})
                         console.log(this.state.CorrectAns,this.state.AnsPayload)
+                        this.setState({StartCoinAnimation:false})
                         this.fetchResult()
                     }
                 })
@@ -251,8 +283,6 @@ class SPGameScreen extends React.Component{
         })
      
     }
-
-   
 
     QuitGame=()=>{
         Alert.alert(
@@ -278,14 +308,14 @@ class SPGameScreen extends React.Component{
                     <View style={style.Header}>
                         <View style={{height:70,width:'100%',flexDirection:'row'}}>
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
-                                {/* <BriefInfo2 style={{width:'90%',borderColor:'#E5BE1C',borderWidth:1}} Image={require('../../assets/coins.png')} value={this.state.EarnedCoins}/> */}
+                              
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
-                                    <Image source={require('../../assets/Coins3.png')} style={{width:20,height:20,marginBottom:5,resizeMode:'stretch'}}></Image>
+                                    <Image source={require('../../assets/TreasureBox.png')} style={{width:35,height:35,marginBottom:5,resizeMode:'stretch'}}></Image>
                                     <NormalText>{this.state.EarnedCoins}</NormalText>
                                 </View>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
-                                {/* <NormalText style={{fontSize:22}}>Question {this.state.SelectedQuestion + 1} <NormalText>/ {this.state.Questions.length}</NormalText></NormalText> */}
+                            
                                 <View style={style.ProgressBarContainer}>
                                     <NormalText style={{...{marginRight:5,marginTop:4},...{fontFamily:'Roboto-bold',fontSize:17,color:'#E15158'}}}>{this.state.SelectedQuestion+1}</NormalText>
                                     <View>
@@ -316,9 +346,7 @@ class SPGameScreen extends React.Component{
                                 </View>
                             </View> 
                             <View style={{width:'25%',backgroundColor:'#11233A',flexDirection:'row',alignItems:'center',justifyContent:'space-around'}}>
-                                {/* <TouchableOpacity onPress={()=>this.SkipQuestion()}>
-                                    <CustomButton LeftIcon={null} RightIcon={"fast-forward"}><NormalText>Skip</NormalText></CustomButton>
-                                </TouchableOpacity> */}
+                                
                                  <TouchableOpacity onPress={()=>this.SkipQuestion()}>
                                     <Image source={require('../../assets/Skip.png')} style={{width:35,height:35,resizeMode:'contain'}}/>
                                 </TouchableOpacity>
@@ -330,14 +358,7 @@ class SPGameScreen extends React.Component{
                         </View>
                     </View> 
                     <View style={{width:'100%',flexDirection:'row'}}>
-                        {/* <View style={{width:65,height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
-                            <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User2.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User3.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User4.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User5.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User6.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                        </View> */}
+                       
                         <View style={{width:'100%',alignItems:'center'}}>      
                             <View style={style.PicContainer}>
                                 {
@@ -363,22 +384,136 @@ class SPGameScreen extends React.Component{
                             </View>
                             {this.state.Questions.length > 0 ? 
                         
-                            <View style={style.OptionsContainer}>
-                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[0].Id ? this.state.Questions[this.state.SelectedQuestion].options[0].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
-                                </TouchableOpacity>
+                            <View 
+                                onLayout={event=>{
+                                    const layout = event.nativeEvent.layout;
+                                    console.log('height:', layout.height);
+                                    console.log('width:', layout.width);
+                                    console.log('x:', layout.x);
+                                    console.log('y:', layout.y);
+                                    this.setState({CoinDimension:layout.y},()=>{
+                                        console.log(this.state.CoinDimension)
+                                    })
+                                    this.setState({DimensionsHeight:layout.height})
+                                }} 
+                                ref={view => {this.val =view}}>
+                                <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
+                                    
+                                    {this.state.StartCoinAnimation ?
+                                    <View>
+                                        <Animatable.View animation={{
+                                            from: { translateY:0,opacity:1},
+                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                        }}
+                                        duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        
+                                        <Animatable.Image animation={{
+                                            from: {
+                                                rotateX: this.state.back ? '0deg' : '180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },
+                                            to: {
+                                                rotateX: this.state.back ? '360deg' : '-180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },}} 
+                                            source={require('../../assets/coins2.png')}
+                                            duration={200} 
+                                            iterationCount="infinite" 
+                                            direction="alternate"  
+                                            style={{width:20,height:20,resizeMode:'stretch'}}/>
+                                            
+                                    </Animatable.View>
+                                    <Animatable.View animation={{
+                                            from: { translateY:0,opacity:1},
+                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                        }}
+                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        
+                                        <Animatable.Image animation={{
+                                            from: {
+                                                rotateX: this.state.back ? '0deg' : '180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },
+                                            to: {
+                                                rotateX: this.state.back ? '360deg' : '-180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },}} 
+                                            source={require('../../assets/coins2.png')}
+                                            duration={200} 
+                                            iterationCount="infinite" 
+                                            direction="alternate"  
+                                            style={{width:20,height:20,resizeMode:'stretch'}}/>
+                                            
+                                    </Animatable.View>
+                                    <Animatable.View animation={{
+                                            from: { translateY:0,opacity:1},
+                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                        }}
+                                        duration={1000} delay={120} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        
+                                        <Animatable.Image animation={{
+                                            from: {
+                                                rotateX: this.state.back ? '0deg' : '180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },
+                                            to: {
+                                                rotateX: this.state.back ? '360deg' : '-180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },}} 
+                                            source={require('../../assets/coins2.png')}
+                                            duration={200} 
+                                            iterationCount="infinite" 
+                                            direction="alternate"  
+                                            style={{width:20,height:20,resizeMode:'stretch'}}/>
+                                            
+                                    </Animatable.View>
+                                   </View>:null }
+                                   
+                                </View>
+                                <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "pulse":"wobble":"":"bounceInLeft"} delay={100}>
+                                    <TouchableOpacity 
+                                        disabled={this.state.OptionsDisabled} 
+                                        onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[0].Id)}>
+                                            <Options 
+                                                back={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "green":"red":"#FFFDD0":"#FFFDD0"} 
+                                                color={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "#FFFDD0":"#FFFDD0":"black":"black"} 
+                                                value={this.state.Questions[this.state.SelectedQuestion].options[0].Name} />
+                                    </TouchableOpacity>
+                                </Animatable.View>
                                 
-                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[1].Id ? this.state.Questions[this.state.SelectedQuestion].options[1].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[2].Id ? this.state.Questions[this.state.SelectedQuestion].options[2].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity disabled={this.state.OptionsDisabled} onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
-                                    <Options back={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "green":"red":"#FFFDD0":"#FFFDD0"} color={this.state.HasSelected ? this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[3].Id ? this.state.Questions[this.state.SelectedQuestion].options[3].Id === 4 ? "#FFFDD0":"#FFFDD0":"black":"black"} value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
-                                </TouchableOpacity>
+                                <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(1,0) ? this.checkAnswer(1,1) ? "pulse":"wobble":"":"bounceInRight"} delay={200}>
+                                    <TouchableOpacity 
+                                        disabled={this.state.OptionsDisabled} 
+                                        onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[1].Id)}>
+                                            <Options 
+                                                back={this.state.HasSelected ? this.checkAnswer(1,0) ? this.checkAnswer(1,1) ? "green":"red":"#FFFDD0":"#FFFDD0"} 
+                                                color={this.state.HasSelected ? this.checkAnswer(1,0) ? this.checkAnswer(1,1) ? "#FFFDD0":"#FFFDD0":"black":"black"} 
+                                                value={this.state.Questions[this.state.SelectedQuestion].options[1].Name} />
+                                    </TouchableOpacity>
+                                </Animatable.View>
+                              
+                                <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(2,0) ? this.checkAnswer(2,1) ? "pulse":"wobble":"":"bounceInLeft"} delay={300}>
+                                    <TouchableOpacity 
+                                        disabled={this.state.OptionsDisabled} 
+                                        onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[2].Id)}> 
+                                            <Options 
+                                                back={this.state.HasSelected ? this.checkAnswer(2,0) ? this.checkAnswer(2,1)  ? "green":"red":"#FFFDD0":"#FFFDD0"} 
+                                                color={this.state.HasSelected ? this.checkAnswer(2,0) ? this.checkAnswer(2,1) ? "#FFFDD0":"#FFFDD0":"black":"black"} 
+                                                value={this.state.Questions[this.state.SelectedQuestion].options[2].Name} />
+                                    </TouchableOpacity>
+                                </Animatable.View>
+                               
+                                <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(3,0) ? this.checkAnswer(3,1) ? "pulse":"wobble":"":"bounceInRight"} delay={400}>
+                                    <TouchableOpacity 
+                                        disabled={this.state.OptionsDisabled} 
+                                        onPress={()=>this.onSelectOptions(this.state.Questions[this.state.SelectedQuestion],this.state.Questions[this.state.SelectedQuestion].options[3].Id)}>
+                                            <Options 
+                                                back={this.state.HasSelected ? this.checkAnswer(3,0) ? this.checkAnswer(3,1) ? "green":"red":"#FFFDD0":"#FFFDD0"} 
+                                                color={this.state.HasSelected ? this.checkAnswer(3,0) ? this.checkAnswer(3,1)? "#FFFDD0":"#FFFDD0":"black":"black"} 
+                                                value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
+                                    </TouchableOpacity>
+                                </Animatable.View>
+                               
                             </View>:null}
                         </View>
                     </View>  
@@ -389,13 +524,14 @@ class SPGameScreen extends React.Component{
                     <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
-                    <View style={style.Footer}>
-                        <AdMobBanner
-                        bannerSize="banner"
-                        adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
-                        onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
-                   </View>
+                    
                     </ScrollView>
+                        <View style={style.Footer}>
+                            <AdMobBanner
+                            bannerSize="banner"
+                            adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
+                            onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
+                        </View>
             </AppContainer>
            
         )
@@ -425,7 +561,7 @@ const style=StyleSheet.create({
         overflow:'hidden'
     },
     AppContainer:{
-        justifyContent:'flex-end',
+        justifyContent:'center',
         alignItems:'center'
     },
     TimerBar:{
@@ -445,7 +581,8 @@ const style=StyleSheet.create({
     OptionsContainer:{
         width:'100%',
         marginTop:15,
-        alignItems:'center'
+        alignItems:'center',
+        justifyContent:'center'
     },
     Options:{
         width:'100%',
@@ -457,7 +594,7 @@ const style=StyleSheet.create({
         justifyContent:'center',
         width:'100%',
         height:150,
-        marginTop:10
+        marginVertical:10
     },
     Pic1:{
         height:'100%',
@@ -514,8 +651,7 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         alignSelf:'stretch',
-        marginTop:10,
-        height:50
+        marginTop:10
     }
     
 })
@@ -538,3 +674,13 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(SPGameScreen);
+
+
+ {/* <View style={{width:65,height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
+                            <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                            <Image source={require('../../assets/Temp/User2.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                            <Image source={require('../../assets/Temp/User3.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                            <Image source={require('../../assets/Temp/User4.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                            <Image source={require('../../assets/Temp/User5.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                            <Image source={require('../../assets/Temp/User6.png')} style={{height:50,width:50,marginVertical:5}}></Image>
+                        </View> */}
