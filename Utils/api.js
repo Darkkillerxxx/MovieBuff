@@ -197,7 +197,7 @@ function makeRequest(Type,Payload,Parameters,Endpoint)
     }
     else
     {
-    console.log(Payload)
+    // console.log(Payload)
       return fetch(base_url+Endpoint, {
             method: 'POST',
             headers: {
@@ -274,7 +274,7 @@ export function login(payload)
 
 export function AddCoins(payload)
 {
-    console.log("Payload",payload)
+    // console.log("Payload",payload)
     return makeRequest("POST",payload,null,Endpoints.AddCoins).then(result=>{
         return result
     })

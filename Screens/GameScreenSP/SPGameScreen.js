@@ -17,6 +17,21 @@ import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
 
+
+  const ZoomAnimation={
+    0: {
+        scale: 1,
+      },
+      0.5: {
+        scale: 2,
+      },
+      0.7: {
+        scale: 3,
+      },
+      1: {
+        scale: 1,
+      },
+  }
  
 class SPGameScreen extends React.Component{
     constructor()
@@ -42,7 +57,8 @@ class SPGameScreen extends React.Component{
             back:false,
             DimensionsHeight:0,
             CoinDimension:0,
-            StartCoinAnimation:false
+            StartCoinAnimation:false,
+            ShowZoomAnimation:false
         }
     }
 
@@ -147,18 +163,18 @@ class SPGameScreen extends React.Component{
    
 
     Timer=()=>{
-        //  setInterval(()=>{
-        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
-        //      {
-        //         this.setState({Timer:this.state.Timer-1},()=>{
-        //             this.calcTimerValue()
-        //             if(this.state.Timer === 0)
-        //             {
-        //                this.SkipQuestion()
-        //             }
-        //         })
-        //      }
-        //     },1000)
+         setInterval(()=>{
+             if(this.state.Timer > 0 && this.state.ImageLoaded)
+             {
+                this.setState({Timer:this.state.Timer-1},()=>{
+                    this.calcTimerValue()
+                    if(this.state.Timer === 0)
+                    {
+                       this.SkipQuestion()
+                    }
+                })
+             }
+            },1000)
     }
 
     fetchResult=()=>{
@@ -202,17 +218,17 @@ class SPGameScreen extends React.Component{
 
     componentDidMount=()=>{
         console.log("Dashboard",this.props.Dashboard)
-    this.props.SPQuestions.forEach(element => {
-            element.options = this.shuffle(element.options)
-    });
-     this.setState({Questions:this.props.SPQuestions},()=>{
-         console.log("Questions",this.state.Questions)
-     })
-        this.Timer()
-        this.show();
+        this.props.SPQuestions.forEach(element => {
+                element.options = this.shuffle(element.options)
+        });
+        this.setState({Questions:this.props.SPQuestions},()=>{
+            console.log("Questions",this.state.Questions)
+        })
+            this.Timer()
+            this.show();
 
-        console.log("Dimensions",this.state.Dimensions)
-       
+            console.log("Dimensions",this.state.Dimensions)
+        
     }
 
     MoveToNextQuestion=()=>{
@@ -243,7 +259,6 @@ class SPGameScreen extends React.Component{
                 if(id === 4)
                 {
                     this.setState({StartCoinAnimation:true})
-                    this,this.setState({EarnedCoins:this.state.EarnedCoins + 10})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
                 }
                 let TempReport=this.state.AnsPayload;
@@ -310,8 +325,10 @@ class SPGameScreen extends React.Component{
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
                               
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
-                                    <Image source={require('../../assets/TreasureBox.png')} style={{width:35,height:35,marginBottom:5,resizeMode:'stretch'}}></Image>
-                                    <NormalText>{this.state.EarnedCoins}</NormalText>
+                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
+                                        <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
+                                        <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
+                                    </Animatable.View>
                                 </View>
                             </View>
                             <View style={{height:'100%',width:'50%',backgroundColor:'#11233A',alignItems:'center',justifyContent:'center',paddingTop:20}}>
@@ -425,9 +442,9 @@ class SPGameScreen extends React.Component{
                                     </Animatable.View>
                                     <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
-                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 20),opacity:0.3 },
                                         }}
-                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -447,7 +464,7 @@ class SPGameScreen extends React.Component{
                                     </Animatable.View>
                                     <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
-                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 30),opacity:0.2 },
                                         }}
                                         duration={1000} delay={120} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
                                         

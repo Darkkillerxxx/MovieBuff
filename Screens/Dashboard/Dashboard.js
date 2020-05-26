@@ -1,24 +1,24 @@
 import React from 'react'
-import { View, StyleSheet,Image,Modal,TouchableOpacity,BackHandler, ToastAndroid,Alert } from 'react-native'
+import { View, StyleSheet,Image,Modal,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert } from 'react-native'
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
-import Coop from '../../Components/CoopButton'
 import SmallBtn from '../../Components/SmallButton';
 import BriefInfo from '../../Components/BriefInfo'
 import CustomModal from '../../Components/Modals/Modal'
-import { Button } from 'react-native-paper';
 import MPModal from '../../Components/Modals/MPModal'
 import { connect }from 'react-redux'
 import {setGame,setQuestions} from '../../Store/Actions/ActionSp'
 import {setLogin} from '../../Store/Actions/ActionJoin'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
-import {fetchUser,UpdateUser,DeleteUser} from '../../Database/Helper'
-import {AddCoins,GetLeaderBoard} from '../../Utils/api.js'
-import RewardModal from '../../Components/Modals/RewardModal'
+import {UpdateUser,DeleteUser} from '../../Database/Helper'
+import {AddCoins,GetLeaderBoard,login} from '../../Utils/api.js'
+import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
 import DashboardReducer from '../../Store/Reducers/Dashboard';
-import SettingsModal from '../../Components/Modals/SettingsModal'
-import { ScrollView } from 'react-native-gesture-handler';
+import * as Animatable from 'react-native-animatable';
+import {
+    AdMobRewarded
+  } from 'expo-ads-admob';
 
 class Dashboard extends React.Component{
     constructor()
@@ -27,6 +27,7 @@ class Dashboard extends React.Component{
         this.state={
             ShowModalSP:false,
             ShowModalMP:false,
+            ShowVideoAdIcon:false,
             SPNoQuestions:5,
             SPRegion:[],
             DashboardCoins:0,
@@ -38,7 +39,9 @@ class Dashboard extends React.Component{
             Silver:"",
             ShowSignUpModal:false,
             ShowInsuffModal:false,
-            ShowSettings:false
+            ShowRewardModal:false,
+            ShowSettings:false,
+            RewardUserVideo:false
         }
     }
 
@@ -48,7 +51,6 @@ class Dashboard extends React.Component{
 
     onBackPress=()=>{
         console.log("Back Pressed")
-       
     }
     
     setSpRegion=(id)=>{
@@ -67,6 +69,18 @@ class Dashboard extends React.Component{
             tempRegion.push(id)
             this.setState({SPRegion:tempRegion})
         }
+    }
+
+    RunVideoAd=()=>{
+       ShowVideoAd().then(result=>{
+           if(!result)
+           {
+            ToastAndroid.show("Ad Not Ready Please Try Again After Some TIme",ToastAndroid.SHORT)
+            this.FetchVideoAd()
+           }
+       }).catch(err=>{
+            ToastAndroid.show("Something Went Wrong While Fetching Ads",ToastAndroid.SHORT)
+       })
     }
 
     DismissSpModal=()=>{
@@ -118,9 +132,72 @@ class Dashboard extends React.Component{
         })
     }
 
+    rewardUser=()=>{
+        let payload={
+            "Id":this.props.Dashboard.Id.toString(),
+            "CoinsToAdd":100,
+            "ResourceID":1,
+            "Credit":"True",
+            "Debit":"False"                                                                                                                                                      
+        }
+
+        console.log("Sending Payload form Adreward Video",payload)
+
+        AddCoins(payload).then((result)=>{
+            if(result.IsSuccess)
+            {
+                this.setState({ShowRewardModal:true},()=>{
+                    // this.setState({RewardUserVideo:false})
+                })
+            }
+        })
+    }
+
+    DismissRewardModal=()=>{
+        let SignInPayload={
+            UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
+            ScreenName:"",
+            FacebookId:this.props.Dashboard.FbId,
+            Password:this.props.Dashboard.Password
+         }  
+
+         login(SignInPayload).then(result=>{
+            console.log(result) 
+            if(result.IsSuccess)
+             {
+                 this.setState({ShowRewardModal:false})
+                 let TempDashboard=result.Data[0]
+                 TempDashboard.FbId=this.props.Dashboard.FbId
+                 TempDashboard.Password=this.props.Dashboard.Password
+                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
+                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+                    console.log("Update",result)
+                 }).catch(err=>{
+                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                 })
+                this.props.onSetDashbaord(TempDashboard)
+             }
+         })
+    }
+
     componentDidMount()
     {
-        // console.log("Dasbhoard Redux",this.props.Dashboard)
+
+     AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
+            console.log("Reward")
+            ToastAndroid.show("Reward",ToastAndroid.SHORT)
+            this.setState({RewardUserVideo:true})
+        })
+        
+     AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
+            console.log("Closed")
+            if(this.state.RewardUserVideo)
+            {
+                this.rewardUser()
+            }
+        })
+        
+        this.FetchVideoAd()
         this.setState({Bronze:this.props.Dashboard.Bronze})
         this.setState({Coins:this.props.Dashboard.Coins})
         this.setState({Gold:this.props.Dashboard.Gold})
@@ -147,6 +224,18 @@ class Dashboard extends React.Component{
         }
     }
 
+    FetchVideoAd=()=>{
+        FetchAds().then((result)=>{
+            if(result)
+            {
+                console.log("Lock and Loaded")
+            }
+            else
+            {
+                ToastAndroid.show("Cannot Load Ads",ToastAndroid.SHORT)
+            }
+        })
+    }
 
      componentDidUpdate(prevProps,prevState,Ss)
      {
@@ -156,6 +245,8 @@ class Dashboard extends React.Component{
             || prevProps.Dashboard.Silver !== this.props.Dashboard.Silver || prevProps.Dashboard.Bronze !== this.props.Dashboard.Bronze ||
             prevProps.Dashboard.Crowns !== this.props.Dashboard.Crowns )
          {
+
+            this.FetchVideoAd()
             //  console.log("Update State",this.props.Dashboard.Coins)
             //  console.log("Update State Object",this.props.Dashboard)
             
@@ -170,9 +261,7 @@ class Dashboard extends React.Component{
      }
 
      Logout=()=>{
-
         DeleteUser().then(result=>{
-            
             let DefaultLogin={
                 "Country":"india",
                 "FbId": "",
@@ -198,7 +287,6 @@ class Dashboard extends React.Component{
         }).catch(err=>{
             console.log("Error Deleting User",err)
         })
-      
      }
 
      onLogOutPressed=()=>{
@@ -220,116 +308,223 @@ class Dashboard extends React.Component{
     {
         return(
             <AppContainer style={styles.AppContainer}>
+                
                 <ScrollView>
-                <View style={styles.InfoContainer}>
-                    <View style={styles.PicContainer}>
-                        <TouchableOpacity>
-                            <View style={styles.ProfilePic}>
-                                <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
+                
+                    <View style={styles.InfoContainer}>
+                        
+                        <View style={styles.PicContainer}>
+                            
+                            <TouchableOpacity>
+                                
+                                <View style={styles.ProfilePic}>
+                                    <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
+                                </View>
+                                
+                                <NormalText style={{textAlign:'center'}}>{this.props.Dashboard.ScreenName}</NormalText>
+                            
+                            
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <View style={styles.BriefContainer}>
+                            
+                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                                
+                                <BriefInfo 
+                                    style={{width:'33.33%'}} 
+                                    ImageStyle={{height:25,width:35}} 
+                                    Image={require('../../assets/Gold.png')} 
+                                    value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
+
+                                <BriefInfo 
+                                    style={{width:'33.33%'}} 
+                                    ImageStyle={{height:25,width:35}} 
+                                    Image={require('../../assets/Silver.png')} 
+                                    value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
+                                
+                                <BriefInfo 
+                                    style={{width:'33.33%'}} 
+                                    ImageStyle={{height:25,width:35}} 
+                                    Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
+                            
                             </View>
-                            <NormalText style={{textAlign:'center'}}>{this.props.Dashboard.ScreenName}</NormalText>
-                            {/* <NormalText style={{textAlign:'center'}}>Level 1</NormalText> */}
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.BriefContainer}>
-                        {console.log("Gold",this.state.Dashboard)}
-                        <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
-                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35}} Image={require('../../assets/Gold.png')} value={this.state.Gold === 0 || this.state.Gold === null  ? 0 :this.state.Gold}/>
-                             <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35}} Image={require('../../assets/Silver.png')} value={this.state.Silver === 0 || this.state.Silver === null ? 0 :this.state.Silver}/>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:35}} Image={require('../../assets/Bronze.png')} value={this.state.Bronze === 0 || this.state.Bronze === null ? 0 :this.state.Bronze}/> 
+                            
+                            <View style={{width:'100%',flexDirection:'row',marginTop:10}}>
+                            
+                                <BriefInfo 
+                                    style={{width:'33.33%'}} 
+                                    ImageStyle={{height:25,width:45,marginLeft:-5,marginBottom:5}} 
+                                    Image={require('../../assets/TreasureBox.png')} 
+                                    value={this.state.Coins !== 0 ? this.state.Coins:0}/>
+
+                                <BriefInfo 
+                                    style={{width:'33.33%'}} 
+                                    ImageStyle={{height:25,width:25,marginBottom:5,resizeMode:'contain'}} 
+                                    Image={require('../../assets/Crown.png')} 
+                                    value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
+                            </View>
+
                         </View>
-                        <View style={{width:'100%',flexDirection:'row',marginTop:10}}>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:45,marginLeft:-5,marginBottom:5}} Image={require('../../assets/TreasureBox.png')} value={this.state.Coins !== 0 ? this.state.Coins:0}/>
-                            <BriefInfo style={{width:'33.33%'}} ImageStyle={{height:25,width:25,marginBottom:5,resizeMode:'contain'}} Image={require('../../assets/Crown.png')} value={this.state.Crowns !== 0 ? this.state.Crowns:0}/>
-                        </View>
+
                     </View>
-                </View>
-                <View style={styles.ImageView}>
+
+                    <View style={styles.ImageView}>
+                        
+                        <View style={styles.WatchVideoContainer}>
+                            
+                            <Animatable.View animation="bounce" iterationCount="infinite">
+                                
+                                <TouchableOpacity onPress={()=>this.RunVideoAd()}>
+                                    <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                                    <NormalText style={{textAlign:'center'}}>Watch</NormalText>
+                                    <NormalText style={{textAlign:'center'}}>Ad</NormalText>
+                                </TouchableOpacity>    
+                             
+                            </Animatable.View>
+
+                        </View>
+                        
                     <View style={styles.BackImageContainer}>
                         <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}/>
                     </View>
+
                 </View>
 
                 <View style={styles.Container}>
+                    
                     <View style={styles.SPContainer}>
+                        
                         <TouchableOpacity style={{width:'100%'}} onPress={()=>this.setState({ShowModalSP:true})}>
+                            
                             <SinglePlayer icon={"user"}>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
+                        
                         </TouchableOpacity>
                     </View>
                     
                     <View style={styles.SPContainer}>
+                        
                         <TouchableOpacity style={{width:'100%'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                            
                             <SinglePlayer icon={"users"}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
+
                             <NormalText style={{marginTop:20,textAlign:'center',color:'yellow'}}>Comming Soon !!!</NormalText>
+
                         </TouchableOpacity>
+                    
                     </View>
+                
                 </View>
 
                 <View style={styles.ToolsContainer}>
+                   
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.onLBPressed()}>
-                        <SmallBtn>
-                            <Image style={styles.Podium} source={require('../../assets/Leaderboard.png')}/>
-                        </SmallBtn>
-                        <NormalText style={{textAlign:'center'}}>Leaderboard</NormalText>
-                    </TouchableOpacity>
+                        
+                        <TouchableOpacity onPress={()=>this.onLBPressed()}>
+                            
+                            <SmallBtn>
+                                <Image style={styles.Podium} source={require('../../assets/Leaderboard.png')}/>
+                            </SmallBtn>
+                            <NormalText style={{textAlign:'center'}}>Leaderboard</NormalText>
+                        
+                        </TouchableOpacity>
+
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
-                        <SmallBtn>
-                            <Image style={{...styles.Podium,...{height:35,width:35}}} source={require('../../assets/Setting.png')}/>
-                        </SmallBtn>
-                        <NormalText style={{textAlign:'center'}}>Settings</NormalText>
-                    </TouchableOpacity>
+                        
+                        <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
+                            
+                            <SmallBtn>
+                                <Image style={{...styles.Podium,...{height:35,width:35}}} source={require('../../assets/Setting.png')}/>
+                            </SmallBtn>
+                            <NormalText style={{textAlign:'center'}}>Settings</NormalText>
+                        
+                        </TouchableOpacity>
+                   
                    </View>
 
                    <View style={styles.Tools}>
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
-                        <SmallBtn>
-                            <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
-                        </SmallBtn>
-                        <NormalText style={{textAlign:'center'}}>Earn Coins</NormalText>
-                    </TouchableOpacity>
+                    
+                        <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
+                            
+                            <SmallBtn>
+                                <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
+                            </SmallBtn>
+                            <NormalText style={{textAlign:'center'}}>Earn Coins</NormalText>
+
+                        </TouchableOpacity>
+                   
                    </View>
+                
                 </View>
-
-
-
                 {/* Modals From Here */}
 
-                
-                <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
-                    <CustomModal Heading="SP" Type="SP" DismissModal={this.DismissSpModal} SetQuestions={this.setSPNoQuestions} setRegion={this.setSpRegion} Questions={this.state.SPNoQuestions} Region={this.state.SPRegion} SetRegion={this.setSpRegion} ProceedToCustom={this.onProceedToCustom}/>
-                </Modal>   
-                <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
-                    <MPModal/>
-                </Modal>  
-                <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
-                    <CustomModal 
-                        Heading="Reward" 
-                        Type="Reward" 
-                        FMsg={"Thank You For Registering With Us"} 
-                        SMsg={"Here Are Some Coins"}
-                        Coins="500" 
-                        DismissModal={this.DismissRewardModal} />
-                </Modal> 
-                <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
-                    <CustomModal 
-                        Heading="Insuff" 
-                        Type="Insuff" 
-                        FMsg={"You Have Insufficient Coins To Play"} 
-                        SMsg={"Toal Coins You Need You Need To Play Are"}                        
-                        Coins={this.state.SPNoQuestions * 2} 
-                        DismissModal={this.DismissRewardModal} />
-                </Modal>
-                <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
-                    <CustomModal Heading="Opt" Type="Opt" Logout={this.onLogOutPressed} DismissModal={this.DismissSettingsModal}/>
-                </Modal>
+                    <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
+                        
+                        <CustomModal 
+                            Heading="SP" 
+                            Type="SP" 
+                            DismissModal={this.DismissSpModal} 
+                            SetQuestions={this.setSPNoQuestions} 
+                            setRegion={this.setSpRegion} 
+                            Questions={this.state.SPNoQuestions} 
+                            Region={this.state.SPRegion} 
+                            SetRegion={this.setSpRegion} 
+                            ProceedToCustom={this.onProceedToCustom}/>
+                    
+                    </Modal>
+    {/*                    
+                    <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
+                        <MPModal/>
+                    </Modal>   */}
+
+                    <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
+                        
+                        <CustomModal 
+                            Heading="Reward" 
+                            Type="Reward" 
+                            FMsg={"Thank You For Registering With Us"} 
+                            SMsg={"Here Are Some Coins"}
+                            Coins="500" 
+                            DismissModal={this.DismissRewardModal} />
+
+                    </Modal>
+
+                    <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
+                        
+                        <CustomModal 
+                            Heading="Insuff" 
+                            Type="Insuff" 
+                            FMsg={"You Have Insufficient Coins To Play"} 
+                            SMsg={"Toal Coins You Need You Need To Play Are"}                        
+                            Coins={this.state.SPNoQuestions * 2} 
+                            DismissModal={this.DismissRewardModal} />
+                    
+                    </Modal>
+                    
+                    <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
+                        <CustomModal 
+                        Heading="Opt" 
+                        Type="Opt" 
+                        Logout={this.onLogOutPressed} 
+                        DismissModal={this.DismissSettingsModal}/>
+                    </Modal>
+
+                    <Modal visible={this.state.ShowRewardModal} transparent={true} animationType="slide">
+                        <CustomModal 
+                            Heading="Reward" 
+                            Type="Reward" 
+                            FMsg={"Thank You For Watching Ad"} 
+                            SMsg={"Here Is Your Reward"}
+                            Coins="100" 
+                            DismissModal={this.DismissRewardModal} />
+                    </Modal>
+
                 </ScrollView>
                 {/* Modals Ends Here      */}
             </AppContainer>
@@ -419,10 +614,6 @@ const styles=StyleSheet.create({
         fontSize:18,
         color:'white'
     },
-    NormalTextCo:{
-        fontSize:15,
-        color:"#FF5D60"
-    },
     ToolsContainer:{
         marginTop:5,
         flexDirection:'row',
@@ -434,9 +625,16 @@ const styles=StyleSheet.create({
         justifyContent:'center'
     },
     Podium:{
-        width:50,
-        height:50,
+        width:65,
+        height:65,
         resizeMode:'contain'
+    },
+    WatchVideoContainer:{
+        width:'100%',
+        position:'absolute',
+        marginTop:10,
+        paddingHorizontal:10,
+        alignItems:'flex-start'
     }
 })
 
@@ -458,3 +656,5 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(Dashboard);
+
+// console.log("Dasbhoard Redux",this.props.Dashboard)

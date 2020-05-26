@@ -9,6 +9,7 @@ import {AddCoins,login} from '../../Utils/api'
 import { connect } from 'react-redux'
 import CustomModal from '../../Components/Modals/Modal'
 import {UpdateUser} from '../../Database/Helper'
+import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
 import {
   AdMobRewarded
   } from 'expo-ads-admob';
@@ -26,91 +27,108 @@ class EarnCoins extends React.Component{
         }
     }
 
-    async componentDidMount()
+    RunVideoAd=()=>{
+        ShowVideoAd().then(result=>{
+            if(!result)
+            {
+             ToastAndroid.show("Ad Not Ready Please Try Again After Some TIme",ToastAndroid.SHORT)
+             this.FetchVideoAd()
+            }
+        }).catch(err=>{
+             ToastAndroid.show("Something Went Wrong While Fetching Ads",ToastAndroid.SHORT)
+        })
+     }
+
+     FetchVideoAd=()=>{
+        FetchAds().then((result)=>{
+            if(result)
+            {
+                console.log("Lock and Loaded")
+            }
+            else
+            {
+                ToastAndroid.show("Cannot Load Ads",ToastAndroid.SHORT)
+            }
+        })
+    }
+
+    componentDidMount()
     {
         //ca-app-pub-3341671606021251/4823652626
-        await AdMobRewarded.setAdUnitID('ca-app-pub-3341671606021251/4823652626');
-        await AdMobRewarded.requestAdAsync();
-        console.log(this.props.Dashboard)
+        // await AdMobRewarded.setAdUnitID('ca-app-pub-3341671606021251/4823652626');
+        // await AdMobRewarded.requestAdAsync();
+        // console.log(this.props.Dashboard)
        
-        await AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
-            console.log("Reward")
-            ToastAndroid.show("Reward",ToastAndroid.SHORT)
-            this.setState({RewardUserVideo:true})
-        })
+        // await AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
+        //     console.log("Reward")
+        //     ToastAndroid.show("Reward",ToastAndroid.SHORT)
+        //     this.setState({RewardUserVideo:true})
+        // })
 
-        await AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
-            console.log("Check",this.state.RewardUserVideo)
-            if(this.state.RewardUserVideo)
-            {
-                this.rewardUser()
-            }
-        })
+        // await AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
+        //     console.log("Check",this.state.RewardUserVideo)
+        //     if(this.state.RewardUserVideo)
+        //     {
+        //         this.rewardUser()
+        //     }
+        // })
     }
 
-    rewardUser=()=>{
-            let payload={
-                "Id":this.props.Dashboard.Id.toString(),
-                "CoinsToAdd":100,
-                "ResourceID":1,
-                "Credit":"True",
-                "Debit":"False"                                                                                                                                                      
-            }
+    // rewardUser=()=>{
+    //     if(this.state.RewardUserVideo)
+    //     {
+    //         let payload={
+    //             "Id":this.props.Dashboard.Id.toString(),
+    //             "CoinsToAdd":100,
+    //             "ResourceID":1,
+    //             "Credit":"True",
+    //             "Debit":"False"                                                                                                                                                      
+    //         }
 
-            console.log("Sending Payload form Adreward Video",payload)
+    //         console.log("Sending Payload form Adreward Video",payload)
 
-            AddCoins(payload).then((result)=>{
-                if(result.IsSuccess)
-                {
-                    this.setState({ShowModal:true},()=>{
-                        // this.setState({RewardUserVideo:false})
-                    })
-                }
-            })
-    }
-    // componentWillUnmount(){
-    //     AdMobRewarded.removeAllListeners()
+    //         AddCoins(payload).then((result)=>{
+    //             if(result.IsSuccess)
+    //             {
+    //                 this.setState({ShowModal:true},()=>{
+    //                     this.setState({RewardUserVideo:false})
+    //                 })
+    //             }
+    //         })
+    //     }
     // }
 
+
     showRewarderdVideo=async()=>{
-         AdMobRewarded.showAdAsync().catch((err)=>{
-             console.log("Ad is Not Ready",err)
-             ToastAndroid.show("Ad Not Ready",ToastAndroid.SHORT)
-             
-            //  AdMobRewarded.requestAdAsync().catch(err=>{
-            //      console.log("Fetch Error",err)
-            //  })
-         });
+        this.RunVideoAd()
     }
 
-    DismissRewardModal=()=>{
-        let SignInPayload={
-            UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
-            ScreenName:"",
-            FacebookId:this.props.Dashboard.FbId,
-            Password:this.props.Dashboard.Password
-         }
-
-         
-         login(SignInPayload).then(result=>{
-            console.log(result) 
-            if(result.IsSuccess)
-             {
-                 this.setState({ShowModal:false})
-                 let TempDashboard=result.Data[0]
-                 TempDashboard.FbId=this.props.Dashboard.FbId
-                 TempDashboard.Password=this.props.Dashboard.Password
-                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
-                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                    console.log("Update",result)
-                 }).catch(err=>{
-                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
-                 })
-                this.props.onSetDashboard(TempDashboard)
-                this.props.navigation.navigate('Dashboard')
-             }
-         })
-    }
+    // DismissRewardModal=()=>{
+    //     let SignInPayload={
+    //         UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
+    //         ScreenName:"",
+    //         FacebookId:this.props.Dashboard.FbId,
+    //         Password:this.props.Dashboard.Password
+    //      }
+    //      login(SignInPayload).then(result=>{
+    //         console.log(result) 
+    //         if(result.IsSuccess)
+    //          {
+    //              this.setState({ShowModal:false})
+    //              let TempDashboard=result.Data[0]
+    //              TempDashboard.FbId=this.props.Dashboard.FbId
+    //              TempDashboard.Password=this.props.Dashboard.Password
+    //              TempDashboard.ScreenName=this.props.Dashboard.ScreenName
+    //              UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+    //                 console.log("Update",result)
+    //              }).catch(err=>{
+    //                  ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+    //              })
+    //             this.props.onSetDashboard(TempDashboard)
+    //             this.props.navigation.navigate('Dashboard')
+    //          }
+    //      })
+    // }
 
     render()
     {

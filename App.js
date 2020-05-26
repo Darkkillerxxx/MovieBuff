@@ -10,6 +10,7 @@ import DashboardReducer from './Store/Reducers/Dashboard'
 import SPReducer from './Store/Reducers/SinglePlayer'
 import { init,insertUser } from './Database/Helper'
 
+
 init().then(()=>{
   console.log("Initialize Database")
 
