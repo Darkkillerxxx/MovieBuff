@@ -9,6 +9,7 @@ import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import { connect }from 'react-redux'
 import * as Facebook from 'expo-facebook';
+import SinglePlayer from '../../Components/SinglePlayerBtn'
 import {checkAvailable,login} from '../../Utils/api'
 import {fetchUser,insertUser} from '../../Database/Helper'
 
@@ -180,7 +181,6 @@ class WelcomeScreen extends React.Component{
               }
             
           }
-        // this.props.navigation.navigate('Dashboard')
       }
 
       onUserNameChange=(e)=>{
@@ -237,16 +237,14 @@ class WelcomeScreen extends React.Component{
                             {!this.state.IsReg ? 
                             <TextInput secureTextEntry={true} onChangeText={this.onPasswordChange} placeholder={"Enter Password"} style={styles.Input} />:null
                             }
-                            <TouchableOpacity onPress={()=>this.onProceed()}>
-                               <NextButton >
-                                   {this.state.isLoading ? 
-                                    <ActivityIndicator size="small" color="#00C08A" />
-                                    :<NormalText style={styles.NormalText}>{this.state.IsReg ? "Join Now":"Log-In"}</NormalText>
-                                    }
-                                </NextButton>
+                            <TouchableOpacity style={{width:'100%',justifyContent:'center',alignItems:'center',marginVertical:5}} onPress={()=>this.onProceed()}>
+                                <SinglePlayer style={{width:100,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={18}>
+                                    <NormalText style={{fontSize:16}}>{this.state.IsReg ? "Join Now":"Log-In"}</NormalText>
+                                </SinglePlayer>
+                                
                             </TouchableOpacity>
                             <TouchableOpacity onPress={()=>this.setState({IsReg:!this.state.IsReg})}>
-                            <NormalText style={{fontSize:15,color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
+                                <NormalText style={{fontSize:15,color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
                             </TouchableOpacity>
                         
                             <NormalText>OR</NormalText>

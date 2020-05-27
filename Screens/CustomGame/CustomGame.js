@@ -141,8 +141,8 @@ class CustomGame extends React.Component{
                         <View style={{width:'100%',alignItems:'center'}}>
                         <TouchableOpacity style={{width:200,height:100}} onPress={()=>this.getQuestions()}>
                             <View style={{width:'100%',flex:1,borderColor:'white',alignItems:'center',justifyContent:'center'}}>
-                                <SinglePlayer icon={"arrow-right"}>
-                                <NormalText style={{fontSize:20}}>Proceed</NormalText>
+                                <SinglePlayer style={{width:125,height:70,alignItems:'center'}} icon={"arrow-right"}  iconSize={20}>
+                                    <NormalText style={{fontSize:20}}>Proceed</NormalText>
                                 </SinglePlayer>
                             </View>
                         </TouchableOpacity>

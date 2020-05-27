@@ -163,7 +163,7 @@ class CustomModal extends React.Component{
                                             </View>
                                             <View style={styles.ModalButton}>
                                                 <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                    <NormalText>{this.props.TimteAloted} Sec</NormalText>
+                                                    <NormalText>{this.props.TimeAloted} Sec</NormalText>
                                                 </ImageBackground>
                                             </View>
                                         </View> 
@@ -252,16 +252,16 @@ class CustomModal extends React.Component{
                             <View style={{justifyContent:'space-around',alignItems:'center',flexDirection:'row',marginVertical:30}}>
                                 
                                 {this.props.Type === "SP" || this.props.Type === "Opt" ?
-                                <TouchableOpacity onPress={()=>this.props.DismissModal()} style={{width:'50%'}}>
-                                    <SinglePlayer icon={"close"}>
+                                <TouchableOpacity onPress={()=>this.props.DismissModal()} style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}}>
+                                    <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"close"}  iconSize={20}>
                                         <NormalText style={{fontSize:20}}>Cancel</NormalText>
                                     </SinglePlayer>
                                 </TouchableOpacity>:<View></View>}
                                
                                {this.props.Type !== "Opt" ? 
-                                    <TouchableOpacity style={{width:'50%'}} onPress={()=>this.changeParts()}>
-                                        <SinglePlayer icon={"arrow-right"}>
-                                            <NormalText style={{fontSize:20}}>Proceed</NormalText>
+                                    <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.changeParts()}>
+                                        <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
+                                            <NormalText style={{fontSize:20}}>{this.props.ButtonText === undefined ? "Proceed":this.props.ButtonText} </NormalText>
                                         </SinglePlayer>
                                     </TouchableOpacity>:null
                                 }

@@ -13,6 +13,8 @@ import * as ImagePicker from 'expo-image-picker';
 import {checkAvailable,registerUser} from '../../Utils/api'
 import { setDashboard } from '../../Store/Actions/ActionDashboard';
 import {insertUser} from '../../Database/Helper'
+import SinglePlayer from '../../Components/SinglePlayerBtn'
+
 class ProfileDetails extends React.Component{
     constructor()
     {
@@ -289,12 +291,9 @@ class ProfileDetails extends React.Component{
                 </View>
                 <View style={styles.ButtonContainer}>
                     <TouchableOpacity onPress={()=>this.onProceed()} style={{width:300,alignItems:'center'}}>
-                        <NextButton>
-                        {this.state.isLoading ? 
-                                    <ActivityIndicator size="small" color="#00C08A" />
-                                    :<NormalText style={styles.NormalText}>Proceed</NormalText>
-                                    }
-                        </NextButton>
+                        <SinglePlayer style={{width:125,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={20}>
+                            <NormalText style={{fontSize:18}}>Proceed</NormalText>
+                        </SinglePlayer>
                     </TouchableOpacity>
                 </View>
             </AppContainer>

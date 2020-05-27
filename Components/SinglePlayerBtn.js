@@ -5,17 +5,24 @@ import NormalText from './NormalText';
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 const SinglePlayer=(props)=>{
     return(
-        // <View style={styles.ButtonContainer}>
+        // <View style={{width:'100%',height:60,alignItems:'center',justifyContent:'center',borderColor:'white',borderWidth:1}}>
+        //     <FontAwesome name={props.icon} size={30} color={'white'} style={{marginVertical:5}}/>
         //     {props.children}
+        //     <Image source={require('../assets/Yellow.png')} style={{...{width:'100%',height:80,resizeMode:'contain',marginTop:-65,zIndex:-1},...props.ButtonStyle}} />
         // </View>
-        <View style={{width:'100%',height:60,alignItems:'center'}}>
-            <FontAwesome name={props.icon} size={30} color={'white'} style={{marginVertical:5}}/>
-            {props.children}
-            <Image source={require('../assets/Yellow.png')} style={{width:'100%',height:80,resizeMode:'contain',marginTop:-65,zIndex:-1}} />
-        </View>
-    //    <ImageBackground  style={styles.InnerButton}>
-
-    //    </ImageBackground>
+        <ImageBackground resizeMode="stretch" source={require('../assets/Yellow.png')} style={{...{width:'100%',height:60,alignItems:'center',justifyContent:'center'},...props.style}}>
+            {props.FlexDirection === "row" ?
+                <View style={{width:'100%',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly'}}>
+                    {props.children}
+                    <FontAwesome name={props.icon} size={props.iconSize} color={'white'} style={{marginVertical:5}}/>
+                </View>
+                :
+                <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
+                    <FontAwesome name={props.icon} size={props.iconSize} color={'white'} style={{marginVertical:5}}/>
+                    {props.children}
+                </View>
+            }
+        </ImageBackground>
     )
 }
 

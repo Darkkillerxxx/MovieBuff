@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, StyleSheet,Image,Modal,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert } from 'react-native'
+import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert } from 'react-native'
+import Modal from 'react-native-modal';
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
@@ -14,13 +15,13 @@ import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import {UpdateUser,DeleteUser} from '../../Database/Helper'
 import {AddCoins,GetLeaderBoard,login} from '../../Utils/api.js'
 import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
-import DashboardReducer from '../../Store/Reducers/Dashboard';
 import * as Animatable from 'react-native-animatable';
 import {
     AdMobRewarded
   } from 'expo-ads-admob';
 
 class Dashboard extends React.Component{
+    
     constructor()
     {
         super();
@@ -43,6 +44,7 @@ class Dashboard extends React.Component{
             ShowSettings:false,
             RewardUserVideo:false
         }
+        
     }
 
     setSPNoQuestions=(ques)=>{
@@ -103,7 +105,7 @@ class Dashboard extends React.Component{
         this.setState({ShowModalSP:false})
     }
 
-    DismissRewardModal=()=>{
+    DismissSignUpModal=()=>{
         this.setState({ShowSignUpModal:false})
     }
     
@@ -395,9 +397,9 @@ class Dashboard extends React.Component{
                     
                     <View style={styles.SPContainer}>
                         
-                        <TouchableOpacity style={{width:'100%'}} onPress={()=>this.setState({ShowModalSP:true})}>
+                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>this.setState({ShowModalSP:true})}>
                             
-                            <SinglePlayer icon={"user"}>
+                            <SinglePlayer style={{width:125,height:75}} icon={"user"} iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
                         
@@ -406,9 +408,9 @@ class Dashboard extends React.Component{
                     
                     <View style={styles.SPContainer}>
                         
-                        <TouchableOpacity style={{width:'100%'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
                             
-                            <SinglePlayer icon={"users"}>
+                            <SinglePlayer style={{width:125,height:75}} icon={"users"} iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
 
@@ -464,7 +466,7 @@ class Dashboard extends React.Component{
                 </View>
                 {/* Modals From Here */}
 
-                    <Modal visible={this.state.ShowModalSP} transparent={true} animationType="slide">
+                    <Modal backdropColor={'black'} isVisible={this.state.ShowModalSP} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="SP" 
@@ -483,19 +485,20 @@ class Dashboard extends React.Component{
                         <MPModal/>
                     </Modal>   */}
 
-                    <Modal visible={this.state.ShowSignUpModal} transparent={true} animationType="slide">
+                    <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="Reward" 
                             Type="Reward" 
                             FMsg={"Thank You For Registering With Us"} 
                             SMsg={"Here Are Some Coins"}
-                            Coins="500" 
-                            DismissModal={this.DismissRewardModal} />
+                            Coins="500"
+                            ButtonText={"Claim Coins"} 
+                            DismissModal={this.DismissSignUpModal} />
 
                     </Modal>
 
-                    <Modal visible={this.state.ShowInsuffModal} transparent={true} animationType="slide">
+                    <Modal backdropColor={'black'} isVisible={this.state.ShowInsuffModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="Insuff" 
@@ -507,7 +510,7 @@ class Dashboard extends React.Component{
                     
                     </Modal>
                     
-                    <Modal visible={this.state.ShowSettings} transparent={true} animationType="slide">
+                    <Modal backdropColor={'black'} isVisible={this.state.ShowSettings} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal 
                         Heading="Opt" 
                         Type="Opt" 
@@ -515,7 +518,7 @@ class Dashboard extends React.Component{
                         DismissModal={this.DismissSettingsModal}/>
                     </Modal>
 
-                    <Modal visible={this.state.ShowRewardModal} transparent={true} animationType="slide">
+                    <Modal backdropColor={'black'} isVisible={this.state.ShowRewardModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal 
                             Heading="Reward" 
                             Type="Reward" 

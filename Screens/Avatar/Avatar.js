@@ -11,6 +11,7 @@ import {getAvatarList} from '../../Utils/api'
 import {Ionicons,FontAwesome} from '@expo/vector-icons'
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
+import SinglePlayer from '../../Components/SinglePlayerBtn'
 
 class Avatar extends React.Component{
     constructor()
@@ -114,10 +115,10 @@ class Avatar extends React.Component{
                         <FlatList keyExtractor={(item, index) => item.avatar_id} data={this.state.Icons} renderItem={this.miniIcon} numColumns={5} />
                     </View>
                 </View>
-               <TouchableOpacity onPress={()=>this.onProceedClick()}>
-                    <NextButton>
-                        <NormalText style={style.NormalText}>Proceed</NormalText>
-                    </NextButton>   
+               <TouchableOpacity style={{width:'100%',alignItems:'center',marginVertical:10}} onPress={()=>this.onProceedClick()}>
+                    <SinglePlayer style={{width:125,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={20}>
+                        <NormalText style={{fontSize:18}}>Proceed</NormalText>
+                    </SinglePlayer>
                </TouchableOpacity>
                         
             </AppContainer>

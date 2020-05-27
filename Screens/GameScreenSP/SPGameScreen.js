@@ -1,6 +1,7 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView,Modal, TouchableOpacity, ToastAndroid,Alert,Dimensions } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,TouchableOpacity, ToastAndroid,Alert,Dimensions } from 'react-native'
+import Modal from 'react-native-modal';
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import BriefInfo2 from '../../Components/BriefInfo2';
@@ -58,7 +59,8 @@ class SPGameScreen extends React.Component{
             DimensionsHeight:0,
             CoinDimension:0,
             StartCoinAnimation:false,
-            ShowZoomAnimation:false
+            ShowZoomAnimation:false,
+            ShowImageAnimation:false
         }
     }
 
@@ -249,6 +251,7 @@ class SPGameScreen extends React.Component{
 
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
+        this.setState({ShowImageAnimation:true})
         console.log("Id",id)
         this.setState({ImageLoaded:false})
         if(!this.state.HasSelected)
@@ -276,6 +279,7 @@ class SPGameScreen extends React.Component{
                         setTimeout(()=>{
                            this.MoveToNextQuestion()
                            this.setState({StartCoinAnimation:false})
+                           this.setState({ShowImageAnimation:false})
                         },1000)
                     }
                     else
@@ -283,6 +287,7 @@ class SPGameScreen extends React.Component{
                         this.setState({Timer:0})
                         console.log(this.state.CorrectAns,this.state.AnsPayload)
                         this.setState({StartCoinAnimation:false})
+                        this.setState({ShowImageAnimation:false})
                         this.fetchResult()
                     }
                 })
@@ -382,7 +387,7 @@ class SPGameScreen extends React.Component{
                                     this.state.Questions.length > 0 ?
                                     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                                         <View style={style.Pic1}>
-                                            <Image style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})}></Image>
+                                            <Animatable.Image animation={this.state.ShowImageAnimation ? "bounceOutLeft":""} duration={2000} style={style.Pic} source={{uri:this.state.Questions[this.state.SelectedImage].ImgUrl}} onLoad={()=>this.setState({ImageLoaded:true})} />
                                         </View>
                                         {this.state.SelectedImage + 1 < this.state.Questions.length  ? 
                                         <View style={style.Pic2}>
@@ -534,11 +539,11 @@ class SPGameScreen extends React.Component{
                             </View>:null}
                         </View>
                     </View>  
-                    <Modal visible={this.state.ModalType === "Level" ?  true:false} transparent={true} animationType="slide">
+                    <Modal isVisible={this.state.ModalType === "Level" ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <Levelup changeModal={this.cangeModalType}/>
                     </Modal> 
 
-                    <Modal visible={this.state.Result.length > 0 ?  true:false} transparent={true} animationType="slide">
+                    <Modal isVisible={this.state.Result.length > 0 ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
                     
