@@ -184,7 +184,6 @@ class Dashboard extends React.Component{
 
     componentDidMount()
     {
-
      AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
             console.log("Reward")
             ToastAndroid.show("Reward",ToastAndroid.SHORT)

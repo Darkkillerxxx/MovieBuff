@@ -111,7 +111,7 @@ class CustomModal extends React.Component{
                                      <TouchableOpacity onPress={()=>this.props.SetQuestions(5)} style={styles.ModalButtonTouchable}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 5 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText style={{fontSize:18}}>5 Questions    100 Secs    -50 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>5 Questions    100 Secs    -10 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -119,7 +119,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity onPress={()=>this.props.SetQuestions(15)} style={styles.ModalButtonTouchable}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 15 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText style={{fontSize:18}}>15 Questions    300 Secs    -150 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>15 Questions    300 Secs    -30 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -127,7 +127,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.SetQuestions(25)}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 25 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText style={{fontSize:18}}>25 Questions    500 Secs    -250 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>25 Questions    500 Secs    -50 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>
@@ -135,7 +135,7 @@ class CustomModal extends React.Component{
                                     <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.SetQuestions(30)}>
                                         <View style={{...styles.ModalButton,...{borderColor:`${this.props.Questions === 30 ? "#FED31F":"#4B0E88"}`}}}>
                                             <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                <NormalText style={{fontSize:18}}>30 Questions    600 Secs    -300 Coins</NormalText>
+                                                <NormalText style={{fontSize:18}}>30 Questions    600 Secs    -60 Coins</NormalText>
                                             </ImageBackground>
                                         </View>
                                     </TouchableOpacity>

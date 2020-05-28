@@ -1,6 +1,6 @@
 import React from 'react'
 import AppContainer from '../../Components/AppContainer'
-import { StyleSheet,View,Text, Image,ScrollView,TouchableOpacity, ToastAndroid,Alert,Dimensions } from 'react-native'
+import { StyleSheet,View,Text, Image,ScrollView,TouchableOpacity, ToastAndroid,Alert,Dimensions,BackHandler } from 'react-native'
 import Modal from 'react-native-modal';
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
@@ -14,6 +14,8 @@ import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
+import { Audio } from 'expo-av';
+
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
@@ -62,6 +64,8 @@ class SPGameScreen extends React.Component{
             ShowZoomAnimation:false,
             ShowImageAnimation:false
         }
+        this.rightSound = new Audio.Sound();
+        this.wrongSound = new Audio.Sound();
     }
 
     show=async()=>{
@@ -73,6 +77,36 @@ class SPGameScreen extends React.Component{
         await AdMobInterstitial.showAdAsync();
     }
 
+    playCorrectSound=()=>{
+        try{
+            this.rightSound.unloadAsync()
+             this.rightSound.loadAsync(require('../../assets/Sounds/correct.mp3')).then(()=>{
+               this.rightSound.playAsync().then(()=>{
+                    
+                }).catch(err=>{
+                  
+                })
+            })
+        }
+        catch(err)
+        {
+
+        }
+    }
+
+    playWrongSound=()=>{
+
+        try{
+            this.wrongSound.unloadAsync()
+            this.wrongSound.loadAsync(require('../../assets/Sounds/wrong.mp3')).then(()=>{
+                this.wrongSound.playAsync()
+            })
+        }
+        catch(err)
+        {
+
+        }
+    }
    
 
     checkAnswer=(id,step)=>{
@@ -219,6 +253,9 @@ class SPGameScreen extends React.Component{
       }
 
     componentDidMount=()=>{
+        BackHandler.addEventListener('hardwareBackPress', ()=>{
+            console.log("Back Pressed")
+        });
         console.log("Dashboard",this.props.Dashboard)
         this.props.SPQuestions.forEach(element => {
                 element.options = this.shuffle(element.options)
@@ -229,8 +266,13 @@ class SPGameScreen extends React.Component{
             this.Timer()
             this.show();
 
-            console.log("Dimensions",this.state.Dimensions)
+            // console.log("Dimensions",this.state.Dimensions)
         
+    }
+
+    componentWillUnmount()
+    {
+        BackHandler.removeEventListener('hardwareBackPress', ()=>{});
     }
 
     MoveToNextQuestion=()=>{
@@ -261,8 +303,13 @@ class SPGameScreen extends React.Component{
                 this.setState({SelectedOptions:id})
                 if(id === 4)
                 {
+                    this.playCorrectSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
+                }
+                else
+                {
+                    this.playWrongSound()
                 }
                 let TempReport=this.state.AnsPayload;
                 TempReport.push(

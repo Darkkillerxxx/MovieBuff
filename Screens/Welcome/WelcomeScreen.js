@@ -1,5 +1,6 @@
 import React from 'react'
 import { ActivityIndicator,View,Text,Image, StyleSheet,Button,TouchableOpacity,Alert, ToastAndroid } from 'react-native';
+import Modal from 'react-native-modal'
 import AppContiner from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText'
@@ -12,6 +13,8 @@ import * as Facebook from 'expo-facebook';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
 import {checkAvailable,login} from '../../Utils/api'
 import {fetchUser,insertUser} from '../../Database/Helper'
+import Loader from '../../Components/Modals/Loader'
+
 
 class WelcomeScreen extends React.Component{
     constructor()
@@ -30,6 +33,7 @@ class WelcomeScreen extends React.Component{
     
 
     loginToBuff=(Username,FId,Password)=>{
+     
         let LoggedIn=false
         let payload={
             UserId:"",
@@ -150,34 +154,48 @@ class WelcomeScreen extends React.Component{
           {
               if(this.state.IsReg)
               { 
-                this.setState({isLoading:true})
-                checkAvailable(this.state.Username).then(response=>{
-                    this.setState({UsernameAvailable:response.Data.Available},()=>{
-                        if(this.state.UsernameAvailable)
-                        {
-                            let Login=this.props.Login;
-                            Login.ScreenName=this.state.Username
-                            this.props.onSetLogin(Login)
-                            this.props.navigation.replace('Avatar')
-                        }
-                    })
-                    this.setState({isLoading:false}) 
-                    })
+                this.setState({isLoading:true},()=>{
+                    setTimeout(()=>{
+                        checkAvailable(this.state.Username).then(response=>{
+                            this.setState({UsernameAvailable:response.Data.Available},()=>{
+                                if(this.state.UsernameAvailable)
+                                {
+                                    let Login=this.props.Login;
+                                    Login.ScreenName=this.state.Username
+                                    this.props.onSetLogin(Login)
+                                    this.setState({isLoading:false},()=>{
+                                        this.props.navigation.replace('Avatar')
+                                        }) 
+                                    }
+                                })
+                            })
+                    },1500)
+                })
               }
               else
               {
-                 
-                this.loginToBuff(this.state.Username,"",this.state.Password).then(result=>{
-                    console.log("149",result)
-                    if(result)
-                    {
-                     this.props.navigation.replace('Dashboard')
-                    }
-                    else
-                    {
-                     ToastAndroid.show("Username Or Password Incorrect",ToastAndroid.SHORT) 
-                    }
-             })
+                 this.setState({isLoading:true},()=>{
+
+                    setTimeout(()=>{
+                        this.loginToBuff(this.state.Username,"",this.state.Password).then(result=>{
+                        // console.log("149",result)
+                        if(result)
+                        {
+                         this.setState({isLoading:false},()=>{
+                             this.props.navigation.replace('Dashboard')
+                         })
+                         
+                        }
+                        else
+                        {
+                            this.setState({isLoading:false},()=>{
+                                ToastAndroid.show("Username Or Password Incorrect",ToastAndroid.SHORT) 
+                            })
+                        }
+                    })
+                    },1500)
+                    
+                 })
               }
             
           }
@@ -198,7 +216,7 @@ class WelcomeScreen extends React.Component{
 
       componentDidMount()
       {
-        ToastAndroid.show("V 1.0.9",ToastAndroid.SHORT)
+        ToastAndroid.show("V 1.0.10",ToastAndroid.SHORT)
         console.log("Welcome Screen")
         fetchUser().then(result => {
             console.log("Debug Welcome",result)
@@ -257,7 +275,11 @@ class WelcomeScreen extends React.Component{
                             <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our <Text style={{borderBottomColor:'blue',color:'blue'}}>Terms and Conditions</Text></NormalText>
                         </View>
                     </View>  
-                </ScrollView>              
+                </ScrollView>  
+
+                <Modal isVisible={this.state.isLoading}>
+                    <Loader Text={"Please Wait ..."}/>
+                </Modal>            
             </AppContiner>
         )
     }

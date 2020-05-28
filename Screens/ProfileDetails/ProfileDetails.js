@@ -1,5 +1,6 @@
 import React from 'react'
-import { View,StyleSheet,Text,TextInput,Image,Alert,ActivityIndicator,Keyboard } from 'react-native';
+import { View,StyleSheet,Text,TextInput,Image,Alert,ActivityIndicator,Keyboard, ToastAndroid } from 'react-native';
+import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer';
 import Input from '../../Components/TextInput'
 import NormalText from '../../Components/NormalText';
@@ -14,6 +15,7 @@ import {checkAvailable,registerUser} from '../../Utils/api'
 import { setDashboard } from '../../Store/Actions/ActionDashboard';
 import {insertUser} from '../../Database/Helper'
 import SinglePlayer from '../../Components/SinglePlayerBtn'
+import Loader from '../../Components/Modals/Loader'
 
 class ProfileDetails extends React.Component{
     constructor()
@@ -38,7 +40,8 @@ class ProfileDetails extends React.Component{
             isPasswordEmpty:false,
             Password:"",
             ConfirmPassword:"",
-            PasswordMatch:true
+            PasswordMatch:true,
+            isLoading:false
         }
     }
 
@@ -132,101 +135,117 @@ class ProfileDetails extends React.Component{
         if(this.validation())
         {
             console.log("Here")
-        this.setState({isLoading:true})
         if(this.props.PrevPage !== "Avatar")
         {
-            checkAvailable(this.state.Username).then(response=>{
-                this.setState({UsernameAvailable:response.Data.Available},()=>{
-                    if(this.state.UsernameAvailable)
-                    {
-                        let Login=this.props.Login;
-                        Login.ScreenName=this.state.Username
-                        Login.FirstName=this.state.FirstName
-                        Login.LastName=this.state.LastName
-                        Login.Country=this.state.Country
-                        Login.MartialStatus=this.state.MartialStatus
-                        Login.Profession=this.state.Profession
-                        Login.EmailId=this.state.EmailId
-                        Login.AvatarBase64=this.state.ImageBase64,
-                        Login.Password=this.state.Password
-                        this.props.onSetLogin(Login)
-
-                        let RegPayload={
-                            "Country":"India",
-                            "FB Id":Login.FbId,
-                            "ScreenName":Login.ScreenName,
-                            "FirstName":Login.FirstName,
-                            "LastName":Login.LastName,
-                            "MaritalStatus":Login.MaritalStatus,
-                            "Profession":Login.Profession,
-                            "Email Id":Login.EmailId,
-                            "AvatarId":this.state.ImageBase64 === "" ? Login.AvatarFacebook === "" ? Login.AvatarId:"":"",
-                            "AvatarBase64":this.state.ImageBase64,
-                            "AvatarFacebook":this.state.ImageBase64 === "" ? Login.AvatarFacebook:"",
-                            "SelectedGenre":Login.SelectedGenre,
-                            "SelectedRegion":Login.SelectedRegion,
-                            "Password":this.state.Password
-                        }
-                       
-                        registerUser(RegPayload).then(response=>{
-                            console.log(response)
-                            if(response.IsSuccess)
+            this.setState({isLoading:true},()=>{
+                setTimeout(()=>{
+                    checkAvailable(this.state.Username).then(response=>{
+                        this.setState({UsernameAvailable:response.Data.Available},()=>{
+                            if(this.state.UsernameAvailable)
                             {
-                                let TempDB=response.Data[0];
-                                TempDB.ScreenName=this.props.Login.ScreenName,
-                                TempDB.Password="",
-                                TempDB.FbId=this.props.Login.FbId
-                                TempDB.isNew=true
-                                TempDB.Coins=500
-                                insertUser(JSON.stringify(TempDB))
-                                this.props.onSetDashbaord(TempDB)
-                                console.log("Response Genre",response.Data)
-                                this.props.navigation.replace('Dashboard')
+                                let Login=this.props.Login;
+                                Login.ScreenName=this.state.Username
+                                Login.FirstName=this.state.FirstName
+                                Login.LastName=this.state.LastName
+                                Login.Country=this.state.Country
+                                Login.MartialStatus=this.state.MartialStatus
+                                Login.Profession=this.state.Profession
+                                Login.EmailId=this.state.EmailId
+                                Login.AvatarBase64=this.state.ImageBase64,
+                                Login.Password=this.state.Password
+                                this.props.onSetLogin(Login)
+        
+                                let RegPayload={
+                                    "Country":"India",
+                                    "FB Id":Login.FbId,
+                                    "ScreenName":Login.ScreenName,
+                                    "FirstName":Login.FirstName,
+                                    "LastName":Login.LastName,
+                                    "MaritalStatus":Login.MaritalStatus,
+                                    "Profession":Login.Profession,
+                                    "Email Id":Login.EmailId,
+                                    "AvatarId":this.state.ImageBase64 === "" ? Login.AvatarFacebook === "" ? Login.AvatarId:"":"",
+                                    "AvatarBase64":this.state.ImageBase64,
+                                    "AvatarFacebook":this.state.ImageBase64 === "" ? Login.AvatarFacebook:"",
+                                    "SelectedGenre":Login.SelectedGenre,
+                                    "SelectedRegion":Login.SelectedRegion,
+                                    "Password":this.state.Password
+                                }
+                               
+                                registerUser(RegPayload).then(response=>{
+                                    console.log(response)
+                                    if(response.IsSuccess)
+                                    {
+                                        let TempDB=response.Data[0];
+                                        TempDB.ScreenName=this.props.Login.ScreenName,
+                                        TempDB.Password="",
+                                        TempDB.FbId=this.props.Login.FbId
+                                        TempDB.isNew=true
+                                        TempDB.Coins=500
+                                        insertUser(JSON.stringify(TempDB))
+                                        this.props.onSetDashbaord(TempDB)
+                                        console.log("Response Genre",response.Data)
+                                        this.setState({isLoading:false},()=>{
+                                            this.props.navigation.replace('Dashboard')
+                                        }) 
+                                    }
+                                    else
+                                    {
+                                        this.setState({isLoading:false},()=>{
+                                            ToastAndroid.show('Error Registering Your Profile',ToastAndroid.SHORT)
+                                        })
+                                    }
+                                })
                             }
-                        })
-                    }
-                })
-               
+                        }) 
+                    })
+                },1500)
             })
+          
         }
         else
         {
-            let LoginRedux=this.props.Login;
-            let RegPayload={
-                "Country":"India",
-                "FB Id":"",
-                "ScreenName":this.state.Username,
-                "FirstName":this.state.FirstName,
-                "LastName":this.state.LastName,
-                "MaritalStatus":this.state.MartialStatus,
-                "Profession":this.state.Profession,
-                "Email Id":this.state.EmailId,
-                "AvatarId":this.state.ImageBase64 === "" ? LoginRedux.AvatarId:"",
-                "AvatarBase64":this.state.ImageBase64,
-                "AvatarFacebook":"",
-                "SelectedGenre":"",
-                "SelectedRegion":"",
-                "Password":this.state.Password
-            }
-
-            registerUser(RegPayload).then(response=>{
-                console.log(response)
-                if(response.IsSuccess)
-                {
-                    let TempDB=response.Data[0];
-                    TempDB.ScreenName=this.props.Login.ScreenName
-                    TempDB.Password=this.state.Password
-                    TempDB.FbId=""
-                    TempDB.isNew=true
-                    TempDB.Coins=500
-                    insertUser(JSON.stringify(TempDB))
-                    this.props.onSetDashbaord(TempDB)
-                    console.log("Response Genre",response.Data)
-                    this.props.navigation.replace('Dashboard')
-                }
+            this.setState({isLoading:true},()=>{
+                setTimeout(()=>{
+                    let LoginRedux=this.props.Login;
+                    let RegPayload={
+                        "Country":"India",
+                        "FB Id":"",
+                        "ScreenName":this.state.Username,
+                        "FirstName":this.state.FirstName,
+                        "LastName":this.state.LastName,
+                        "MaritalStatus":this.state.MartialStatus,
+                        "Profession":this.state.Profession,
+                        "Email Id":this.state.EmailId,
+                        "AvatarId":this.state.ImageBase64 === "" ? LoginRedux.AvatarId:"",
+                        "AvatarBase64":this.state.ImageBase64,
+                        "AvatarFacebook":"",
+                        "SelectedGenre":"",
+                        "SelectedRegion":"",
+                        "Password":this.state.Password
+                    }
+        
+                    registerUser(RegPayload).then(response=>{
+                        console.log(response)
+                        if(response.IsSuccess)
+                        {
+                            let TempDB=response.Data[0];
+                            TempDB.ScreenName=this.props.Login.ScreenName
+                            TempDB.Password=this.state.Password
+                            TempDB.FbId=""
+                            TempDB.isNew=true
+                            TempDB.Coins=500
+                            insertUser(JSON.stringify(TempDB))
+                            this.props.onSetDashbaord(TempDB)
+                            console.log("Response Genre",response.Data)
+                            this.setState({isLoading:false},()=>{
+                                this.props.navigation.replace('Dashboard')
+                            })   
+                        }
+                    })
+                },1500)
             })
-        }
-       
+           }
         }
     }
 
@@ -296,6 +315,10 @@ class ProfileDetails extends React.Component{
                         </SinglePlayer>
                     </TouchableOpacity>
                 </View>
+
+                <Modal isVisible={this.state.isLoading}>
+                    <Loader Text={"Registering Your Profile...."}/>
+                </Modal>
             </AppContainer>
         )
     }

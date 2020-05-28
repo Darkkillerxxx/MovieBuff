@@ -12,6 +12,7 @@ import {Ionicons,FontAwesome} from '@expo/vector-icons'
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
+import Loader from '../../Components/Modals/Loader'
 
 class Avatar extends React.Component{
     constructor()
@@ -36,7 +37,6 @@ class Avatar extends React.Component{
             {
                 this.setState({Icons:result.Data})
             }   
-           
         })
     }
 

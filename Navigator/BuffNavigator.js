@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation-stack';
+import { createStackNavigator,createSwitchNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import WelcomeScreen from  '../Screens/Welcome/WelcomeScreen'
 import Avatar from '../Screens/Avatar/Avatar'
