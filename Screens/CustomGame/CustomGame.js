@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet,Image,FlatList,ToastAndroid,ImageBackground } from 'react-native';
+import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText';
 import {Checkbox} from 'react-native-paper'
@@ -11,6 +12,7 @@ import { connect } from 'react-redux'
 import {BollyWood,HollyWood,Mixed,getQuestions} from '../../Utils/api'
 import { setQuestions } from '../../Store/Actions/ActionSp';
 import SinglePlayer from '../../Components/SinglePlayerBtn'
+import Loader from '../../Components/Modals/Loader'
 
 class CustomGame extends React.Component{
     constructor()
@@ -19,7 +21,8 @@ class CustomGame extends React.Component{
         this.state={
             Region:[],
             RefreshFlatList:true,
-            CustomSelection:true
+            CustomSelection:true,
+            isLoading:false
         }
     }
 
@@ -41,6 +44,7 @@ class CustomGame extends React.Component{
 
 
     getQuestions=()=>{
+        this.setState({isLoading:true})
         let SelectedRegions=[]
         this.state.Region.forEach(element => {
                 if(element.Checked)
@@ -59,7 +63,12 @@ class CustomGame extends React.Component{
            if(result.IsSuccess)
            {
                this.props.onSetQuestions(result.Data)
-               this.props.navigation.navigate('SPGameScreen')
+               setTimeout(()=>{
+                    this.setState({isLoading:false},()=>{
+                        this.props.navigation.navigate('SPGameScreen')
+                    })
+               },1500)
+              
            }
            else
            {
@@ -149,7 +158,9 @@ class CustomGame extends React.Component{
 
                         </View>
                     
-       
+                <Modal isVisible={this.state.isLoading}>
+                    <Loader Text={"Starting Quiz ..."}/>
+                </Modal>  
                
             </AppContainer>
         )

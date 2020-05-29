@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet,Image,FlatList,Button,TouchableOpacity } from 'react-native';
+import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
@@ -21,7 +22,9 @@ class Avatar extends React.Component{
         this.state={
            Icons:[],
            SelectedIcon:1,
-           ImageBase64:""
+           ImageBase64:"",
+           isLoading:false,
+           LoadingText:false
         }
         
     }
@@ -85,13 +88,22 @@ class Avatar extends React.Component{
     }
 
     onProceedClick=()=>{
-        let Login=this.props.Login;
-        Login.AvatarId = this.state.SelectedIcon;
-        Login.AvatarBase64 = this.state.ImageBase64
-        Login.AvatarURL=this.state.Icons[this.state.SelectedIcon -1].a_img_url
-        this.props.onSetLogin(Login)
-        this.props.onSetPrevPage('Avatar')
-        this.props.navigation.replace('ProfileDetails')
+        this.setState({isLoading:true})
+
+        setTimeout(()=>{
+            
+            let Login=this.props.Login;
+            Login.AvatarId = this.state.SelectedIcon;
+            Login.AvatarBase64 = this.state.ImageBase64
+            Login.AvatarURL=this.state.Icons[this.state.SelectedIcon -1].a_img_url
+            this.props.onSetLogin(Login)
+            this.props.onSetPrevPage('Avatar')
+            this.setState({isLoading:false},()=>{
+                this.props.navigation.replace('ProfileDetails')
+            })
+            
+        },1500)
+      
     }
 
     render()
@@ -120,7 +132,11 @@ class Avatar extends React.Component{
                         <NormalText style={{fontSize:18}}>Proceed</NormalText>
                     </SinglePlayer>
                </TouchableOpacity>
-                        
+                    
+                <Modal isVisible={this.state.isLoading}>
+                    <Loader Text={"Please Wait"}/>
+                </Modal>
+
             </AppContainer>
         )
     }

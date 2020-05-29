@@ -16,6 +16,7 @@ import {UpdateUser,DeleteUser} from '../../Database/Helper'
 import {AddCoins,GetLeaderBoard,login} from '../../Utils/api.js'
 import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
 import * as Animatable from 'react-native-animatable';
+import Loader from '../../Components/Modals/Loader'
 import {
     AdMobRewarded
   } from 'expo-ads-admob';
@@ -42,7 +43,9 @@ class Dashboard extends React.Component{
             ShowInsuffModal:false,
             ShowRewardModal:false,
             ShowSettings:false,
-            RewardUserVideo:false
+            RewardUserVideo:false,
+            isLoading:false,
+            LoadingText:null
         }
         
     }
@@ -118,20 +121,30 @@ class Dashboard extends React.Component{
     }
 
     onLBPressed=()=>{
-        GetLeaderBoard(this.props.Dashboard.Id.toString()).then(result=>{
-            if(result.IsSuccess)
-            {
-                ToastAndroid.show("LeaderBoard Fetch Successfully",ToastAndroid.SHORT)
-                this.props.navigation.navigate("Leaderboard",{
-                    Leaderboard:result.Data,
-                    UserId:this.props.Dashboard.Id
-                })
-            }
-            else
-            {
-                ToastAndroid.show("You Need to Play Atleast One Game To Access The Leaderboard",ToastAndroid.SHORT)
-            }
+        this.setState({isLoading:true},()=>{
+            GetLeaderBoard(this.props.Dashboard.Id.toString()).then(result=>{
+                if(result.IsSuccess)
+                {
+                    this.setState({LoadingText:"Fetching Leaderboard..."},()=>{
+                        setTimeout(()=>{
+                            this.setState({isLoading:false})
+                            this.props.navigation.navigate("Leaderboard",{
+                                Leaderboard:result.Data,
+                                UserId:this.props.Dashboard.Id
+                            })
+                        },1000)
+                    })
+                }
+                else
+                {
+                    this.setState({isLoading:false},()=>{
+                        ToastAndroid.show("You Need to Play Atleast One Game To Access The Leaderboard",ToastAndroid.SHORT)
+                    })
+                 
+                }
+            })
         })
+       
     }
 
     rewardUser=()=>{
@@ -148,9 +161,12 @@ class Dashboard extends React.Component{
         AddCoins(payload).then((result)=>{
             if(result.IsSuccess)
             {
-                this.setState({ShowRewardModal:true},()=>{
-                    // this.setState({RewardUserVideo:false})
+                this.setState({isLoading:false},()=>{
+                    this.setState({ShowRewardModal:true},()=>{
+                        // this.setState({RewardUserVideo:false})
+                    })
                 })
+                
             }
         })
     }
@@ -192,10 +208,13 @@ class Dashboard extends React.Component{
         
      AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
             console.log("Closed")
-            if(this.state.RewardUserVideo)
-            {
+            this.setState({LoadingText:"Fetching Your Reward"})
+            this.setState({isLoading:true},()=>{
+                if(this.state.RewardUserVideo)
+                {
                 this.rewardUser()
-            }
+                }
+            })
         })
         
         this.FetchVideoAd()
@@ -525,6 +544,10 @@ class Dashboard extends React.Component{
                             SMsg={"Here Is Your Reward"}
                             Coins="100" 
                             DismissModal={this.DismissRewardModal} />
+                    </Modal>
+
+                    <Modal isVisible={this.state.isLoading}>
+                        <Loader Text={this.state.LoadingText}/>
                     </Modal>
 
                 </ScrollView>

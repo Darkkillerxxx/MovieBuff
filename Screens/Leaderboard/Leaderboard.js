@@ -22,11 +22,11 @@ class Leaderboard extends React.Component{
     }
 
     ShowSeperateStanding=()=>{
-        let ShowStandings=true
+        let ShowStandings=false
         this.state.LB.forEach(element => {
             if(element.LeaderBoard[0].userId === this.state.UId)
             {
-                ShowStandings=false
+                ShowStandings=true
             }
         });
         return ShowStandings

@@ -167,6 +167,10 @@ class WelcomeScreen extends React.Component{
                                         this.props.navigation.replace('Avatar')
                                         }) 
                                     }
+                                else 
+                                {
+                                    this.setState({isLoading:false})
+                                }
                                 })
                             })
                     },1500)

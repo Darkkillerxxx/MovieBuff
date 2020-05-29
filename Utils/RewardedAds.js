@@ -4,7 +4,7 @@ import {
 
 
   export const SetUnitId=()=>{
-    //ca-app-pub-3940256099942544/5224354917
+    //
     return AdMobRewarded.setAdUnitID('ca-app-pub-3341671606021251/4823652626').then(()=>{
         
         return true

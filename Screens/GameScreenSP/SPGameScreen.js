@@ -14,6 +14,7 @@ import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
+import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
 
 import {
@@ -62,10 +63,12 @@ class SPGameScreen extends React.Component{
             CoinDimension:0,
             StartCoinAnimation:false,
             ShowZoomAnimation:false,
-            ShowImageAnimation:false
+            ShowImageAnimation:false,
+            isLoading:false
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
+        this.coinsSound = new Audio.Sound();
     }
 
     show=async()=>{
@@ -82,7 +85,7 @@ class SPGameScreen extends React.Component{
             this.rightSound.unloadAsync()
              this.rightSound.loadAsync(require('../../assets/Sounds/correct.mp3')).then(()=>{
                this.rightSound.playAsync().then(()=>{
-                    
+                  
                 }).catch(err=>{
                   
                 })
@@ -104,6 +107,18 @@ class SPGameScreen extends React.Component{
         }
         catch(err)
         {
+
+        }
+    }
+
+    playCoinsSound=()=>{
+        try{
+            this.coinsSound.unloadAsync()
+            this.coinsSound.loadAsync(require('../../assets/Sounds/coin.mp3')).then(()=>{
+                this.coinsSound.playAsync()
+            })
+        }
+        catch(err){
 
         }
     }
@@ -214,12 +229,9 @@ class SPGameScreen extends React.Component{
     }
 
     fetchResult=()=>{
-        let ShowInterstital=Math.random() * 10
-        console.log("Show Ads",ShowInterstital)
-        if(Math.floor(ShowInterstital) < 5)
-        {
-            this.showads()
-        }
+        this.setState({isLoading:true})
+        
+        
         let payload={
             Report:this.state.AnsPayload,
             Ccount:this.state.CorrectAns,
@@ -231,8 +243,21 @@ class SPGameScreen extends React.Component{
             ToastAndroid.show(`Result ${result.IsSuccess}`,ToastAndroid.LONG)
             if(result.IsSuccess)
             {
-                console.log(result.Data)
-                this.setState({Result:result.Data})
+                setTimeout(()=>{
+                    this.setState({isLoading:false},()=>{
+                        console.log(result.Data)
+                        this.setState({Result:result.Data},()=>{
+                        let ShowInterstital=Math.random() * 10
+                        console.log("Show Ads",ShowInterstital)
+                        if(Math.floor(ShowInterstital) < 5)
+                            {
+                                setTimeout(()=>{
+                                    this.showads()
+                                },500)
+                            }
+                        })
+                    })
+                },1500)
             }
         })
     }
@@ -304,6 +329,7 @@ class SPGameScreen extends React.Component{
                 if(id === 4)
                 {
                     this.playCorrectSound()
+                    // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
                 }
@@ -601,6 +627,10 @@ class SPGameScreen extends React.Component{
                             adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
                             onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
                         </View>
+                    
+                <Modal isVisible={this.state.isLoading}>
+                    <Loader Text={"Fetching Results ..."}/>
+                </Modal>  
             </AppContainer>
            
         )
