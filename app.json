@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "FilmyBuzz",
+    "slug": "movie-buff",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "splash": {
+      "image": "./assets/splash-buff.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 3000
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.naxbit.moviebuff",
+      "buildNumber": "1.0.0",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3341671606021251~4788542340"
+      }
+    },
+    "android": {
+      "package": "com.naxbit.moviebuff",
+      "versionCode": 2,
+      "permissions":[
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3341671606021251~4788542340" 
+      },
+      "playStoreUrl":"https://play.google.com/store/apps/details?id=com.naxbit.moviebuff"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+export const SET_FB='SET_FB'
+export const SET_LOGIN='SET_LOGIN'
+export const SET_DASHBOARD='SET_DASHBOARD'
+export const SET_GAME='SET_GAME'
+export const SET_QUESTIONS='SET_QUESTIONS'
+export const SET_PREVPAGE='SET_PREVPAGE'
+export const SET_SHOW_ADS='SET_SHOW_ADS'
