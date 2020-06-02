@@ -22,7 +22,8 @@ class CustomGame extends React.Component{
             Region:[],
             RefreshFlatList:true,
             CustomSelection:true,
-            isLoading:false
+            isLoading:false,
+            showError:false
         }
     }
 
@@ -44,7 +45,7 @@ class CustomGame extends React.Component{
 
 
     getQuestions=()=>{
-        this.setState({isLoading:true})
+        
         let SelectedRegions=[]
         this.state.Region.forEach(element => {
                 if(element.Checked)
@@ -52,32 +53,41 @@ class CustomGame extends React.Component{
                     SelectedRegions.push(element.id)
                 }
         });
-        let payload={
-            isRandom: !this.state.CustomSelection,
-            Region: this.props.SP.Region,
-            "Era": this.state.CustomSelection ? SelectedRegions:[],
-            "noQ": this.props.SP.Questions.toString(),
-            "user_id":this.props.Dashboard.Id.toString()
+        if(SelectedRegions.length === 0)
+        {
+            this.setState({showError:true})
         }
-       getQuestions(payload).then(result=>{
-           if(result.IsSuccess)
-           {
-               this.props.onSetQuestions(result.Data)
-               setTimeout(()=>{
-                    this.setState({isLoading:false},()=>{
-                        this.props.navigation.navigate('SPGameScreen')
-                    })
-               },1500)
-              
-           }
-           else
-           {
-              
-           }
-       })
+        else
+        {
+            this.setState({isLoading:true})
+            let payload={
+                isRandom: !this.state.CustomSelection,
+                Region: this.props.SP.Region,
+                "Era": this.state.CustomSelection ? SelectedRegions:[],
+                "noQ": this.props.SP.Questions.toString(),
+                "user_id":this.props.Dashboard.Id.toString()
+            }
+           getQuestions(payload).then(result=>{
+               if(result.IsSuccess)
+               {
+                   this.props.onSetQuestions(result.Data)
+                   setTimeout(()=>{
+                        this.setState({isLoading:false},()=>{
+                            this.props.navigation.navigate('SPGameScreen')
+                        })
+                   },1500)
+                  
+               }
+               else
+               {
+                  
+               }
+           }) 
+        }
     }
     
     selectUnselectEra=(id)=>{
+        this.setState({showError:false})
         let TempEra=this.state.Region;
         TempEra[id-1].Checked=!TempEra[id-1].Checked
         this.setState({Region:TempEra},()=>{
@@ -115,13 +125,13 @@ class CustomGame extends React.Component{
        )
     }
 
-
     render()
     {
         return(
             <AppContainer style={style.AppContainer}>
                 <BoldText style={style.BoldText}>Select Era</BoldText>
                 <View style={style.ChooseContainer}>
+                  
                     <View  style={{width:'50%'}}>
                         <TouchableOpacity style={{width:'100%'}} onPress={()=>this.changeSelectionType(false)}>
                             <View style={{...style.ModalButton,...{borderColor:`${!this.state.CustomSelection ? "#FED31F":"#4B0E88"}`}}}>
@@ -143,6 +153,13 @@ class CustomGame extends React.Component{
                     </View>
                     
                 </View>
+
+                <View style={{width:'100%',alignItems:'center',marginTop:10}}>
+                    {this.state.showError ? 
+                         <NormalText style={{color:'red'}}>Need To Select Atleast One Era To Play</NormalText>:null
+                    }
+                </View>
+               
                 <View style={style.RegionView}>
                     {this.state.Region.length > 0 ? 
                     <FlatList extraData={this.state.RefreshFlatList} data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>:null}

@@ -10,6 +10,7 @@ import { connect } from 'react-redux'
 import CustomModal from '../../Components/Modals/Modal'
 import {UpdateUser} from '../../Database/Helper'
 import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
+import * as StoreReview from 'expo-store-review';
 import {
   AdMobRewarded
   } from 'expo-ads-admob';
@@ -146,24 +147,22 @@ class EarnCoins extends React.Component{
                                 <NormalText style={{fontSize:14,color:"#8B96A6"}}>+100 Coins</NormalText>
                             </View>
                         </TouchableOpacity>
-                        <View style={styles.Card}>
-                            <Image style={styles.CardImage} source={require('../../assets/star.png')} />
-                            <NormalText style={{fontSize:14}}>Rate Us</NormalText>
-                            {/* <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText> */}
-                            <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
-                        </View>
-                    </View>
-                    <View style={styles.CardContainer}>
-                       
-                        
-                    </View>
-                    <View style={styles.CardContainer}>
+                        {/* <TouchableOpacity onPress={()=>StoreReview.requestReview()}>
+                            <View style={styles.Card}>
+                                <Image style={styles.CardImage} source={require('../../assets/star.png')} />
+                                <NormalText style={{fontSize:14}}>Rate Us</NormalText>
+                                <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
+                            </View>
+                        </TouchableOpacity> */}
                         <View style={styles.Card}>
                             <Image style={styles.CardImage} source={require('../../assets/facebookbig.png')} />
                             <NormalText style={{fontSize:14}}>Complete Profile</NormalText>
                             {/* <NormalText style={{fontSize:14,color:"#8B96A6"}}>+500 Coins</NormalText> */}
                             <NormalText style={{fontSize:14,color:"#8B96A6"}}>(Comming Soon)</NormalText>
                         </View>
+                        
+                    </View>
+                    <View style={styles.CardContainer2}>
                         <View style={styles.Card}>
                             <Image style={styles.CardImage} source={require('../../assets/coinbig.png')} />
                             <NormalText style={{fontSize:14}}>Buy Coins</NormalText>
@@ -203,6 +202,12 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         justifyContent:'space-around',
         marginVertical:10,
+        width:'100%'
+    },
+    CardContainer2:{
+        alignItems:'flex-start',
+        marginVertical:10,
+        paddingLeft:5,
         width:'100%'
     },
     Card:{

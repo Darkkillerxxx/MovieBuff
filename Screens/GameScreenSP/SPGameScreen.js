@@ -428,11 +428,11 @@ class SPGameScreen extends React.Component{
                                         size={50}
                                         width={5}
                                         fill={this.state.TimerValue}
-                                        tintColor="#00e0ff"
+                                        tintColor={this.state.Timer > 10 ? "#16d39a":this.state.Timer > 5 ? "#f5bb18":"#ed4356"}
                                         backgroundColor="#3d5875" >
                                         {
                                             (fill) => (
-                                            <NormalText>
+                                            <NormalText style={{color:`${this.state.Timer > 10 ? "#16d39a":this.state.Timer > 5 ? "#f5bb18":"#ed4356"}`}}>
                                                 { this.state.Timer }
                                             </NormalText>
                                             )
@@ -692,19 +692,19 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         width:'100%',
-        height:150,
+        height:Dimensions.get('window').height < 670 ? 170 : 205,
         marginVertical:10
     },
     Pic1:{
         height:'100%',
-        width:175,
+        width:Dimensions.get('window').height < 670 ? 185 : 205,
         borderRadius:10,
         overflow:'hidden',
         elevation:1
     },
     Pic2:{
         height:'90%',
-        width:170,
+        width:Dimensions.get('window').height < 670 ? 170 : 190,
         marginLeft:-155,
         borderRadius:10,
         overflow:'hidden',
@@ -713,7 +713,7 @@ const style=StyleSheet.create({
     },
     Pic3:{
         height:'80%',
-        width:150,
+        width:Dimensions.get('window').height < 670 ? 140 : 160,
         marginLeft:-135,
         borderRadius:10,
         overflow:'hidden',

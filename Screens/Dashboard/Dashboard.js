@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert } from 'react-native'
+import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert,Dimensions } from 'react-native'
 import Modal from 'react-native-modal';
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
@@ -17,6 +17,7 @@ import {AddCoins,GetLeaderBoard,login} from '../../Utils/api.js'
 import {FetchAds,ShowVideoAd} from '../../Utils/RewardedAds'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
+import * as StoreReview from 'expo-store-review';
 import {
     AdMobRewarded
   } from 'expo-ads-admob';
@@ -45,7 +46,8 @@ class Dashboard extends React.Component{
             ShowSettings:false,
             RewardUserVideo:false,
             isLoading:false,
-            LoadingText:null
+            LoadingText:null,
+            ScreenHeight:Dimensions.get('window').height
         }
         
     }
@@ -74,6 +76,14 @@ class Dashboard extends React.Component{
             tempRegion.push(id)
             this.setState({SPRegion:tempRegion})
         }
+    }
+
+    Rate=()=>{
+        StoreReview.isAvailableAsync().then(()=>{
+            StoreReview.requestReview()
+        }).catch(err=>{
+            console.log(err)
+        })
     }
 
     RunVideoAd=()=>{
@@ -200,6 +210,8 @@ class Dashboard extends React.Component{
 
     componentDidMount()
     {
+        console.log("204",this.state.ScreenHeight)
+     
      AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
             console.log("Reward")
             ToastAndroid.show("Reward",ToastAndroid.SHORT)
@@ -213,6 +225,11 @@ class Dashboard extends React.Component{
                 if(this.state.RewardUserVideo)
                 {
                 this.rewardUser()
+                this.setState({RewardUserVideo:false})
+                }
+                else
+                {
+                    this.setState({isLoading:false})
                 }
             })
         })
@@ -329,8 +346,6 @@ class Dashboard extends React.Component{
         return(
             <AppContainer style={styles.AppContainer}>
                 
-                <ScrollView>
-                
                     <View style={styles.InfoContainer}>
                         
                         <View style={styles.PicContainer}>
@@ -393,15 +408,27 @@ class Dashboard extends React.Component{
                         
                         <View style={styles.WatchVideoContainer}>
                             
-                            <Animatable.View animation="bounce" iterationCount="infinite">
-                                
-                                <TouchableOpacity onPress={()=>this.RunVideoAd()}>
-                                    <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
-                                    <NormalText style={{textAlign:'center'}}>Watch</NormalText>
-                                    <NormalText style={{textAlign:'center'}}>Ad</NormalText>
-                                </TouchableOpacity>    
-                             
-                            </Animatable.View>
+                            {this.state.ScreenHeight < 650 ? 
+                                   
+                                    <Animatable.View animation="bounce" iterationCount="infinite">
+                                        <TouchableOpacity onPress={()=>this.RunVideoAd()}>
+                                            <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                                            <NormalText style={{textAlign:'center'}}>Watch</NormalText>
+                                            <NormalText style={{textAlign:'center'}}>Ad</NormalText>
+                                        </TouchableOpacity>    
+                                    </Animatable.View>:null
+                            }
+
+                            {this.state.ScreenHeight < 650 ?     
+                                   <Animatable.View animation="tada" duration={2500} iterationCount="infinite">
+                                       <TouchableOpacity onPress={()=>this.Rate()}>
+                                           <Image source={require('../../assets/star.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                                           <NormalText style={{textAlign:'center'}}>Rate</NormalText>
+                                           <NormalText style={{textAlign:'center'}}>Us</NormalText>
+                                       </TouchableOpacity>    
+                                   </Animatable.View>:null
+                           }
+                         
 
                         </View>
                         
@@ -432,7 +459,7 @@ class Dashboard extends React.Component{
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
 
-                            <NormalText style={{marginTop:20,textAlign:'center',color:'yellow'}}>Comming Soon !!!</NormalText>
+                            <NormalText style={{marginTop:10,textAlign:'center',color:'yellow'}}>Comming Soon !!!</NormalText>
 
                         </TouchableOpacity>
                     
@@ -480,7 +507,34 @@ class Dashboard extends React.Component{
                         </TouchableOpacity>
                    
                    </View>
-                
+
+                </View>
+
+                <View style={styles.Footer}>
+                    {this.state.ScreenHeight > 650 ? 
+                         <Animatable.View animation="bounce" iterationCount="infinite">
+                        
+                         <TouchableOpacity onPress={()=>this.RunVideoAd()}>
+                             <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                             <NormalText style={{textAlign:'center'}}>Watch</NormalText>
+                             <NormalText style={{textAlign:'center'}}>Ad</NormalText>
+                         </TouchableOpacity>    
+                      
+                     </Animatable.View>:null
+                    }
+
+                    {this.state.ScreenHeight > 650 ? 
+                         <Animatable.View animation="tada" duration={2500} iterationCount="infinite">
+                        
+                         <TouchableOpacity onPress={()=>this.Rate() }>
+                             <Image source={require('../../assets/star.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                             <NormalText style={{textAlign:'center'}}>Rate</NormalText>
+                             <NormalText style={{textAlign:'center'}}>us</NormalText>
+                         </TouchableOpacity>    
+                      
+                     </Animatable.View>:null
+                    }
+                   
                 </View>
                 {/* Modals From Here */}
 
@@ -549,8 +603,6 @@ class Dashboard extends React.Component{
                     <Modal isVisible={this.state.isLoading}>
                         <Loader Text={this.state.LoadingText}/>
                     </Modal>
-
-                </ScrollView>
                 {/* Modals Ends Here      */}
             </AppContainer>
         )
@@ -608,7 +660,7 @@ const styles=StyleSheet.create({
         borderRadius:30
     },
     BackImageContainer:{
-        height:250,
+        height:225,
         width:250,
         maxWidth:'90%',
         maxHeight:'90%',
@@ -627,8 +679,6 @@ const styles=StyleSheet.create({
     Container:{
         width:'100%',
         flexDirection:'row',
-        marginVertical:15
-        
     },
     SPContainer:{
         width:'50%',
@@ -640,7 +690,6 @@ const styles=StyleSheet.create({
         color:'white'
     },
     ToolsContainer:{
-        marginTop:5,
         flexDirection:'row',
         width:'100%'
     },
@@ -659,7 +708,16 @@ const styles=StyleSheet.create({
         position:'absolute',
         marginTop:10,
         paddingHorizontal:10,
-        alignItems:'flex-start'
+        justifyContent:'space-between',
+        alignItems:'flex-start',
+        flexDirection:'row'
+    },
+    Footer:{
+        flex:1,
+        flexDirection:'row',
+        alignSelf:'stretch',
+        justifyContent:'space-between',
+        padding:15
     }
 })
 

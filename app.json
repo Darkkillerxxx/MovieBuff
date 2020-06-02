@@ -36,7 +36,8 @@
       ],
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3341671606021251~4788542340" 
-      }
+      },
+      "playStoreUrl":"https://play.google.com/store/apps/details?id=com.naxbit.moviebuff"
     }
   }
 }
