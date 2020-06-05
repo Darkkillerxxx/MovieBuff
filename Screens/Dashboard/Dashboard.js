@@ -552,10 +552,10 @@ class Dashboard extends React.Component{
                             ProceedToCustom={this.onProceedToCustom}/>
                     
                     </Modal>
-    {/*                    
+                       
                     <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
-                        <MPModal/>
-                    </Modal>   */}
+                        <MPModal />
+                    </Modal>  
 
                     <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         
