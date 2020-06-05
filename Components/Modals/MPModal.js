@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import NextButton from '../NextButton';
 import NormalText from '../NormalText';
 import SinglePlayer from '../SinglePlayerBtn'
-
+import Loader from './Loader'
 class MPModal extends React.Component{
     constructor()
     {
@@ -13,7 +13,10 @@ class MPModal extends React.Component{
             JoinLobby:false,
             EntryFee:["100","250","500","1000"],
             Region:[],
-            EnrtyFeeID:0
+            EnrtyFeeID:0,
+            LobbyId:"",
+            ShowLoading:false,
+            LoaderText:""
         }
     }
 
@@ -31,11 +34,19 @@ class MPModal extends React.Component{
             this.setState({EnrtyFeeID:this.state.EnrtyFeeID - 1})
         }
     }
+
+    JoinOrCreateLobby=()=>{
+        
+    }
     
     render()
     {
         return(
-            <View style={{justifyContent:'center'}}>
+                this.state.ShowLoading ? 
+
+                <Loader 
+                Text={this.state.LoaderText}/>:
+                
                 <View style={styles.Modal}>
                     <View style={styles.Modal1}>
                         <LinearGradient start={{x: 0, y: 0}} end={{x: 0, y: 1}} colors={['#60B48D', '#55868B', '#3E2788',"#920D92"]} style={styles.Modal2}>
@@ -72,16 +83,16 @@ class MPModal extends React.Component{
                                         <NormalText style={{fontSize:20}}>Select Region</NormalText>
 
                                         <View style={styles.RegionHolder}>
-                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.setState({JoinLobby:false})}>
-                                                <View style={{...styles.ModalButton,...{borderColor:`${this.state.Region.includes(1) ? "#FED31F":"#4B0E88"}`}}}>
+                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(1)}>
+                                                <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(1) ? "#FED31F":"#4B0E88"}`}}}>
                                                     <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
                                                         <NormalText style={{fontSize:20}}>Bollywood</NormalText>
                                                     </ImageBackground>
                                                 </View>
                                             </TouchableOpacity>
 
-                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.setState({JoinLobby:true})}>
-                                                <View style={{...styles.ModalButton,...{borderColor:`${this.state.Region.includes(2) ? "#FED31F":"#4B0E88"}`}}}>
+                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(2)}>
+                                                <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(2) ? "#FED31F":"#4B0E88"}`}}}>
                                                     <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
                                                         <NormalText style={{fontSize:20}}>Hollywood</NormalText>
                                                     </ImageBackground>
@@ -142,7 +153,6 @@ class MPModal extends React.Component{
                         </LinearGradient>
                     </View>
                 </View>
-            </View>
         )
     }
 }
@@ -151,7 +161,7 @@ class MPModal extends React.Component{
 const styles=StyleSheet.create({
     Modal:{
         borderRadius:15,
-        width:'90%',
+        width:'100%',
         alignItems:'center',
         justifyContent:'center',
         alignSelf:'center',

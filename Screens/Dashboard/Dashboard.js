@@ -57,7 +57,7 @@ class Dashboard extends React.Component{
     }
 
     onBackPress=()=>{
-        console.log("Back Pressed")
+        // console.log("Back Pressed")
     }
     
     setSpRegion=(id)=>{
@@ -98,8 +98,10 @@ class Dashboard extends React.Component{
        })
     }
 
-    DismissSpModal=()=>{
+    DismissSPMPModal=()=>{
         this.setState({ShowModalSP:false})
+        this.setState({ShowModalMP:false})
+        
     }
 
     onProceedToCustom=()=>{
@@ -166,7 +168,7 @@ class Dashboard extends React.Component{
             "Debit":"False"                                                                                                                                                      
         }
 
-        console.log("Sending Payload form Adreward Video",payload)
+        // console.log("Sending Payload form Adreward Video",payload)
 
         AddCoins(payload).then((result)=>{
             if(result.IsSuccess)
@@ -190,7 +192,7 @@ class Dashboard extends React.Component{
          }  
 
          login(SignInPayload).then(result=>{
-            console.log(result) 
+            // console.log(result) 
             if(result.IsSuccess)
              {
                  this.setState({ShowRewardModal:false})
@@ -199,7 +201,7 @@ class Dashboard extends React.Component{
                  TempDashboard.Password=this.props.Dashboard.Password
                  TempDashboard.ScreenName=this.props.Dashboard.ScreenName
                  UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                    console.log("Update",result)
+                    // console.log("Update",result)
                  }).catch(err=>{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
@@ -210,16 +212,16 @@ class Dashboard extends React.Component{
 
     componentDidMount()
     {
-        console.log("204",this.state.ScreenHeight)
+        // console.log("204",this.state.ScreenHeight)
      
      AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
-            console.log("Reward")
+            // console.log("Reward")
             ToastAndroid.show("Reward",ToastAndroid.SHORT)
             this.setState({RewardUserVideo:true})
         })
         
      AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
-            console.log("Closed")
+            // console.log("Closed")
             this.setState({LoadingText:"Fetching Your Reward"})
             this.setState({isLoading:true},()=>{
                 if(this.state.RewardUserVideo)
@@ -246,13 +248,13 @@ class Dashboard extends React.Component{
         {
             if(this.props.Dashboard.isNew)
             {
-              console.log("Coins Added Successfully")
+            //   console.log("Coins Added Successfully")
               let DashboardRedux=this.props.Dashboard;
               DashboardRedux.isNew=false
               DashboardRedux.Coins=500
               this.props.onSetDashbaord(DashboardRedux)
               UpdateUser(JSON.stringify(DashboardRedux)).then(result=>{
-                  console.log("Update",result)
+                //   console.log("Update",result)
                   this.setState({ShowSignUpModal:true})
               }).catch(err=>{
                    ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
@@ -265,7 +267,7 @@ class Dashboard extends React.Component{
         FetchAds().then((result)=>{
             if(result)
             {
-                console.log("Lock and Loaded")
+                // console.log("Lock and Loaded")
             }
             else
             {
@@ -276,8 +278,8 @@ class Dashboard extends React.Component{
 
      componentDidUpdate(prevProps,prevState,Ss)
      {
-         console.log("Props Update Below")
-         console.log(prevProps.Dashboard.Coins,this.props.Dashboard.Coins)
+        //  console.log("Props Update Below")
+        //  console.log(prevProps.Dashboard.Coins,this.props.Dashboard.Coins)
          if(prevProps.Dashboard.Coins !== this.props.Dashboard.Coins || prevProps.Dashboard.GOLD !== this.props.Dashboard.GOLD 
             || prevProps.Dashboard.Silver !== this.props.Dashboard.Silver || prevProps.Dashboard.Bronze !== this.props.Dashboard.Bronze ||
             prevProps.Dashboard.Crowns !== this.props.Dashboard.Crowns )
@@ -288,7 +290,7 @@ class Dashboard extends React.Component{
             //  console.log("Update State Object",this.props.Dashboard)
             
             this.setState({Coins:this.props.Dashboard.Coins},()=>{
-                console.log("Daashbard Coins",this.state.DashboardCoins)
+                // console.log("Daashbard Coins",this.state.DashboardCoins)
             })
             this.setState({Gold:this.props.Dashboard.Gold})
             this.setState({Silver:this.props.Dashboard.Silver})
@@ -315,14 +317,14 @@ class Dashboard extends React.Component{
                 "SelectedRegion":"",
                 "AvatarURL":""
             }
-            console.log("Delete User",result)
+            // console.log("Delete User",result)
             this.props.onSetDashbaord({})
             this.props.onSetLogin(DefaultLogin)
-            console.log('Welcome')
+            // console.log('Welcome')
             this.props.navigation.replace('Welcome')
 
         }).catch(err=>{
-            console.log("Error Deleting User",err)
+            // console.log("Error Deleting User",err)
         })
      }
 
@@ -453,7 +455,7 @@ class Dashboard extends React.Component{
                     
                     <View style={styles.SPContainer}>
                         
-                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>this.setState({ShowModalMP:true})}>
                             
                             <SinglePlayer style={{width:125,height:75}} icon={"users"} iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
@@ -543,18 +545,20 @@ class Dashboard extends React.Component{
                         <CustomModal 
                             Heading="SP" 
                             Type="SP" 
-                            DismissModal={this.DismissSpModal} 
+                            DismissModal={this.DismissSPMPModal} 
                             SetQuestions={this.setSPNoQuestions} 
                             setRegion={this.setSpRegion} 
                             Questions={this.state.SPNoQuestions} 
                             Region={this.state.SPRegion} 
                             SetRegion={this.setSpRegion} 
                             ProceedToCustom={this.onProceedToCustom}/>
-                    
                     </Modal>
                        
-                    <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
-                        <MPModal />
+                    <Modal isVisible={this.state.ShowModalMP} transparent={true} animationType="slide">
+                        <MPModal 
+                        Region={this.state.SPRegion}
+                        DismissModal={this.DismissSPMPModal}
+                        setRegion={this.setSpRegion} />
                     </Modal>  
 
                     <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>

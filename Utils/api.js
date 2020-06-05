@@ -124,7 +124,8 @@ let Endpoints={
     GetResult:"/result",
     Login:"/login",
     AddCoins:'/earncoins',
-    Leaderboard:'/leaderBoard'
+    Leaderboard:'/leaderBoard',
+    CreateLobby:'/createRoom'
 }
 
 ShowErrorCodes=(status)=>{
@@ -286,6 +287,13 @@ export function GetLeaderBoard(UserId)
     let Parameters="/"+UserId
 
     return makeRequest("GET",null,Parameters,Endpoints.Leaderboard).then(result=>{
+        return result
+    })
+}
+
+export function CreateRoom(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.CreateLobby).then(result=>{
         return result
     })
 }
