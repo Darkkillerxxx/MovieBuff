@@ -213,7 +213,7 @@ class Dashboard extends React.Component{
     componentDidMount()
     {
         // console.log("204",this.state.ScreenHeight)
-     
+        
      AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
             // console.log("Reward")
             ToastAndroid.show("Reward",ToastAndroid.SHORT)
@@ -558,7 +558,10 @@ class Dashboard extends React.Component{
                         <MPModal 
                         Region={this.state.SPRegion}
                         DismissModal={this.DismissSPMPModal}
-                        setRegion={this.setSpRegion} />
+                        setRegion={this.setSpRegion}
+                        Id={this.props.Dashboard.Id}
+                        ProfileImg={this.props.Dashboard.ImgUrl}
+                        UserName={this.props.Dashboard.ScreenName} />
                     </Modal>  
 
                     <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>

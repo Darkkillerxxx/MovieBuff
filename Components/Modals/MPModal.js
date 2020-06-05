@@ -5,6 +5,8 @@ import NextButton from '../NextButton';
 import NormalText from '../NormalText';
 import SinglePlayer from '../SinglePlayerBtn'
 import Loader from './Loader'
+import {CreateRoom} from '../../Utils/api'
+import * as Animatable from 'react-native-animatable';
 class MPModal extends React.Component{
     constructor()
     {
@@ -14,9 +16,10 @@ class MPModal extends React.Component{
             EntryFee:["100","250","500","1000"],
             Region:[],
             EnrtyFeeID:0,
-            LobbyId:"",
+            LobbyId:"abcdefg",
             ShowLoading:false,
-            LoaderText:""
+            LoaderText:"",
+            OtherUser:[]
         }
     }
 
@@ -36,7 +39,42 @@ class MPModal extends React.Component{
     }
 
     JoinOrCreateLobby=()=>{
-        
+        if(this.state.JoinLobby)
+        {
+            
+        }
+        else
+        {
+            let Payload={
+                "UserId":this.props.Id.toString(),
+                "nofusers":"5",
+                "noQ":"10",
+                "Region":this.props.Region
+            }
+            console.log(Payload)
+            this.setState({ShowLoading:true})
+            this.setState({LoaderText:"Creating a Lobby For You & Your Friends...."})
+            setTimeout(()=>{
+                CreateRoom(Payload).then((result)=>{
+                    console.log(result)
+                    if(result.IsSuccess)
+                    {
+                        this.setState({LobbyId:result.Data.RoomId},()=>{
+                            this.setState({ShowLoading:false})
+                        })
+                    }
+                    else
+                    {
+                        this.setState({ShowLoading:false})
+                    }
+                })
+            },1500)
+           
+        }
+    }
+
+    componentDidMount()
+    {
     }
     
     render()
@@ -46,7 +84,7 @@ class MPModal extends React.Component{
 
                 <Loader 
                 Text={this.state.LoaderText}/>:
-                
+                this.state.LobbyId.length === 0 ?
                 <View style={styles.Modal}>
                     <View style={styles.Modal1}>
                         <LinearGradient start={{x: 0, y: 0}} end={{x: 0, y: 1}} colors={['#60B48D', '#55868B', '#3E2788',"#920D92"]} style={styles.Modal2}>
@@ -143,7 +181,7 @@ class MPModal extends React.Component{
                                         </SinglePlayer>
                                     </TouchableOpacity>
                                
-                                    <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.changeParts()}>
+                                    <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.JoinOrCreateLobby()}>
                                         <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
                                             <NormalText style={{fontSize:20}}>{this.state.JoinLobby ? "Join Lobby":"Create Lobby"} </NormalText>
                                         </SinglePlayer>
@@ -152,6 +190,35 @@ class MPModal extends React.Component{
                             </LinearGradient>
                         </LinearGradient>
                     </View>
+                </View>:
+                <View style={{flex:1,alignItems:'center',justifyContent:'flex-start'}}>
+                    <View style={{width:'90%',alignItems:'center',justifyContent:'center',borderColor:'white',borderWidth:1,padding:5,borderRadius:10}}>
+                        <View style={{alignItems:'center',justifyContent:'center',flexDirection:'row'}}>
+                            <NormalText style={{fontSize:25}}>Lobby Code :</NormalText>
+                            <View style={{padding:5,backgroundColor:'#4C0E8B'}}>
+                                <NormalText style={{fontSize:25}}>{this.state.LobbyId}</NormalText>
+                            </View>
+                        </View>
+                        <NormalText style={{marginTop:10,fontSize:20,textAlign:'center'}}>Let Your Friend Use The Above Room Id for Joining Your Room</NormalText>
+                    </View>
+
+                    <View style={{marginTop:10,width:'100%',alignItems:'center'}}>
+                        <Image source={{uri:this.props.ProfileImg}} style={{width:100,height:100,borderRadius:100}}></Image>
+                            <NormalText style={{fontSize:20}}>{this.props.UserName}</NormalText>
+                    </View>
+                    
+                    <Animatable.View animation="pulse" iterationCount="infinite" style={{width:'100%',alignItems:'center',marginTop:25}}>
+                        <View style={{width:50,height:50,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center'}}>
+                            <View style={{width:40,height:40,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center'}}>
+                                <NormalText style={{fontSize:18}}>VS</NormalText>
+                            </View>
+                        </View>
+                    </Animatable.View>
+                    
+                    <View style={{width:'100%',marginTop:15}}>
+                        
+                    </View>
+                    
                 </View>
         )
     }
