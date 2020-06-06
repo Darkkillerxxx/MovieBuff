@@ -132,6 +132,11 @@ class Dashboard extends React.Component{
         this.setState({ShowSettings:false})
     }
 
+    onProceedToMPGame=()=>{
+        this.setState({ShowModalMP:false})
+        this.props.navigation.navigate('GameScreenMP')
+    }
+
     onLBPressed=()=>{
         this.setState({isLoading:true},()=>{
             GetLeaderBoard(this.props.Dashboard.Id.toString()).then(result=>{
@@ -561,7 +566,8 @@ class Dashboard extends React.Component{
                         setRegion={this.setSpRegion}
                         Id={this.props.Dashboard.Id}
                         ProfileImg={this.props.Dashboard.ImgUrl}
-                        UserName={this.props.Dashboard.ScreenName} />
+                        UserName={this.props.Dashboard.ScreenName}
+                        MoveToMPGame={this.onProceedToMPGame} />
                     </Modal>  
 
                     <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>

@@ -10,6 +10,8 @@ import Leaderboard from '../Screens/Leaderboard/Leaderboard'
 import EarnCoins from '../Screens/EarnCoins/EarnCoins'
 import Profile from '../Screens/Profile/Profile'
 import ProfileDetails from '../Screens/ProfileDetails/ProfileDetails'
+import GameScreenMP from '../Screens/GameScreenMP/GameScreenMP'
+
 
 const BuffNavigator=createStackNavigator({
     Welcome:{
@@ -41,6 +43,9 @@ const BuffNavigator=createStackNavigator({
     },
     ProfileDetails:{
         screen:ProfileDetails
+    },
+    GameScreenMP:{
+        screen:GameScreenMP
     }
 
 },{

@@ -16,7 +16,7 @@ class MPModal extends React.Component{
             EntryFee:["100","250","500","1000"],
             Region:[],
             EnrtyFeeID:0,
-            LobbyId:"abcdefg",
+            LobbyId:"",
             ShowLoading:false,
             LoaderText:"",
             OtherUser:[]
@@ -75,6 +75,14 @@ class MPModal extends React.Component{
 
     componentDidMount()
     {
+    }
+
+    showPlayers=()=>{
+        return(
+            <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+            </View>
+        )
     }
     
     render()
@@ -208,17 +216,35 @@ class MPModal extends React.Component{
                     </View>
                     
                     <Animatable.View animation="pulse" iterationCount="infinite" style={{width:'100%',alignItems:'center',marginTop:25}}>
-                        <View style={{width:50,height:50,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center'}}>
-                            <View style={{width:40,height:40,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center'}}>
+                        <View style={{width:50,height:50,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center',backgroundColor:'#f5bb18'}}>
+                            <View style={{width:40,height:40,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center',backgroundColor:"#2E2247"}}>
                                 <NormalText style={{fontSize:18}}>VS</NormalText>
                             </View>
                         </View>
                     </Animatable.View>
                     
-                    <View style={{width:'100%',marginTop:15}}>
-                        
+                    <View style={{width:'100%',height:100,marginTop:15,flexDirection:'row',justifyContent:'space-evenly',padding:5}}>
+                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+                        </View>
+                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+                        </View>
+                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+                        </View>
                     </View>
                     
+                    <View style={{flex:1,alignSelf:'stretch',alignItems:'center',marginVertical:15}}>
+                       {this.state.JoinLobby ? 
+                        <NormalText>Please Wait For Your Friend To Start the Game....</NormalText>
+                        :
+                        <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.props.MoveToMPGame()}>
+                            <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
+                                <NormalText style={{fontSize:20}}>Start Game</NormalText>
+                            </SinglePlayer>
+                        </TouchableOpacity>}
+                    </View>
                 </View>
         )
     }
