@@ -21,17 +21,19 @@ const IncreaseWidth={
         width:50,
         opacity:0
     },
-    0.3:{
-        width:100,
-        opacity:0.3
-    },
-    0.6:{
-        width:150,
-        opacity:0.5
+    1:{
+        width:250,
+        opacity:1
+    }
+  }
+  const DecreaseWidth={
+    0:{
+        width:50,
+        opacity:0
     },
     1:{
         width:250,
-        opacity:0.7
+        opacity:1
     }
   }
 import {
@@ -254,30 +256,37 @@ class GameScreenMP extends React.Component{
                             <View style={style.PicContainer}>
                                 <View style={{width:'100%',height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
                                     <ScrollView style={{width:'100%'}}>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={this.state.TempAnimation ? IncreaseWidth:""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'center',justifyContent:'center',borderRadius:15}} >
-                                            <View style={{flexDirection:'row',alignItems:'center'}}>
-                                                <NormalText>Hetal</NormalText>
-                                                <NormalText style={{marginLeft:15}}>3/25</NormalText>
+                                            <View style={{alignItems:'center',width:'100%'}}>
+                                                <View style={{backgroundColor:"#FFD764",flexDirection:'row',alignItems:'center',justifyContent:'center',width:'90%',padding:5,borderRadius:10}}>
+                                                    <NormalText>Hetal</NormalText>
+                                                    <View style={{marginLeft:15,flexDirection:'row'}}>
+                                                        <Image source={require('../../assets/correct.png')} style={{width:20,height:20,marginRight:5}} />
+                                                        <NormalText>
+                                                            3/25
+                                                        </NormalText>
+                                                    </View>
+                                                </View>
                                             </View>
                                         </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:5,alignSelf:'flex-start',zIndex:10}}></Image>
+                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
