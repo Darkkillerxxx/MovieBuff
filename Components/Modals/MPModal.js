@@ -1,11 +1,10 @@
 import React from 'react'
 import {View,StyleSheet,TouchableOpacity,TextInput,ImageBackground,Text,Image} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import NextButton from '../NextButton';
 import NormalText from '../NormalText';
 import SinglePlayer from '../SinglePlayerBtn'
 import Loader from './Loader'
-import {CreateRoom} from '../../Utils/api'
+import {CreateRoom,JoinRoom} from '../../Utils/api'
 import * as Animatable from 'react-native-animatable';
 class MPModal extends React.Component{
     constructor()
@@ -14,9 +13,10 @@ class MPModal extends React.Component{
         this.state={
             JoinLobby:false,
             EntryFee:["100","250","500","1000"],
-            Region:[],
+            Region:[1,2],
             EnrtyFeeID:0,
             LobbyId:"",
+            EnteredLobbyId:"",
             ShowLoading:false,
             LoaderText:"",
             OtherUser:[]
@@ -41,7 +41,28 @@ class MPModal extends React.Component{
     JoinOrCreateLobby=()=>{
         if(this.state.JoinLobby)
         {
-            
+            let Payload={
+                "UserId":this.props.Id.toString(),
+                "RoomId":this.state.EnteredLobbyId,
+            }
+            this.setState({ShowLoading:true})
+            this.setState({LoaderText:"Connecting To Your Friends Lobby...."})
+            setTimeout(()=>{
+                JoinRoom(Payload).then((result)=>{
+                    console.log(result)
+                    if(result.IsSuccess)
+                    {
+                        this.setState({LobbyId:result.Data.RoomId},()=>{
+                            this.setState({ShowLoading:false})
+                        })
+                    }
+                    else
+                    {
+                        this.setState({ShowLoading:false})
+                    }
+                })
+            },1500)
+
         }
         else
         {
@@ -49,7 +70,7 @@ class MPModal extends React.Component{
                 "UserId":this.props.Id.toString(),
                 "nofusers":"5",
                 "noQ":"10",
-                "Region":this.props.Region
+                "Region":[1,2]
             }
             console.log(Payload)
             this.setState({ShowLoading:true})
@@ -89,7 +110,6 @@ class MPModal extends React.Component{
     {
         return(
                 this.state.ShowLoading ? 
-
                 <Loader 
                 Text={this.state.LoaderText}/>:
                 this.state.LobbyId.length === 0 ?
@@ -125,27 +145,7 @@ class MPModal extends React.Component{
 
                                 {!this.state.JoinLobby ? 
                                 <View style={{width:'100%',alignItems:'center'}}>
-                                    <View style={styles.RegionContainer}>
-                                        <NormalText style={{fontSize:20}}>Select Region</NormalText>
-
-                                        <View style={styles.RegionHolder}>
-                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(1)}>
-                                                <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(1) ? "#FED31F":"#4B0E88"}`}}}>
-                                                    <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                        <NormalText style={{fontSize:20}}>Bollywood</NormalText>
-                                                    </ImageBackground>
-                                                </View>
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity style={styles.ModalButtonTouchable} onPress={()=>this.props.setRegion(2)}>
-                                                <View style={{...styles.ModalButton,...{borderColor:`${this.props.Region.includes(2) ? "#FED31F":"#4B0E88"}`}}}>
-                                                    <ImageBackground style={styles.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                                        <NormalText style={{fontSize:20}}>Hollywood</NormalText>
-                                                    </ImageBackground>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
+                                 
                                     <NormalText style={{fontSize:20,marginTop:10}}>Entry Fee</NormalText>
                                     <View style={styles.EntryContainer}>
                                         <View style={{width:'33.33%',alignItems:'center',justifyContent:'center'}}>
@@ -175,7 +175,7 @@ class MPModal extends React.Component{
                                      <View style={{width:'100%',alignItems:'center'}}>
                                         <View style={styles.RegionContainer}>
                                             <NormalText style={{fontSize:20}}>Enter Lobby ID</NormalText>
-                                            <TextInput placeholder="Enter Lobby ID" style={styles.EnterLobby}></TextInput>
+                                            <TextInput onChangeText={(e)=>this.setState({EnteredLobbyId:e})} placeholder="Enter Lobby ID" style={styles.EnterLobby}></TextInput>
                                         </View>
                                     </View>
                                 }
@@ -199,7 +199,7 @@ class MPModal extends React.Component{
                         </LinearGradient>
                     </View>
                 </View>:
-                <View style={{flex:1,alignItems:'center',justifyContent:'flex-start'}}>
+                <View style={{flex:1,alignItems:'center',justifyContent:'flex-start',marginTop:10}}>
                     <View style={{width:'90%',alignItems:'center',justifyContent:'center',borderColor:'white',borderWidth:1,padding:5,borderRadius:10}}>
                         <View style={{alignItems:'center',justifyContent:'center',flexDirection:'row'}}>
                             <NormalText style={{fontSize:25}}>Lobby Code :</NormalText>
@@ -224,13 +224,13 @@ class MPModal extends React.Component{
                     </Animatable.View>
                     
                     <View style={{width:'100%',height:100,marginTop:15,flexDirection:'row',justifyContent:'space-evenly',padding:5}}>
-                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
                                 <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
                         </View>
-                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
                                 <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
                         </View>
-                        <View style={{width:'30%',height:100,alignItems:'center',backgroundColor:"#2E2247",padding:5,borderRadius:5}}>
+                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
                                 <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
                         </View>
                     </View>

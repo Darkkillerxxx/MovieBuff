@@ -4,9 +4,7 @@ import { StyleSheet,View,Text, Image,ScrollView,TouchableOpacity, ToastAndroid,A
 import Modal from 'react-native-modal';
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import BriefInfo2 from '../../Components/BriefInfo2';
 import Options from '../../Components/Options'
-import Levelup from '../../Components/Modals/LevelUp'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {getResult,login} from '../../Utils/api'
@@ -612,9 +610,6 @@ class SPGameScreen extends React.Component{
                             </View>:null}
                         </View>
                     </View>  
-                    <Modal isVisible={this.state.ModalType === "Level" ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
-                        <Levelup changeModal={this.cangeModalType}/>
-                    </Modal> 
 
                     <Modal isVisible={this.state.Result.length > 0 ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>

@@ -1,12 +1,6 @@
 import React from 'react'
 import { View, StyleSheet,Image, TouchableOpacity } from 'react-native'
-import AppContainer from '../../Components/AppContainer';
-import NormalText from '../../Components/NormalText';
-import BoldText from '../../Components/BoldText';
-import NextButton from '../../Components/NextButton';
-import BriefInfo from '../../Components/BriefInfo';
-import * as Progress from 'react-native-progress';
-import { FlatList } from 'react-native-gesture-handler';
+
 
 class Profile extends React.Component{
     constructor()

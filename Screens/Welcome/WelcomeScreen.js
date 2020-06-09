@@ -1,10 +1,9 @@
 import React from 'react'
-import { ActivityIndicator,View,Text,Image, StyleSheet,Button,TouchableOpacity,Alert, ToastAndroid } from 'react-native';
+import {View,Text,Image, StyleSheet,TouchableOpacity,ToastAndroid,alert } from 'react-native';
 import Modal from 'react-native-modal'
 import AppContiner from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText'
-import NextButton from '../../Components/NextButton'
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
 import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
@@ -30,10 +29,25 @@ class WelcomeScreen extends React.Component{
             Password:""
         }
     }
+
+    validation=()=>{
+        if(this.state.Username.length < 3)
+        {
+            this.setState({ErrorMessage:"Username Cannot be Less Than 3 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
+        }
+        else if(this.state.Username.length > 10)
+        {
+            this.setState({ErrorMessage:"Username Cannot be More Than 10 Letter"})
+            this.setState({UsernameAvailable:false})
+            return false;
+        }
+        return true;
+    }
     
 
     loginToBuff=(Username,FId,Password)=>{
-     
         let LoggedIn=false
         let payload={
             UserId:"",
@@ -41,9 +55,7 @@ class WelcomeScreen extends React.Component{
             FacebookId:FId.toString(),
             Password:Password
         }
-        console.log("Login Pay",payload)
         return login(payload).then(result=>{
-            console.log("Login result",result)
             if(result.IsSuccess)
             {
                 if(result.Data.length > 0)
@@ -52,10 +64,7 @@ class WelcomeScreen extends React.Component{
                     DBData.Password=Password
                     DBData.FbId=FId.toString();
                     DBData.ScreenName=Username;
-                    // console.log(DBData)
-                    // DBData.Level="";
                     insertUser(JSON.stringify(DBData)).then(result=>{
-                        console.log("Update",result)
                      }).catch(err=>{
                          ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                      })
@@ -74,8 +83,6 @@ class WelcomeScreen extends React.Component{
         })
       
     }
-
-    
 
     async logIn() {
         try {
@@ -102,15 +109,6 @@ class WelcomeScreen extends React.Component{
                 Login.AvatarFacebook=FB.picture.data.url,
                 this.props.onSetLogin(Login)
                 this.props.onSetFB(this.state.FacebookResponse)
-                console.log("FBRedux",this.props.FB)
-                // if(this.loginToBuff("",this.state.FacebookResponse.id))
-                // {
-                //     this.props.navigation.navigate('Dashboard')
-                // }
-                // else
-                // {
-                //     this.props.navigation.navigate('ProfileDetails')    
-                // }
 
                 this.loginToBuff("",this.state.FacebookResponse.id,"").then(result=>{
                        if(result)
@@ -129,25 +127,10 @@ class WelcomeScreen extends React.Component{
           }
         } catch (message) {
           alert(`Facebook Login Error: ${message}`);
-          console.log("Facebook Error",message)
         }
       }
 
-      validation=()=>{
-        if(this.state.Username.length < 3)
-        {
-            this.setState({ErrorMessage:"Username Cannot be Less Than 3 Letter"})
-            this.setState({UsernameAvailable:false})
-            return false;
-        }
-        else if(this.state.Username.length > 10)
-        {
-            this.setState({ErrorMessage:"Username Cannot be More Than 10 Letter"})
-            this.setState({UsernameAvailable:false})
-            return false;
-        }
-        return true;
-    }
+    
 
       onProceed=()=>{
           if(this.validation())
@@ -182,7 +165,6 @@ class WelcomeScreen extends React.Component{
 
                     setTimeout(()=>{
                         this.loginToBuff(this.state.Username,"",this.state.Password).then(result=>{
-                        // console.log("149",result)
                         if(result)
                         {
                          this.setState({isLoading:false},()=>{
@@ -221,18 +203,12 @@ class WelcomeScreen extends React.Component{
       componentDidMount()
       {
         ToastAndroid.show("V 1.0.10",ToastAndroid.SHORT)
-        console.log("Welcome Screen")
         fetchUser().then(result => {
-            console.log("Debug Welcome",result)
             if(result.rows.length > 0)
             {
                 let JSONUser=JSON.parse(result.rows._array[0].DBData)
-                this.props.onSetDashboard(JSONUser)       
+                this.props.onSetDashboard(JSONUser)    
                 this.props.navigation.navigate('Dashboard')
-            }
-            else
-            {
-                console.log("Stay")
             }
         }).catch(err=>{
             console.log(err)
@@ -247,36 +223,57 @@ class WelcomeScreen extends React.Component{
             <AppContiner>
                 <ScrollView>
                     <View style={styles.WelcomeView}>
+
                         <View style={styles.BackImageContainer}>
                             <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}  />
                         </View>
+
                         <View style={styles.JoiningView}>
                             <BoldText style={styles.WelcomeText}>Welcome To</BoldText>
                             <BoldText style={styles.WelcomeText}>Filmy Buzz</BoldText>
                         </View>
+                        
                         <View style={styles.InputContainer}>
-                            <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} placeholder={this.state.UsernameAvailable ? "Enter Screen Name":this.state.ErrorMessage ===  "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
+                            <TextInput 
+                                onFocus={()=>this.setState({UsernameAvailable:true})} 
+                                onChangeText={this.onUserNameChange} 
+                                placeholder={this.state.UsernameAvailable ? 
+                                                "Enter Screen Name":this.state.ErrorMessage ===  "" ? 
+                                                `${this.state.Username} is Not Available`:
+                                                this.state.ErrorMessage} 
+                                placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"} 
+                                style={this.state.UsernameAvailable ? styles.Input:styles.InputError} />
+                            
                             {!this.state.IsReg ? 
-                            <TextInput secureTextEntry={true} onChangeText={this.onPasswordChange} placeholder={"Enter Password"} style={styles.Input} />:null
+                            <TextInput 
+                                secureTextEntry={true} 
+                                onChangeText={this.onPasswordChange} 
+                                placeholder={"Enter Password"} 
+                                style={styles.Input} />:null
                             }
-                            <TouchableOpacity style={{width:'100%',justifyContent:'center',alignItems:'center',marginVertical:5}} onPress={()=>this.onProceed()}>
+                            
+                            <TouchableOpacity style={styles.LoginButton} onPress={()=>this.onProceed()}>
                                 <SinglePlayer style={{width:100,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={18}>
                                     <NormalText style={{fontSize:16}}>{this.state.IsReg ? "Join Now":"Log-In"}</NormalText>
                                 </SinglePlayer>
-                                
                             </TouchableOpacity>
+
                             <TouchableOpacity onPress={()=>this.setState({IsReg:!this.state.IsReg})}>
-                                <NormalText style={{fontSize:15,color:'#1890ff',marginBottom:10}}> {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } </NormalText>
+                                <NormalText style={styles.NormalTextRegistered}> 
+                                    {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } 
+                                </NormalText>
                             </TouchableOpacity>
                         
                             <NormalText>OR</NormalText>
                             
                             <TouchableOpacity onPress={this.logIn.bind(this)}>
-                                <Image source={require('../../assets/Fb.png')} style={{height:100,resizeMode:'contain'}} />
+                                <Image source={require('../../assets/Fb.png')} style={styles.FacebookButton} />
                             </TouchableOpacity>
                         </View>
+
                         <View style={styles.Terms}>
-                            <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our <Text style={{borderBottomColor:'blue',color:'blue'}}>Terms and Conditions</Text></NormalText>
+                            <NormalText style={styles.TermsText}>By Pressing 'Join' You Agree To Our 
+                                <Text style={styles.TermsAndCond}>Terms and Conditions</Text></NormalText>
                         </View>
                     </View>  
                 </ScrollView>  
@@ -378,6 +375,25 @@ const styles=StyleSheet.create({
     TermsText:{
         fontSize:12,
         textAlign:'center'
+    },
+    LoginButton:{
+        width:'100%',
+        justifyContent:'center',
+        alignItems:'center',
+        marginVertical:5
+    },
+    NormalTextRegistered:{
+        fontSize:15,
+        color:'#1890ff',
+        marginBottom:10
+    },
+    FacebookButton:{
+        height:100,
+        resizeMode:'contain'
+    },
+    TermsAndCond:{
+        borderBottomColor:'blue',
+        color:'blue'
     }
 
 })

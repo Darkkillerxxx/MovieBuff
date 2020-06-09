@@ -1,4 +1,5 @@
 import { createStackNavigator,createSwitchNavigator } from 'react-navigation-stack';
+import React from 'react'
 import { createAppContainer } from 'react-navigation';
 import WelcomeScreen from  '../Screens/Welcome/WelcomeScreen'
 import Avatar from '../Screens/Avatar/Avatar'
