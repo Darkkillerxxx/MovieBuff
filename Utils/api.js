@@ -116,6 +116,8 @@ export const Mixed=[
     }
 ]
 
+export const LevelCoins=[10,10,12,12,15,15,15,18,18,18,20,20,22,22,25,25,25,28,28,30]
+
 let Endpoints={
     checkAvailable:"/register",
     GetAvatars:"/avatar",

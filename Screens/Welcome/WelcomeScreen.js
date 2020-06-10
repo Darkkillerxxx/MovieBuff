@@ -13,6 +13,7 @@ import SinglePlayer from '../../Components/SinglePlayerBtn'
 import {checkAvailable,login} from '../../Utils/api'
 import {fetchUser,insertUser} from '../../Database/Helper'
 import Loader from '../../Components/Modals/Loader'
+import { NavigationActions } from 'react-navigation';
 
 
 class WelcomeScreen extends React.Component{
@@ -113,7 +114,7 @@ class WelcomeScreen extends React.Component{
                 this.loginToBuff("",this.state.FacebookResponse.id,"").then(result=>{
                        if(result)
                        {
-                        this.props.navigation.replace('Dashboard')
+                        this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                        }
                        else
                        {
@@ -168,7 +169,7 @@ class WelcomeScreen extends React.Component{
                         if(result)
                         {
                          this.setState({isLoading:false},()=>{
-                             this.props.navigation.replace('Dashboard')
+                            this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                          })
                          
                         }
@@ -202,13 +203,13 @@ class WelcomeScreen extends React.Component{
 
       componentDidMount()
       {
-        ToastAndroid.show("V 1.0.10",ToastAndroid.SHORT)
+        ToastAndroid.show("V 1.0.11",ToastAndroid.SHORT)
         fetchUser().then(result => {
             if(result.rows.length > 0)
             {
                 let JSONUser=JSON.parse(result.rows._array[0].DBData)
                 this.props.onSetDashboard(JSONUser)    
-                this.props.navigation.navigate('Dashboard')
+                this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
             }
         }).catch(err=>{
             console.log(err)

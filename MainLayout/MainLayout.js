@@ -1,6 +1,6 @@
 import React from 'react'
 import {ToastAndroid} from 'react-native'
-import BuffNavigator from '../Navigator/BuffNavigator'
+import BuffSwitchNavigator from '../Navigator/BuffNavigator'
 import {SetUnitId} from '../Utils/RewardedAds'
 
 class MainLayout extends React.Component{
@@ -23,7 +23,7 @@ class MainLayout extends React.Component{
     render()
     {
         return(
-            <BuffNavigator />
+            <BuffSwitchNavigator />
         )
     }
 }

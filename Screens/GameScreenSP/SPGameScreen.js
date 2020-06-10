@@ -7,7 +7,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Options from '../../Components/Options'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
-import {getResult,login} from '../../Utils/api'
+import {getResult,login,LevelCoins} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
@@ -59,6 +59,7 @@ class SPGameScreen extends React.Component{
             back:false,
             DimensionsHeight:0,
             CoinDimension:0,
+            TrunksDimension:0,
             StartCoinAnimation:false,
             ShowZoomAnimation:false,
             ShowImageAnimation:false,
@@ -151,7 +152,6 @@ class SPGameScreen extends React.Component{
             FacebookId:this.props.Dashboard.FbId,
             Password:this.props.Dashboard.Password
          }
-
          console.log("Login Payload",SignInPayload)
 
          login(SignInPayload).then(result=>{
@@ -168,7 +168,10 @@ class SPGameScreen extends React.Component{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
                 this.props.onSetDashboard(TempDashboard)
-                this.props.navigation.navigate('Dashboard')
+                this.setState({Timer:0},()=>{
+                    this.props.navigation.navigate('Dashboard')
+                })
+               
              }
          })
 
@@ -212,18 +215,18 @@ class SPGameScreen extends React.Component{
    
 
     Timer=()=>{
-         setInterval(()=>{
-             if(this.state.Timer > 0 && this.state.ImageLoaded)
-             {
-                this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
-                    if(this.state.Timer === 0)
-                    {
-                       this.SkipQuestion()
-                    }
-                })
-             }
-            },1000)
+        //  setInterval(()=>{
+        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
+        //      {
+        //         this.setState({Timer:this.state.Timer-1},()=>{
+        //             this.calcTimerValue()
+        //             if(this.state.Timer === 0)
+        //             {
+        //                this.SkipQuestion()
+        //             }
+        //         })
+        //      }
+        //     },1000)
     }
 
     fetchResult=()=>{
@@ -357,9 +360,12 @@ class SPGameScreen extends React.Component{
                     {
                         this.setState({Timer:0})
                         console.log(this.state.CorrectAns,this.state.AnsPayload)
-                        this.setState({StartCoinAnimation:false})
-                        this.setState({ShowImageAnimation:false})
-                        this.fetchResult()
+                        setTimeout(()=>{
+                            this.setState({StartCoinAnimation:false})
+                            this.setState({ShowImageAnimation:false})
+                            this.fetchResult()      
+                        },2000)
+                      
                     }
                 })
             })
@@ -402,8 +408,18 @@ class SPGameScreen extends React.Component{
                               
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
                                     <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
-                                        <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
-                                        <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
+                                        <View onLayout={event=>{
+                                                if(this.trunks)
+                                                {
+                                                    this.trunks.measure((x, y, width, height, pageX, pageY)=>{
+                                                        this.setState({TrunksDimension:parseInt(pageY)})
+                                                    })
+                                                }
+                                            }} 
+                                            ref={view => {this.trunks =view}} >
+                                            <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
+                                            <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
+                                        </View>
                                     </Animatable.View>
                                 </View>
                             </View>
@@ -477,28 +493,25 @@ class SPGameScreen extends React.Component{
                             </View>
                             {this.state.Questions.length > 0 ? 
                         
-                            <View 
-                                onLayout={event=>{
-                                    const layout = event.nativeEvent.layout;
-                                    console.log('height:', layout.height);
-                                    console.log('width:', layout.width);
-                                    console.log('x:', layout.x);
-                                    console.log('y:', layout.y);
-                                    this.setState({CoinDimension:layout.y},()=>{
-                                        console.log(this.state.CoinDimension)
+                            <View onLayout={event=>{
+                                if(this.val)
+                                {
+                                    this.val.measure((x, y, width, height, pageX, pageY)=>{
+                                        this.setState({CoinDimension:pageY})
+                                        console.log(pageY)
                                     })
-                                    this.setState({DimensionsHeight:layout.height})
-                                }} 
-                                ref={view => {this.val =view}}>
+                                }
+                            }} 
+                            ref={view => {this.val =view}}>
                                 <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
                                     
                                     {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
-                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                            to: {translateY:this.state.TrunksDimension - this.state.CoinDimension + 10,opacity:0.4},
                                         }}
-                                        duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -518,9 +531,9 @@ class SPGameScreen extends React.Component{
                                     </Animatable.View>
                                     <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
-                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 20),opacity:0.3 },
+                                            to: { translateY: this.state.TrunksDimension - this.state.CoinDimension - 10,opacity:0.4 },
                                         }}
-                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
+                                        duration={1000} delay={50} interationCount={3} useNativeDriver={true} >
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -540,9 +553,9 @@ class SPGameScreen extends React.Component{
                                     </Animatable.View>
                                     <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
-                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 30),opacity:0.2 },
+                                            to: { translateY: this.state.TrunksDimension - this.state.CoinDimension - 20,opacity:0.4 },
                                         }}
-                                        duration={1000} delay={120} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
                                         
                                         <Animatable.Image animation={{
                                             from: {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ToastAndroid,Alert,Dimensions } from 'react-native'
+import {NavigationActions} from 'react-navigation'
 import Modal from 'react-native-modal';
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
@@ -306,7 +307,7 @@ class Dashboard extends React.Component{
             }
             this.props.onSetDashbaord({})
             this.props.onSetLogin(DefaultLogin)
-            this.props.navigation.replace('Welcome')
+            this.props.navigation.navigate('Start',{},NavigationActions.navigate({routeName:'Welcome'}))
 
         }).catch(err=>{
         })
@@ -470,7 +471,7 @@ class Dashboard extends React.Component{
                         
                         <TouchableOpacity 
                             style={{width:'100%',alignItems:'center'}} 
-                            onPress={()=>this.setState({ShowModalMP:true})}>
+                            onPress={()=>{this.setState({ShowModalMP:true})}}>
                             
                             <SinglePlayer 
                                 style={{width:125,height:75}} 
@@ -806,6 +807,7 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignSelf:'stretch',
         justifyContent:'space-between',
+        alignItems:'flex-end',
         padding:15
     }
 })

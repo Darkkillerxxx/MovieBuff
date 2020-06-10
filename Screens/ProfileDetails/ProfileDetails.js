@@ -1,5 +1,6 @@
 import React from 'react'
 import { View,StyleSheet,Text,TextInput,Image,Alert,ActivityIndicator,Keyboard, ToastAndroid } from 'react-native';
+import {NavigationActions} from 'react-navigation'
 import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
@@ -148,7 +149,7 @@ class ProfileDetails extends React.Component{
                                         insertUser(JSON.stringify(TempDB))
                                         this.props.onSetDashbaord(TempDB)
                                         this.setState({isLoading:false},()=>{
-                                            this.props.navigation.replace('Dashboard')
+                                            this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                                         }) 
                                     }
                                     else
@@ -199,7 +200,7 @@ class ProfileDetails extends React.Component{
                             insertUser(JSON.stringify(TempDB))
                             this.props.onSetDashbaord(TempDB)
                             this.setState({isLoading:false},()=>{
-                                this.props.navigation.replace('Dashboard')
+                                this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                             })   
                         }
                     })
