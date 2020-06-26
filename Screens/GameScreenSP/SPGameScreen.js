@@ -58,8 +58,10 @@ class SPGameScreen extends React.Component{
             EarnedCoins:0,
             back:false,
             DimensionsHeight:0,
-            CoinDimension:0,
-            TrunksDimension:0,
+            CoinDimensionY:0,
+            TrunksDimensionY:0,
+            CoinsDimensionX:0,
+            TrunksDimensionX:0,
             StartCoinAnimation:false,
             ShowZoomAnimation:false,
             ShowImageAnimation:false,
@@ -215,18 +217,18 @@ class SPGameScreen extends React.Component{
    
 
     Timer=()=>{
-        //  setInterval(()=>{
-        //      if(this.state.Timer > 0 && this.state.ImageLoaded)
-        //      {
-        //         this.setState({Timer:this.state.Timer-1},()=>{
-        //             this.calcTimerValue()
-        //             if(this.state.Timer === 0)
-        //             {
-        //                this.SkipQuestion()
-        //             }
-        //         })
-        //      }
-        //     },1000)
+         setInterval(()=>{
+             if(this.state.Timer > 0 && this.state.ImageLoaded)
+             {
+                this.setState({Timer:this.state.Timer-1},()=>{
+                    this.calcTimerValue()
+                    if(this.state.Timer === 0)
+                    {
+                       this.SkipQuestion()
+                    }
+                })
+             }
+            },1000)
     }
 
     fetchResult=()=>{
@@ -412,7 +414,9 @@ class SPGameScreen extends React.Component{
                                                 if(this.trunks)
                                                 {
                                                     this.trunks.measure((x, y, width, height, pageX, pageY)=>{
-                                                        this.setState({TrunksDimension:parseInt(pageY)})
+                                                        this.setState({TrunksDimensionY:parseInt(pageY)})
+                                                        console.log("PageX",pageX)
+                                                        this.setState({TrunksDimensionX:parseInt(pageX)})
                                                     })
                                                 }
                                             }} 
@@ -497,8 +501,9 @@ class SPGameScreen extends React.Component{
                                 if(this.val)
                                 {
                                     this.val.measure((x, y, width, height, pageX, pageY)=>{
-                                        this.setState({CoinDimension:pageY})
-                                        console.log(pageY)
+                                        this.setState({CoinDimensionY:pageY})
+                                        console.log("CoinsDimensionX",pageX)
+                                        this.setState({CoinsDimensionX:pageX})
                                     })
                                 }
                             }} 
@@ -508,8 +513,8 @@ class SPGameScreen extends React.Component{
                                     {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: {translateY:this.state.TrunksDimension - this.state.CoinDimension + 10,opacity:0.4},
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY:this.state.TrunksDimensionY - this.state.CoinDimensionY + 10,opacity:0.4},
                                         }}
                                         duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
                                         
@@ -530,8 +535,8 @@ class SPGameScreen extends React.Component{
                                             
                                     </Animatable.View>
                                     <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: { translateY: this.state.TrunksDimension - this.state.CoinDimension - 10,opacity:0.4 },
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 10,opacity:0.4 },
                                         }}
                                         duration={1000} delay={50} interationCount={3} useNativeDriver={true} >
                                         
@@ -552,8 +557,8 @@ class SPGameScreen extends React.Component{
                                             
                                     </Animatable.View>
                                     <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: { translateY: this.state.TrunksDimension - this.state.CoinDimension - 20,opacity:0.4 },
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 20,opacity:0.4 },
                                         }}
                                         duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
                                         

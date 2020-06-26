@@ -23,6 +23,7 @@ import {
     AdMobRewarded
   } from 'expo-ads-admob';
 
+
 class Dashboard extends React.Component{
     
     constructor()
@@ -51,7 +52,8 @@ class Dashboard extends React.Component{
             ScreenHeight:Dimensions.get('window').height,
             LobbyId:""
         }
-        
+
+      
     }
 
     setSPNoQuestions=(ques)=>{
@@ -471,7 +473,7 @@ class Dashboard extends React.Component{
                         
                         <TouchableOpacity 
                             style={{width:'100%',alignItems:'center'}} 
-                            onPress={()=>{this.setState({ShowModalMP:true})}}>
+                            onPress={()=>this.setState({ShowModalMP:true})}>
                             
                             <SinglePlayer 
                                 style={{width:125,height:75}} 
@@ -596,7 +598,8 @@ class Dashboard extends React.Component{
                             Questions={this.state.SPNoQuestions} 
                             Region={this.state.SPRegion} 
                             SetRegion={this.setSpRegion} 
-                            ProceedToCustom={this.onProceedToCustom}/>
+                            ProceedToCustom={this.onProceedToCustom}
+                            />
                     </Modal>
                        
                     <Modal 

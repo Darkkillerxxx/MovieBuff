@@ -1,13 +1,16 @@
 import React from 'react'
-import {View,StyleSheet,TouchableOpacity,TextInput,ImageBackground,Text,Image} from 'react-native';
+import {View,StyleSheet,TouchableOpacity,TextInput,ImageBackground,Text,Image,YellowBox} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from '../NormalText';
 import SinglePlayer from '../SinglePlayerBtn'
 import Loader from './Loader'
 import {CreateRoom,JoinRoom} from '../../Utils/api'
-import * as Animatable from 'react-native-animatable';
+
+import MpSetUp from '../Modals/MpSetUp'
+
+
 class MPModal extends React.Component{
-    constructor()
+    constructor(props)
     {
         super();
         this.state={
@@ -19,8 +22,11 @@ class MPModal extends React.Component{
             EnteredLobbyId:"",
             ShowLoading:false,
             LoaderText:"",
-            OtherUser:[]
+            FBrefs:null,
+            SetListener:false,
+            JoinedUsers:[]
         }
+        YellowBox.ignoreWarnings(['Setting a timer']);
     }
 
     IncreaseEntryFee=()=>{
@@ -49,11 +55,14 @@ class MPModal extends React.Component{
             this.setState({LoaderText:"Connecting To Your Friends Lobby...."})
             setTimeout(()=>{
                 JoinRoom(Payload).then((result)=>{
-                    console.log(result)
+                    // console.log(result)
                     if(result.IsSuccess)
                     {
                         this.setState({LobbyId:result.Data.RoomId},()=>{
                             this.setState({ShowLoading:false})
+                            this.setState({JoinedUsers:result.Data.Users},()=>{
+                                console.log(this.state.JoinedUsers)
+                            })
                         })
                     }
                     else
@@ -72,17 +81,18 @@ class MPModal extends React.Component{
                 "noQ":"10",
                 "Region":[1,2]
             }
-            console.log(Payload)
+            // console.log(Payload)
             this.setState({ShowLoading:true})
             this.setState({LoaderText:"Creating a Lobby For You & Your Friends...."})
             setTimeout(()=>{
                 CreateRoom(Payload).then((result)=>{
-                    console.log(result)
+                    // console.log(result)
                     if(result.IsSuccess)
-                    {
-                        this.setState({LobbyId:result.Data.RoomId},()=>{
-                            this.setState({ShowLoading:false})
-                        })
+                    {                     
+                     this.setState({LobbyId:result.Data.RoomId},()=>{
+                         this.setState({FBrefs:result.Data.RoomId.toString()})
+                         this.setState({ShowLoading:false})
+                     })  
                     }
                     else
                     {
@@ -94,9 +104,9 @@ class MPModal extends React.Component{
         }
     }
 
-    componentDidMount()
-    {
-    }
+   
+
+    
 
     showPlayers=()=>{
         return(
@@ -107,7 +117,7 @@ class MPModal extends React.Component{
     }
     
     render()
-    {
+    {    
         return(
                 this.state.ShowLoading ? 
                 <Loader 
@@ -199,53 +209,13 @@ class MPModal extends React.Component{
                         </LinearGradient>
                     </View>
                 </View>:
-                <View style={{flex:1,alignItems:'center',justifyContent:'flex-start',marginTop:10}}>
-                    <View style={{width:'90%',alignItems:'center',justifyContent:'center',borderColor:'white',borderWidth:1,padding:5,borderRadius:10}}>
-                        <View style={{alignItems:'center',justifyContent:'center',flexDirection:'row'}}>
-                            <NormalText style={{fontSize:25}}>Lobby Code :</NormalText>
-                            <View style={{padding:5,backgroundColor:'#4C0E8B'}}>
-                                <NormalText style={{fontSize:25}}>{this.state.LobbyId}</NormalText>
-                            </View>
-                        </View>
-                        <NormalText style={{marginTop:10,fontSize:20,textAlign:'center'}}>Let Your Friend Use The Above Room Id for Joining Your Room</NormalText>
-                    </View>
-
-                    <View style={{marginTop:10,width:'100%',alignItems:'center'}}>
-                        <Image source={{uri:this.props.ProfileImg}} style={{width:100,height:100,borderRadius:100}}></Image>
-                            <NormalText style={{fontSize:20}}>{this.props.UserName}</NormalText>
-                    </View>
-                    
-                    <Animatable.View animation="pulse" iterationCount="infinite" style={{width:'100%',alignItems:'center',marginTop:25}}>
-                        <View style={{width:50,height:50,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center',backgroundColor:'#f5bb18'}}>
-                            <View style={{width:40,height:40,borderColor:'white',borderWidth:1,borderRadius:100,alignItems:'center',justifyContent:'center',backgroundColor:"#2E2247"}}>
-                                <NormalText style={{fontSize:18}}>VS</NormalText>
-                            </View>
-                        </View>
-                    </Animatable.View>
-                    
-                    <View style={{width:'100%',height:100,marginTop:15,flexDirection:'row',justifyContent:'space-evenly',padding:5}}>
-                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
-                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
-                        </View>
-                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
-                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
-                        </View>
-                        <View style={{width:'30%',height:100,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1}}>
-                                <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
-                        </View>
-                    </View>
-                    
-                    <View style={{flex:1,alignSelf:'stretch',alignItems:'center',marginVertical:15}}>
-                       {this.state.JoinLobby ? 
-                        <NormalText>Please Wait For Your Friend To Start the Game....</NormalText>
-                        :
-                        <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.props.MoveToMPGame()}>
-                            <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
-                                <NormalText style={{fontSize:20}}>Start Game</NormalText>
-                            </SinglePlayer>
-                        </TouchableOpacity>}
-                    </View>
-                </View>
+                <MpSetUp
+                    LobbyId={this.state.LobbyId}
+                    ProfileImg={this.props.ProfileImg}
+                    UserName={this.props.UserName}
+                    Id={this.props.Id} 
+                    JoinedUsers={this.state.JoinedUsers}/>
+                
         )
     }
 }
