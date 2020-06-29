@@ -5,7 +5,6 @@ import NormalText from '../NormalText';
 import SinglePlayer from '../SinglePlayerBtn'
 import Loader from './Loader'
 import {CreateRoom,JoinRoom} from '../../Utils/api'
-
 import MpSetUp from '../Modals/MpSetUp'
 
 
@@ -55,7 +54,7 @@ class MPModal extends React.Component{
             this.setState({LoaderText:"Connecting To Your Friends Lobby...."})
             setTimeout(()=>{
                 JoinRoom(Payload).then((result)=>{
-                    // console.log(result)
+                    console.log(result)
                     if(result.IsSuccess)
                     {
                         this.setState({LobbyId:result.Data.RoomId},()=>{
@@ -104,7 +103,11 @@ class MPModal extends React.Component{
         }
     }
 
-   
+   changeLoadingModal=(LoaderText)=>{
+       this.setState({ShowLoading:!this.state.ShowLoading})
+       this.setState({LoaderText:LoaderText})
+   }
+
 
     
 
@@ -214,7 +217,10 @@ class MPModal extends React.Component{
                     ProfileImg={this.props.ProfileImg}
                     UserName={this.props.UserName}
                     Id={this.props.Id} 
-                    JoinedUsers={this.state.JoinedUsers}/>
+                    JoinedUsers={this.state.JoinedUsers}
+                    JoinLobby={this.state.JoinLobby}
+                    navigation={this.props.navigation}
+                    Loading={this.changeLoadingModal}/>
                 
         )
     }

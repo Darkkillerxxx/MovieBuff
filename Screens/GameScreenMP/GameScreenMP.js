@@ -14,26 +14,27 @@ import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
-const IncreaseWidth={
-    0:{
-        width:50,
-        opacity:0
-    },
-    1:{
-        width:250,
-        opacity:1
-    }
-  }
-  const DecreaseWidth={
-    0:{
-        width:50,
-        opacity:0
-    },
-    1:{
-        width:250,
-        opacity:1
-    }
-  }
+import firebase from 'firebase';
+// const IncreaseWidth={
+//     0:{
+//         width:50,
+//         opacity:0
+//     },
+//     1:{
+//         width:250,
+//         opacity:1
+//     }
+//   }
+//   const DecreaseWidth={
+//     0:{
+//         width:50,
+//         opacity:0
+//     },
+//     1:{
+//         width:250,
+//         opacity:1
+//     }
+//   }
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
@@ -46,118 +47,7 @@ class GameScreenMP extends React.Component{
             Timer:15,
             TimeAloted:15,
             TimerValue:100,
-            Questions:[
-                {
-                    "ImgUrl": "https://s3.ap-south-1.amazonaws.com/movie.buff.movieimages/tt1182937.jpg",
-                    "Qid": "tt1182937",
-                    "options": [
-                        {
-                            "Id": 1,
-                            "Name": "Himmatwala"
-                        },
-                        {
-                            "Id": 2,
-                            "Name": "Magadheera"
-                        },
-                        {
-                            "Id": 3,
-                            "Name": "Chak de! India"
-                        },
-                        {
-                            "Id": 4,
-                            "Name": "Rab Ne Bana Di Jodi"
-                        }
-                    ]
-                },
-                {
-                    "ImgUrl": "https://s3.ap-south-1.amazonaws.com/movie.buff.movieimages/tt4635372.jpg",
-                    "Qid": "tt4635372",
-                    "options": [
-                        {
-                            "Id": 1,
-                            "Name": "Madaari"
-                        },
-                        {
-                            "Id": 2,
-                            "Name": "The Lunchbox"
-                        },
-                        {
-                            "Id": 3,
-                            "Name": "Pardes"
-                        },
-                        {
-                            "Id": 4,
-                            "Name": "Masaan"
-                        }
-                    ]
-                },
-                {
-                    "ImgUrl": "https://s3.ap-south-1.amazonaws.com/movie.buff.movieimages/tt2621000.jpg",
-                    "Qid": "tt2621000",
-                    "options": [
-                        {
-                            "Id": 1,
-                            "Name": "Iqbal"
-                        },
-                        {
-                            "Id": 2,
-                            "Name": "No One Killed Jessica"
-                        },
-                        {
-                            "Id": 3,
-                            "Name": "Dil To Pagal Hai"
-                        },
-                        {
-                            "Id": 4,
-                            "Name": "Jolly LLB"
-                        }
-                    ]
-                },
-                {
-                    "ImgUrl": "https://s3.ap-south-1.amazonaws.com/movie.buff.movieimages/tt0169102.jpg",
-                    "Qid": "tt0169102",
-                    "options": [
-                        {
-                            "Id": 1,
-                            "Name": "Kyaa Kool Hain Hum 3"
-                        },
-                        {
-                            "Id": 2,
-                            "Name": "Hera Pheri"
-                        },
-                        {
-                            "Id": 3,
-                            "Name": "Wake Up Sid"
-                        },
-                        {
-                            "Id": 4,
-                            "Name": "Lagaan: Once Upon a Time in India"
-                        }
-                    ]
-                },
-                {
-                    "ImgUrl": "https://s3.ap-south-1.amazonaws.com/movie.buff.movieimages/tt0451919.jpg",
-                    "Qid": "tt0451919",
-                    "options": [
-                        {
-                            "Id": 1,
-                            "Name": "Yuva"
-                        },
-                        {
-                            "Id": 2,
-                            "Name": "Dil Chahta Hai"
-                        },
-                        {
-                            "Id": 3,
-                            "Name": "Himmatwala"
-                        },
-                        {
-                            "Id": 4,
-                            "Name": "Socha Na Tha"
-                        }
-                    ]
-                }
-            ],
+            Questions:[],
             SelectedQuestion:0,
             SelectedImage:0,
             HasSelected:false,
@@ -176,19 +66,210 @@ class GameScreenMP extends React.Component{
             ShowZoomAnimation:false,
             ShowImageAnimation:false,
             isLoading:false,
-            TempAnimation:false
+            TempAnimation:false,
+            UsersAnswered:0,
+            RoomID:null,
+            TotalUsers:null
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
         this.coinsSound = new Audio.Sound();
+
+        if(!firebase.apps.length)
+        {
+            firebase.initializeApp({
+                apiKey: "AIzaSyA_BAi5DYYPyJhmw-iXPDHnlCbeXgcpIoo",
+                authDomain: "filmybuff-test.firebaseapp.com",
+                databaseURL: "https://filmybuff-test.firebaseio.com",
+                projectId: "filmybuff-test",
+                storageBucket: "filmybuff-test.appspot.com",
+                messagingSenderId: "242527310199",
+                appId: "1:242527310199:web:b6fc88d8a7e47273a8d172",
+                measurementId: "G-V06M1572DR"
+            });
+        }
+    }
+
+    setUpQuestions=(QuestionObj)=>{
+        let TempQuestions=[]
+        for(let i=0;i<10;i++)
+        {
+            
+            try{
+                TempQuestions.push(JSON.parse(Object.values(QuestionObj)[i].replace(/'/g,'"')))
+            }
+            catch(e)
+            {
+
+            }
+        }
+
+        // console.log("Temp Questions",TempQuestions)
+        TempQuestions.forEach(element => {
+            element.options = this.shuffle(element.options)
+        });
+        this.setState({Questions:TempQuestions})
     }
    
 
+    shuffle = (array)=> {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+        return array;
+      }
+
     componentDidMount()
     {
-        setTimeout(()=>this.setState({TempAnimation:true}),
-        3000)
+        
+        const { params } = this.props.navigation.state;
+        this.setState({RoomID:params.RoomID})
+        this.setState({TotalUsers:params.TotalUsers})
+        console.log("119",params)
+
+        // setTimeout(()=>this.setState({TempAnimation:true}),
+        // 3000)
+
+        firebase.database().ref(`questions/${params.RoomID}`).once("value", (snapshot) => {
+            // console.log("99",JSON.parse(Object.values(snapshot.val())[0].replace(/'/g,'"')));
+            // console.log(`134 ${params.RoomID}`,snapshot.val())
+            this.setUpQuestions(snapshot.val())
+          }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+          });
+
+        firebase.database().ref(`questions/${params.RoomID}/OtherInfo`).on('child_changed',(snapshot)=>{
+            console.log("Other Info Changed",snapshot.key)
+            if(snapshot.key === "QuestionNo")
+            {
+                //Change Questions
+                this.MoveToNextQuestion()
+            }
+            else
+            {
+                console.log("Changing Info",parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
+                if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
+                {
+                    this.ChangeFBOQuestionInfo()
+                }
+            }
+        })
     }
+
+    MoveToNextQuestion=()=>{
+        // this.setState({Timer:this.state.TimeAloted})
+        // this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
+        //     let ImgWait=setInterval(()=>{
+        //         if(this.state.ImageLoaded)
+        //         {
+        //             this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
+        //                 this.setState({HasSelected:false})
+        //                 this.setState({OptionsDisabled:false})
+        //                 clearInterval(ImgWait)    
+        //             }) 
+        //         }
+        //     },500)
+        // })
+        console.log("Moving")
+    }
+
+    ChangeFBOQuestionInfo=()=>{
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/`).update({
+            QuestionNo:this.state.SelectedQuestion + 1
+        })
+    }
+
+    ChangeFBOtherInfo=()=>{
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/`).update({
+            UsersAnswered:this.state.UsersAnswered + 1
+        })
+    }
+
+    onSelectOptions=(options,id)=>{
+        let TimeTaken=this.state.TimeAloted-this.state.Timer
+        this.setState({ShowImageAnimation:true})
+        console.log("Id",id)
+        this.setState({ImageLoaded:false})
+        if(!this.state.HasSelected)
+        {
+            this.setState({HasSelected:true},()=>{
+
+                this.setState({SelectedOptions:id})
+                if(id === 4)
+                {
+                    // this.playCorrectSound()
+                    // this.playCoinsSound()
+                    this.setState({StartCoinAnimation:true})
+                    this.setState({CorrectAns:this.state.CorrectAns+1})
+                }
+                else
+                {
+                    // this.playWrongSound()
+                }
+                let TempReport=this.state.AnsPayload;
+                TempReport.push(
+                    {
+                        QID:options.Qid,
+                        isCorrect:id === 4,
+                        time:TimeTaken.toString()
+                    })
+                this.setState({OptionsDisabled:true})
+                this.setState({AnsPayload:TempReport},()=>{
+                    console.log("Normal Payload",this.state.AnsPayload)
+                    this.ChangeFBOtherInfo()
+                    // if(this.state.SelectedQuestion+1 < this.state.Questions.length)
+                    // {
+                    //     setTimeout(()=>{
+                    //        this.MoveToNextQuestion()
+                    //        this.setState({StartCoinAnimation:false})
+                    //        this.setState({ShowImageAnimation:false})
+                    //     },1000)
+                    // }
+                    // else
+                    // {
+                    //     this.setState({Timer:0})
+                    //     console.log(this.state.CorrectAns,this.state.AnsPayload)
+                    //     setTimeout(()=>{
+                    //         this.setState({StartCoinAnimation:false})
+                    //         this.setState({ShowImageAnimation:false})
+                    //         this.fetchResult()      
+                    //     },2000)
+                      
+                    // }
+                })
+            })
+        }
+    }
+
+    checkAnswer=(id,step)=>{
+        if(this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[id].Id)
+        {
+            if(step === 0)
+            {
+                return true
+            }
+         if(this.state.Questions[this.state.SelectedQuestion].options[id].Id === 4)
+         {
+             return true
+         }
+         else
+         {
+             return false
+         }
+        }
+        else
+        {
+             return false
+        }
+     }
    
     render()
     {
@@ -200,7 +281,7 @@ class GameScreenMP extends React.Component{
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
                               
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
-                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
+                                    <Animatable.View animation={""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
                                         <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
                                         <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
                                     </Animatable.View>
@@ -253,7 +334,7 @@ class GameScreenMP extends React.Component{
                         <View style={{width:'100%',alignItems:'center'}}>      
                             <View style={style.PicContainer}>
                                 <View style={{width:'100%',height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
-                                    <ScrollView style={{width:'100%'}}>
+                                    {/* <ScrollView style={{width:'100%'}}>
                                         <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                                         <Animatable.View animation={this.state.TempAnimation ? IncreaseWidth:""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'center',justifyContent:'center',borderRadius:15}} >
                                             <View style={{alignItems:'center',width:'100%'}}>
@@ -288,10 +369,10 @@ class GameScreenMP extends React.Component{
                                         <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
                                         
                                         </Animatable.View>
-                                    </ScrollView>
-                                    <View style={{width:'20%',alignItems:'center',alignSelf:'flex-start',backgroundColor:'#C8152E',borderRadius:10}}>
+                                    </ScrollView> */}
+                                    {/* <View style={{width:'20%',alignItems:'center',alignSelf:'flex-start',backgroundColor:'#C8152E',borderRadius:10}}>
                                         <NormalText>6 Players</NormalText>
-                                    </View>
+                                    </View> */}
                                     
                                 </View>
                                 <View style={{width:'100%',alignItems:'center',zIndex:0}}>
@@ -320,7 +401,7 @@ class GameScreenMP extends React.Component{
                             </View>
                             {this.state.Questions.length > 0 ? 
                         
-                            <View 
+                            <View style={{flex:1,alignItems:'center',justifyContent:'center'}}
                                 onLayout={event=>{
                                     const layout = event.nativeEvent.layout;
                                     console.log('height:', layout.height);
@@ -335,7 +416,7 @@ class GameScreenMP extends React.Component{
                                 ref={view => {this.val =view}}>
                                 <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
                                     
-                                    {this.state.StartCoinAnimation ?
+                                    {/* {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
                                             from: { translateY:0,opacity:1},
@@ -403,9 +484,10 @@ class GameScreenMP extends React.Component{
                                             style={{width:20,height:20,resizeMode:'stretch'}}/>
                                             
                                     </Animatable.View>
-                                   </View>:null }
+                                   </View>:null } */}
                                    
                                 </View>
+                            
                                 <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "pulse":"wobble":"":"bounceInLeft"} delay={100}>
                                     <TouchableOpacity 
                                         disabled={this.state.OptionsDisabled} 
@@ -449,7 +531,7 @@ class GameScreenMP extends React.Component{
                                                 value={this.state.Questions[this.state.SelectedQuestion].options[3].Name}/>
                                     </TouchableOpacity>
                                 </Animatable.View>
-                               
+                           
                             </View>:null}
                         </View>
                     </View>  

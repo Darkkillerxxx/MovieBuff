@@ -615,7 +615,8 @@ class Dashboard extends React.Component{
                             Id={this.props.Dashboard.Id}
                             ProfileImg={this.props.Dashboard.ImgUrl}
                             UserName={this.props.Dashboard.ScreenName}
-                            MoveToMPGame={this.onProceedToMPGame} />
+                            MoveToMPGame={this.onProceedToMPGame}
+                            navigation={this.props.navigation} />
                     </Modal>  
 
                     <Modal 

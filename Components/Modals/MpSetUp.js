@@ -1,9 +1,11 @@
 import React from 'react'
-import { View,StyleSheet,Image,TouchableOpacity,FlatList,YellowBox } from 'react-native';
+import { View,StyleSheet,Image,TouchableOpacity,FlatList,YellowBox, ToastAndroid } from 'react-native';
 import NormalText from '../NormalText';
 import * as Animatable from 'react-native-animatable';
 import SinglePlayer from '../SinglePlayerBtn'
 import firebase from 'firebase';
+import {MPGame} from '../../Utils/api'
+
 class MpSetUp extends React.Component{
     constructor()
     {
@@ -25,7 +27,8 @@ class MpSetUp extends React.Component{
                     'img_url': null,
                     'User_id': null
                 }
-            ]
+            ],
+            TotalOtherUsers:0
         }
         YellowBox.ignoreWarnings(['Setting a timer']);
         
@@ -59,6 +62,18 @@ class MpSetUp extends React.Component{
         this.setState({LobbyUser:TempLobbyUsers})
     }
 
+    GetNoOfOtherUsers=()=>{
+        let Count=1
+        this.state.LobbyUser.forEach(element=>{
+            if(element.User_id !== null)
+            {
+                Count+1
+            }
+        })
+
+        return Count
+    }
+
     AssignAddedUsers=(AddedUser)=>{
         AddedUser=JSON.parse(AddedUser.replace(/'/g,'"'))
         let TempLobbyUsers=this.state.LobbyUser;
@@ -88,8 +103,31 @@ class MpSetUp extends React.Component{
         
     }
 
+    MoveToMPScreen=()=>{
+        this.props.Loading("Loading The Game")
+        firebase.database().ref(`questions/${this.props.LobbyId}/OtherInfo`).set(
+            {
+                QuestionNo:0,
+                UsersAnswered:0
+            }
+        )
+        
+        setTimeout(()=>{
+
+        MPGame({RoomId:this.props.LobbyId}).then(result=>{
+            if(result.IsSuccess)
+            {
+                this.props.Loading("")
+            }
+        })
+       },1500)
+    }
+
+    
+
     componentDidMount()
     {
+        // this.props.Loading()
         if(this.props.JoinedUsers.length > 0)
         {
             this.AssignedJoinedUsers(this.props.JoinedUsers)
@@ -97,7 +135,16 @@ class MpSetUp extends React.Component{
         
         firebase.database().ref(`room/${this.props.LobbyId}/`).endAt().limitToLast(1).on('child_added',(snapShot)=>{
             console.log(this.props.Id,snapShot.val())
-            // this.AssignAddedUsers(snapShot.val())
+           
+            if(snapShot.key === "HasStarted")
+            {
+                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId,TotalUsers:this.GetNoOfOtherUsers()})
+            }
+            else
+            {
+                this.AssignAddedUsers(snapShot.val())
+            }
+            
         })
         // console.log("out")
     }
@@ -163,10 +210,10 @@ class MpSetUp extends React.Component{
                     </View>
                     
                     <View style={{flex:1,alignSelf:'stretch',alignItems:'center',marginVertical:15}}>
-                       {this.state.JoinLobby ? 
+                       {this.props.JoinLobby ? 
                         <NormalText>Please Wait For Your Friend To Start the Game....</NormalText>
                         :
-                        <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.props.MoveToMPGame()}>
+                        <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.MoveToMPScreen()}>
                             <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
                                 <NormalText style={{fontSize:20}}>Start Game</NormalText>
                             </SinglePlayer>

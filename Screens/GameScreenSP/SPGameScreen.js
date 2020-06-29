@@ -281,9 +281,6 @@ class SPGameScreen extends React.Component{
       }
 
     componentDidMount=()=>{
-        BackHandler.addEventListener('hardwareBackPress', ()=>{
-            console.log("Back Pressed")
-        });
         console.log("Dashboard",this.props.Dashboard)
         this.props.SPQuestions.forEach(element => {
                 element.options = this.shuffle(element.options)

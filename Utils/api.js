@@ -128,7 +128,8 @@ let Endpoints={
     AddCoins:'/earncoins',
     Leaderboard:'/leaderBoard',
     CreateLobby:'/createRoom',
-    JoinRoom:'/joinRoom'
+    JoinRoom:'/joinRoom',
+    MoveToMP:'/startMultiPlayerGame'
 }
 
 ShowErrorCodes=(status)=>{
@@ -304,6 +305,13 @@ export function CreateRoom(payload)
 export function JoinRoom(payload)
 {
     return makeRequest("POST",payload,null,Endpoints.JoinRoom).then(result=>{
+        return result
+    })
+}
+
+export function MPGame(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.MoveToMP).then(result=>{
         return result
     })
 }
