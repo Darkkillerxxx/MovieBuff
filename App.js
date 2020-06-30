@@ -9,6 +9,7 @@ import JoinReducer from './Store/Reducers/Join'
 import DashboardReducer from './Store/Reducers/Dashboard'
 import SPReducer from './Store/Reducers/SinglePlayer'
 import { init,insertUser } from './Database/Helper'
+import MPReducer from './Store/Reducers/MultiPlayer';
 
 
 init().then(()=>{
@@ -36,7 +37,8 @@ init().then(()=>{
  const rootReducer=combineReducers({
   FB:JoinReducer,
   Dashboard:DashboardReducer,
-  SP:SPReducer
+  SP:SPReducer,
+  MP:MPReducer
 })
 
 const store=createStore(rootReducer)

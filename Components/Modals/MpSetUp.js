@@ -5,6 +5,8 @@ import * as Animatable from 'react-native-animatable';
 import SinglePlayer from '../SinglePlayerBtn'
 import firebase from 'firebase';
 import {MPGame} from '../../Utils/api'
+import {connect} from 'react-redux'
+import {setMPQuestions} from '../../Store/Actions/ActionMP'
 
 class MpSetUp extends React.Component{
     constructor()
@@ -62,18 +64,6 @@ class MpSetUp extends React.Component{
         this.setState({LobbyUser:TempLobbyUsers})
     }
 
-    GetNoOfOtherUsers=()=>{
-        let Count=1
-        this.state.LobbyUser.forEach(element=>{
-            if(element.User_id !== null)
-            {
-                Count+1
-            }
-        })
-
-        return Count
-    }
-
     AssignAddedUsers=(AddedUser)=>{
         AddedUser=JSON.parse(AddedUser.replace(/'/g,'"'))
         let TempLobbyUsers=this.state.LobbyUser;
@@ -105,18 +95,21 @@ class MpSetUp extends React.Component{
 
     MoveToMPScreen=()=>{
         this.props.Loading("Loading The Game")
-        firebase.database().ref(`questions/${this.props.LobbyId}/OtherInfo`).set(
-            {
-                QuestionNo:0,
-                UsersAnswered:0
-            }
-        )
+        // firebase.database().ref(`questions/${this.props.LobbyId}/OtherInfo`).set(
+        //     {
+        //         QuestionNo:0,
+        //         UsersAnswered:0
+        //     }
+        // )
         
         setTimeout(()=>{
 
-        MPGame({RoomId:this.props.LobbyId}).then(result=>{
+        MPGame({RoomId:this.props.LobbyId,Host:!this.props.JoinLobby ? 1 : 0}).then(result=>{
             if(result.IsSuccess)
             {
+                // console.log("110",result.Data[0].Questions)
+                this.props.onSetMPQuestions(result.Data[0].Questions)
+                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId})
                 this.props.Loading("")
             }
         })
@@ -138,7 +131,10 @@ class MpSetUp extends React.Component{
            
             if(snapShot.key === "HasStarted")
             {
-                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId,TotalUsers:this.GetNoOfOtherUsers()})
+                if(this.props.JoinLobby)
+                {
+                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId})
+                }
             }
             else
             {
@@ -149,10 +145,7 @@ class MpSetUp extends React.Component{
         // console.log("out")
     }
 
-    componentDidUpdate(prevProps,prevState,Ss)
-     {
-    //    console.log("Did Update")
-     }
+
 
     ShowOtherUsers=(itemData)=>{
         return(
@@ -322,4 +315,18 @@ const styles=StyleSheet.create({
     }
 })
 
-export default MpSetUp
+const mapStateToProps= state =>{
+    return{
+      Dashboard:state.Dashboard.Dashboard,
+      SP:state.SP.GamePayload,
+      SPQuestions:state.SP.Questions
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onSetMPQuestions:(response)=>dispatch(setMPQuestions(response)),
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(MpSetUp);

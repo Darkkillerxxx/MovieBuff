@@ -129,22 +129,19 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
-        
+        this.setState({Questions:this.props.MPQuestions})
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
-        this.setState({TotalUsers:params.TotalUsers})
-        console.log("119",params)
+   
+        // console.log("119",params)
 
-        // setTimeout(()=>this.setState({TempAnimation:true}),
-        // 3000)
-
-        firebase.database().ref(`questions/${params.RoomID}`).once("value", (snapshot) => {
-            // console.log("99",JSON.parse(Object.values(snapshot.val())[0].replace(/'/g,'"')));
-            // console.log(`134 ${params.RoomID}`,snapshot.val())
-            this.setUpQuestions(snapshot.val())
-          }, function (errorObject) {
-            console.log("The read failed: " + errorObject.code);
-          });
+        // // setTimeout(()=>this.setState({TempAnimation:true}),
+        // // 3000)
+        firebase.database().ref(`room/${params.RoomID}`).once("value",(snapshot)=>{
+            this.setState({TotalUsers:snapshot.numChildren() -1},()=>{
+                console.log('Total Users',this.state.TotalUsers)
+            })
+        })
 
         firebase.database().ref(`questions/${params.RoomID}/OtherInfo`).on('child_changed',(snapshot)=>{
             console.log("Other Info Changed",snapshot.key)
@@ -155,30 +152,37 @@ class GameScreenMP extends React.Component{
             }
             else
             {
-                console.log("Changing Info",parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
+                //only accesible to host
+                console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
                 if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
                 {
+                    this.ChangeFBOtherInfo(true)
                     this.ChangeFBOQuestionInfo()
+                }
+                else
+                {
+                    this.setState({UsersAnswered:this.state.UsersAnswered + 1})
                 }
             }
         })
     }
 
     MoveToNextQuestion=()=>{
-        // this.setState({Timer:this.state.TimeAloted})
-        // this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
-        //     let ImgWait=setInterval(()=>{
-        //         if(this.state.ImageLoaded)
-        //         {
-        //             this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
-        //                 this.setState({HasSelected:false})
-        //                 this.setState({OptionsDisabled:false})
-        //                 clearInterval(ImgWait)    
-        //             }) 
-        //         }
-        //     },500)
-        // })
-        console.log("Moving")
+        this.setState({UsersAnswered:0})
+        this.setState({Timer:this.state.TimeAloted})
+        this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
+            let ImgWait=setInterval(()=>{
+                if(this.state.ImageLoaded)
+                {
+                    this.setState({SelectedQuestion:this.state.SelectedQuestion+1},()=>{
+                        this.setState({HasSelected:false})
+                        this.setState({OptionsDisabled:false})
+                        clearInterval(ImgWait)    
+                    }) 
+                }
+            },500)
+        })
+        // console.log("Moving")
     }
 
     ChangeFBOQuestionInfo=()=>{
@@ -187,15 +191,25 @@ class GameScreenMP extends React.Component{
         })
     }
 
-    ChangeFBOtherInfo=()=>{
-        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/`).update({
-            UsersAnswered:this.state.UsersAnswered + 1
+    ChangeFBOtherInfo=(reset)=>{
+        console.log("Changing FB Other Info")
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/UsersAnswered`).transaction((val)=>{
+            if(val !== null)
+            {
+                if(reset)
+                {
+                    return 0
+                }
+                {
+                    return val + 1
+                }
+            }
         })
     }
 
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
-        this.setState({ShowImageAnimation:true})
+        // this.setState({ShowImageAnimation:true})
         console.log("Id",id)
         this.setState({ImageLoaded:false})
         if(!this.state.HasSelected)
@@ -224,7 +238,7 @@ class GameScreenMP extends React.Component{
                 this.setState({OptionsDisabled:true})
                 this.setState({AnsPayload:TempReport},()=>{
                     console.log("Normal Payload",this.state.AnsPayload)
-                    this.ChangeFBOtherInfo()
+                    this.ChangeFBOtherInfo(false)
                     // if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                     // {
                     //     setTimeout(()=>{
@@ -676,7 +690,8 @@ const mapStateToProps= state =>{
     return{
       Dashboard:state.Dashboard.Dashboard,
       SP:state.SP.GamePayload,
-      SPQuestions:state.SP.Questions
+      SPQuestions:state.SP.Questions,
+      MPQuestions:state.MP.Questions
     }
 }
 
