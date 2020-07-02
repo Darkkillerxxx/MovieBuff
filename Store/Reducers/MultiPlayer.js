@@ -1,7 +1,8 @@
-import {SET_MP_QUESTIONS} from '../Actions/ActionType'
+import {SET_MP_QUESTIONS, SET_USERS} from '../Actions/ActionType'
 
 const initialState={
-  Questions:[]
+  Questions:[],
+  Users:[]
 }
 
 
@@ -9,10 +10,15 @@ const MPReducer=(state=initialState,action)=>{
     switch(action.type)
     {    
         case SET_MP_QUESTIONS:
-            console.log("Setting in Reducer")
             return{
                 ...state,
                 Questions:action.data
+            }
+        
+        case SET_USERS:
+            return{
+                ...state,
+                Users:action.data
             }
 
         default:

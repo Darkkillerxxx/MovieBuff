@@ -1,9 +1,15 @@
-import {SET_MP_QUESTIONS} from './ActionType'
+import {SET_MP_QUESTIONS,SET_USERS} from './ActionType'
 
 export const setMPQuestions=(response)=>{
-    console.log("Setting in Action")
     return{
         type:SET_MP_QUESTIONS,
+        data:response
+    }
+}
+
+export const setUsers=(response)=>{
+    return{
+        type:SET_USERS,
         data:response
     }
 }

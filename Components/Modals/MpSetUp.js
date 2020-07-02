@@ -6,7 +6,8 @@ import SinglePlayer from '../SinglePlayerBtn'
 import firebase from 'firebase';
 import {MPGame} from '../../Utils/api'
 import {connect} from 'react-redux'
-import {setMPQuestions} from '../../Store/Actions/ActionMP'
+import {setMPQuestions,setUsers} from '../../Store/Actions/ActionMP'
+import { parse } from 'react-native-svg';
 
 class MpSetUp extends React.Component{
     constructor()
@@ -53,6 +54,7 @@ class MpSetUp extends React.Component{
         let TempLobbyUsers=this.state.LobbyUser
         let i=0
         Users.forEach((element,index) => {
+            this.setUsers(element)
             if(element.User_id.toString() !== this.props.Id.toString())
             {
                 TempLobbyUsers[i].User_id=element.User_id
@@ -67,6 +69,8 @@ class MpSetUp extends React.Component{
     AssignAddedUsers=(AddedUser)=>{
         AddedUser=JSON.parse(AddedUser.replace(/'/g,'"'))
         let TempLobbyUsers=this.state.LobbyUser;
+        this.setUsers(AddedUser)
+        // console.log("After Adding User",this.props.MultiUsers)
         // console.log("Before Assigning Values")
         // console.log(AddedUser.User_id.toString(),this.props.Id.toString())
         if(AddedUser.User_id.toString() !== this.props.Id.toString())
@@ -103,27 +107,68 @@ class MpSetUp extends React.Component{
         // )
         
         setTimeout(()=>{
-
+            console.log(`${this.props.Id} Move To MP`,this.props.LobbyId,!this.props.JoinLobby ? 1 : 0)
         MPGame({RoomId:this.props.LobbyId,Host:!this.props.JoinLobby ? 1 : 0}).then(result=>{
             if(result.IsSuccess)
             {
                 // console.log("110",result.Data[0].Questions)
                 this.props.onSetMPQuestions(result.Data[0].Questions)
-                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId})
+                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
                 this.props.Loading("")
             }
         })
        },1500)
     }
 
-    
+    setUsers=(userObj)=>{
+        let isUserPresent=false
+        let TempUsers=this.props.MultiUsers
+        
+        TempUsers.every((element)=>{
+        
+            if(parseInt(element.User_id) === parseInt(userObj.User_id))
+            {
+                console.log("Breaking Loop")
+                isUserPresent=true
+                return false
+            }
+            else
+            {
+                console.log("Continiung Loop Loop")
+                return true
+            }
+        })
+        console.log("138",isUserPresent)
+
+        if(!isUserPresent)
+        {
+          TempUsers.push(userObj)
+          this.props.onSetUsers(TempUsers)
+        }
+        console.log(`Users Update for Id ${this.props.Dashboard.Id}`,this.props.MultiUsers)
+    }
+
 
     componentDidMount()
     {
+        
         // this.props.Loading()
+        // "{'screen_name': 'Trek', 'img_url': 'https://s3.ap-south-1.amazonaws.com/movie.buff.avatars/User+2%401x.png', 'User_id': '104'}"
+        
+
         if(this.props.JoinedUsers.length > 0)
         {
             this.AssignedJoinedUsers(this.props.JoinedUsers)
+        }
+        else
+        {
+            let OwnInfo={
+                screen_name:this.props.Dashboard.Name,
+                img_url:this.props.Dashboard.ImgUrl,
+                User_id:this.props.Dashboard.Id
+            }   
+    
+            this.setUsers(OwnInfo)
         }
         
         firebase.database().ref(`room/${this.props.LobbyId}/`).endAt().limitToLast(1).on('child_added',(snapShot)=>{
@@ -133,14 +178,13 @@ class MpSetUp extends React.Component{
             {
                 if(this.props.JoinLobby)
                 {
-                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId})
+                 this.MoveToMPScreen()
                 }
             }
             else
             {
                 this.AssignAddedUsers(snapShot.val())
-            }
-            
+            }            
         })
         // console.log("out")
     }
@@ -318,14 +362,15 @@ const styles=StyleSheet.create({
 const mapStateToProps= state =>{
     return{
       Dashboard:state.Dashboard.Dashboard,
+      MultiUsers:state.MP.Users,
       SP:state.SP.GamePayload,
-      SPQuestions:state.SP.Questions
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
         onSetMPQuestions:(response)=>dispatch(setMPQuestions(response)),
+        onSetUsers:(response)=>dispatch(setUsers(response))
     }
 }
 

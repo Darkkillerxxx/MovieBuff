@@ -69,7 +69,8 @@ class GameScreenMP extends React.Component{
             TempAnimation:false,
             UsersAnswered:0,
             RoomID:null,
-            TotalUsers:null
+            TotalUsers:null,
+            Users:[]
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -90,28 +91,6 @@ class GameScreenMP extends React.Component{
         }
     }
 
-    setUpQuestions=(QuestionObj)=>{
-        let TempQuestions=[]
-        for(let i=0;i<10;i++)
-        {
-            
-            try{
-                TempQuestions.push(JSON.parse(Object.values(QuestionObj)[i].replace(/'/g,'"')))
-            }
-            catch(e)
-            {
-
-            }
-        }
-
-        // console.log("Temp Questions",TempQuestions)
-        TempQuestions.forEach(element => {
-            element.options = this.shuffle(element.options)
-        });
-        this.setState({Questions:TempQuestions})
-    }
-   
-
     shuffle = (array)=> {
         var currentIndex = array.length, temporaryValue, randomIndex;
         // While there remain elements to shuffle...
@@ -129,10 +108,11 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
+        // this.Timer()
         this.setState({Questions:this.props.MPQuestions})
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
-   
+        console.log("135",params.Host)
         // console.log("119",params)
 
         // // setTimeout(()=>this.setState({TempAnimation:true}),
@@ -148,22 +128,97 @@ class GameScreenMP extends React.Component{
             if(snapshot.key === "QuestionNo")
             {
                 //Change Questions
-                this.MoveToNextQuestion()
+                if(snapshot.val() < this.state.Questions.length)
+                {
+                    this.MoveToNextQuestion()
+                }
+                else{
+                    firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
+                        console.log("Getting Results")
+                        console.log(snapshot.val())
+                    })
+                }
+              
             }
             else
             {
                 //only accesible to host
-                console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
-                if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
+                if(params.Host)
                 {
-                    this.ChangeFBOtherInfo(true)
-                    this.ChangeFBOQuestionInfo()
+                    console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
+                    if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
+                    {
+                        this.ChangeFBOtherInfo(true)
+                        this.ChangeFBOQuestionInfo()
+                    }
+                    else
+                    {
+                        this.setState({UsersAnswered:this.state.UsersAnswered + 1})
+                    }
                 }
-                else
-                {
-                    this.setState({UsersAnswered:this.state.UsersAnswered + 1})
-                }
+              
             }
+        })
+    }
+
+    Timer=()=>{
+        setInterval(()=>{
+            if(this.state.Timer > 0 && this.state.ImageLoaded)
+            {
+               this.setState({Timer:this.state.Timer-1},()=>{
+                   this.calcTimerValue()
+                   if(this.state.Timer === 0)
+                   {
+                      this.PostUserAnswers(false,15)
+                      this.SkipQuestion()
+                   }
+               })
+            }
+           },1000)
+   }
+
+   calcTimerValue=()=>{
+    let TimerValue=this.state.Timer/this.state.TimeAloted * 100
+    this.setState({TimerValue:parseInt(TimerValue)})
+    }
+
+   
+   SkipQuestion=()=>{
+    if(this.state.SelectedQuestion + 1 <= this.state.Questions.length)
+    {
+        let TempReport=this.state.AnsPayload;
+        TempReport.push(
+            {
+                QID:this.state.Questions[this.state.SelectedQuestion].Qid,
+                isCorrect:false,
+                time:this.state.TimeAloted
+            })
+
+        this.setState({AnsPayload:TempReport},()=>{
+            console.log("Timer Payload",this.state.AnsPayload)
+            if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
+            {
+               this.ChangeFBOQuestionInfo()
+            }
+            else
+            {
+                // this.fetchResult()
+            }
+        })
+    }
+    else
+    {
+        console.log("Feching Result Activated By timer")
+        // this.fetchResult()
+        // console.log(this.state.CorrectAns,this.state.AnsPayload) 
+    }
+}
+
+    PostUserAnswers=(isCorrect,Time)=>{
+        firebase.database().ref(`questions/${this.state.RoomID}/reports/${this.state.Questions[this.state.SelectedQuestion].Qid}/${this.props.Dashboard.Id.toString()}`).
+        set({
+            isCorrect:isCorrect,
+            Time:Time
         })
     }
 
@@ -223,9 +278,11 @@ class GameScreenMP extends React.Component{
                     // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
+                    this.PostUserAnswers(true,TimeTaken)
                 }
                 else
                 {
+                    this.PostUserAnswers(false,TimeTaken)
                     // this.playWrongSound()
                 }
                 let TempReport=this.state.AnsPayload;
