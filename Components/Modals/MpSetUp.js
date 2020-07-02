@@ -113,7 +113,7 @@ class MpSetUp extends React.Component{
             {
                 // console.log("110",result.Data[0].Questions)
                 this.props.onSetMPQuestions(result.Data[0].Questions)
-                this.props.navigation.navigate('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
+                this.props.navigation.replace('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
                 this.props.Loading("")
             }
         })
@@ -128,13 +128,13 @@ class MpSetUp extends React.Component{
         
             if(parseInt(element.User_id) === parseInt(userObj.User_id))
             {
-                console.log("Breaking Loop")
+                // console.log("Breaking Loop")
                 isUserPresent=true
                 return false
             }
             else
             {
-                console.log("Continiung Loop Loop")
+                // console.log("Continiung Loop Loop")
                 return true
             }
         })
@@ -142,10 +142,11 @@ class MpSetUp extends React.Component{
 
         if(!isUserPresent)
         {
+          userObj.hasAnsCorrect=false
           TempUsers.push(userObj)
           this.props.onSetUsers(TempUsers)
         }
-        console.log(`Users Update for Id ${this.props.Dashboard.Id}`,this.props.MultiUsers)
+        // console.log(`Users Update for Id ${this.props.Dashboard.Id}`,this.props.MultiUsers)
     }
 
 

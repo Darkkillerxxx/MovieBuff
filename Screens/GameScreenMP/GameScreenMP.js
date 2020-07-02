@@ -106,9 +106,21 @@ class GameScreenMP extends React.Component{
         return array;
       }
 
+    CheckAnswers=(isReset,userId)=>{
+        if(isReset)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
     componentDidMount()
     {
         // this.Timer()
+        this.setState({Users:this.props.MPUsers})
         this.setState({Questions:this.props.MPQuestions})
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
@@ -132,13 +144,17 @@ class GameScreenMP extends React.Component{
                 {
                     this.MoveToNextQuestion()
                 }
-                else{
+                else 
+                {
                     firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
                         console.log("Getting Results")
                         console.log(snapshot.val())
                     })
                 }
-              
+            }
+            else if(snapshot.key === "latestAnswered")
+            {
+                console.log("LastAnswered Changed")
             }
             else
             {
@@ -262,6 +278,15 @@ class GameScreenMP extends React.Component{
         })
     }
 
+    ChangeLatestAnswered=(userId)=>{
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo`).transaction((val)=>{
+            if(val !== null)
+            {
+                return userId
+            }
+        })
+    }
+
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
         // this.setState({ShowImageAnimation:true})
@@ -278,6 +303,7 @@ class GameScreenMP extends React.Component{
                     // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
+                    this.ChangeLatestAnswered(this.props.Dashboard.Id)
                     this.PostUserAnswers(true,TimeTaken)
                 }
                 else
@@ -341,9 +367,38 @@ class GameScreenMP extends React.Component{
              return false
         }
      }
+
+
    
     render()
     {
+        let ShowSideUsers=this.state.Users.map((result)=>{
+            return(
+                <View>
+                    <View style={{width:75,alignItems:'center'}}>
+                        <Image source={{uri:result.img_url}} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
+                        {result.hasAnsCorrect ? 
+                        <Image source={require('../../assets/correct.png')} style={{height:20,width:20,marginTop:-15,zIndex:10}}/>:null}
+                        <NormalText>{result.screen_name}</NormalText>
+                    </View>
+                    
+                    <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'center',justifyContent:'center',borderRadius:15}} >
+                        {/* <View style={{alignItems:'center',width:'100%'}}>
+                            <View style={{backgroundColor:"#FFD764",flexDirection:'row',alignItems:'center',justifyContent:'center',width:'90%',padding:5,borderRadius:10}}>
+                                <NormalText>Hetal</NormalText>
+                                <View style={{marginLeft:15,flexDirection:'row'}}>
+                                    <Image source={require('../../assets/correct.png')} style={{width:20,height:20,marginRight:5}} />
+                                    <NormalText>
+                                        3/25
+                                    </NormalText>
+                                </View>
+                            </View>
+                        </View> */}
+                    </Animatable.View>
+                </View>
+            )
+        })
+
         return(
             <AppContainer style={style.AppContainer}>
                 <ScrollView>
@@ -405,45 +460,12 @@ class GameScreenMP extends React.Component{
                         <View style={{width:'100%',alignItems:'center'}}>      
                             <View style={style.PicContainer}>
                                 <View style={{width:'100%',height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
-                                    {/* <ScrollView style={{width:'100%'}}>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={this.state.TempAnimation ? IncreaseWidth:""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'center',justifyContent:'center',borderRadius:15}} >
-                                            <View style={{alignItems:'center',width:'100%'}}>
-                                                <View style={{backgroundColor:"#FFD764",flexDirection:'row',alignItems:'center',justifyContent:'center',width:'90%',padding:5,borderRadius:10}}>
-                                                    <NormalText>Hetal</NormalText>
-                                                    <View style={{marginLeft:15,flexDirection:'row'}}>
-                                                        <Image source={require('../../assets/correct.png')} style={{width:20,height:20,marginRight:5}} />
-                                                        <NormalText>
-                                                            3/25
-                                                        </NormalText>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
-                                        
-                                        </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
-                                        
-                                        </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
-                                        
-                                        </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
-                                        
-                                        </Animatable.View>
-                                        <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                                        <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'flex-start',justifyContent:'flex-start',borderRadius:15}} >
-                                        
-                                        </Animatable.View>
-                                    </ScrollView> */}
-                                    {/* <View style={{width:'20%',alignItems:'center',alignSelf:'flex-start',backgroundColor:'#C8152E',borderRadius:10}}>
-                                        <NormalText>6 Players</NormalText>
-                                    </View> */}
+                                    <ScrollView style={{width:'100%'}}>
+                                        {ShowSideUsers}
+                                    </ScrollView> 
+                                     <View style={{width:'20%',alignItems:'center',alignSelf:'flex-start',backgroundColor:'#C8152E',borderRadius:10}}>
+                                            <NormalText>{this.state.Users.length}  Players</NormalText>
+                                    </View> 
                                     
                                 </View>
                                 <View style={{width:'100%',alignItems:'center',zIndex:0}}>
@@ -748,7 +770,8 @@ const mapStateToProps= state =>{
       Dashboard:state.Dashboard.Dashboard,
       SP:state.SP.GamePayload,
       SPQuestions:state.SP.Questions,
-      MPQuestions:state.MP.Questions
+      MPQuestions:state.MP.Questions,
+      MPUsers:state.MP.Users
     }
 }
 
