@@ -7,7 +7,7 @@ import firebase from 'firebase';
 import {MPGame} from '../../Utils/api'
 import {connect} from 'react-redux'
 import {setMPQuestions,setUsers} from '../../Store/Actions/ActionMP'
-import { parse } from 'react-native-svg';
+
 
 class MpSetUp extends React.Component{
     constructor()

@@ -7,7 +7,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Options from '../../Components/Options'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
-import {getResult,login} from '../../Utils/api'
+import {EndGame} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
@@ -117,6 +117,20 @@ class GameScreenMP extends React.Component{
         }
     }
 
+    fetchResults=()=>{
+        let payload={
+            RoomId:this.state.RoomID
+        }
+
+        EndGame(payload).then(result=>{
+           console.log("126",result)
+            if(result.IsSuccess)
+            {
+                this.setState({Result:result.Data})
+            }
+        })
+    }
+
     componentDidMount()
     {
         // this.Timer()
@@ -146,10 +160,16 @@ class GameScreenMP extends React.Component{
                 }
                 else 
                 {
-                    firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
-                        console.log("Getting Results")
-                        console.log(snapshot.val())
-                    })
+                    if(params.Host)
+                    {
+                        this.fetchResults()
+                    }
+                    
+                    // firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
+                    //     console.log("Getting Results")
+                    //     console.log(snapshot.val())
+                    // })
+                    
                 }
             }
             else if(snapshot.key === "latestAnswered")
@@ -303,7 +323,7 @@ class GameScreenMP extends React.Component{
                     // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
-                    this.ChangeLatestAnswered(this.props.Dashboard.Id)
+                    // this.ChangeLatestAnswered(this.props.Dashboard.Id)
                     this.PostUserAnswers(true,TimeTaken)
                 }
                 else
@@ -320,7 +340,7 @@ class GameScreenMP extends React.Component{
                     })
                 this.setState({OptionsDisabled:true})
                 this.setState({AnsPayload:TempReport},()=>{
-                    console.log("Normal Payload",this.state.AnsPayload)
+                    // console.log("Normal Payload",this.state.AnsPayload)
                     this.ChangeFBOtherInfo(false)
                     // if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                     // {
@@ -629,9 +649,11 @@ class GameScreenMP extends React.Component{
                         </View>
                     </View>  
 
-                    <Modal isVisible={this.state.Result.length > 0 ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
-                        <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
+                    <Modal isVisible={this.state.Result.length > 0} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                        <CustomModal Heading="MPResult" Type="MPResult" Report={this.state.Result}/>
                     </Modal>
+
+        
                     
                     </ScrollView>
                         <View style={style.Footer}>

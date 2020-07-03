@@ -48,6 +48,34 @@ class CustomModal extends React.Component{
     
     render()
     {
+
+    let ShowStandings=this.props.Report.map((result,index)=>{
+        return(
+            <View key={index} style={{flexDirection:'row',paddingHorizontal:5,marginVertical:5}}>
+                <View style={{width:'25%'}}>
+                <View style={{borderRadius:100,width:50,overflow:'hidden'}}>
+                    <Image source={require('../../assets/Temp/User1.png')} style={{width:50,height:50}}/>
+                </View>
+                </View>
+            
+                <View style={{flexDirection:'row',alignItems:'center',width:'35%'}}>
+                <View style={{width:'100%'}}>
+                    <NormalText>Some One</NormalText>
+                    <NormalText>Level 6</NormalText>
+                </View>
+                </View>   
+                <View style={{flexDirection:'row',width:'40%',justifyContent:'space-between',alignItems:'center'}}>
+                    <View style={{flexDirection:'row',width:'50%',justifyContent:'space-between',alignItems:'center'}}>
+                        <Image source={require('../../assets/coins.png')} style={{width:25,height:25}}></Image>
+                        <NormalText>300</NormalText>
+                    </View>
+                    <View style={{justifyContent:'center',width:'50%',alignItems:'center'}}>
+                        <Image source={require('../../assets/Gold.png')} style={{width:30,height:30}}></Image>
+                    </View>
+            </View>                                     
+            </View>
+        )
+    })    
     return(
         <View style={{justifyContent:'center'}}>
             <View style={styles.Modal}>
@@ -58,11 +86,12 @@ class CustomModal extends React.Component{
                                 <View style={{width:'100%',height:'60%',alignItems:'center',justifyContent:'center'}}>
                                     <NormalText style={{fontSize:18,fontFamily:'Roboto-bold'}}>
                                         {this.props.Type === "SP" ? 
-                                        "Choose Game":this.props.Type === "Result" ?
+                                        "Choose Game":this.props.Type === "Result" || this.props.Type === "MPResult" ?
                                          "Result":this.props.Type === "Opt" ?
                                           "Options":this.props.Type === "Reward" ?
                                           "Reward":this.props.Type === "Insuff" ? 
-                                          "Insufficient Balance":<View></View>}</NormalText>
+                                          "Insufficient Balance":
+                                          <View></View>}</NormalText>
                                 </View>
                             </ImageBackground>
                             {this.props.Type === "SP" ?
@@ -244,7 +273,9 @@ class CustomModal extends React.Component{
                                             </ImageBackground>
                                         </View>
                                  :
-                                 <View></View>
+                                 <View style={{width:'100%',height:250,alignItems:'center',justifyContent:'center'}}>
+                                     {ShowStandings}
+                                 </View>
                             }
                            
                            
