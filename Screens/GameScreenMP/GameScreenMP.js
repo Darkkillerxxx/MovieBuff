@@ -131,11 +131,23 @@ class GameScreenMP extends React.Component{
         })
     }
 
+    SortQuestions=()=>{
+        let UnSortedQuestion=this.props.MPQuestions
+        UnSortedQuestion.sort((a,b)=> parseInt(a.SortId) - parseInt(b.SortId))
+        
+        UnSortedQuestion.forEach(element=>{
+            element.options = this.shuffle(element.options)
+        })
+        
+        this.setState({Questions:UnSortedQuestion})
+    }
+
     componentDidMount()
     {
         // this.Timer()
         this.setState({Users:this.props.MPUsers})
-        this.setState({Questions:this.props.MPQuestions})
+        this.SortQuestions()
+     
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
         console.log("135",params.Host)
@@ -156,14 +168,15 @@ class GameScreenMP extends React.Component{
                 //Change Questions
                 if(snapshot.val() < this.state.Questions.length)
                 {
-                    this.MoveToNextQuestion()
+                    setTimeout(()=>{
+                        this.MarkUsers(true,null)
+                        this.MoveToNextQuestion()
+                        this.ChangeLatestAnswered(true,null)
+                    },1500)
                 }
                 else 
                 {
-                    if(params.Host)
-                    {
-                        this.fetchResults()
-                    }
+                    this.fetchResults()   
                     
                     // firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
                     //     console.log("Getting Results")
@@ -172,9 +185,14 @@ class GameScreenMP extends React.Component{
                     
                 }
             }
-            else if(snapshot.key === "latestAnswered")
+            else if(snapshot.key === "lastestAnswered")
             {
                 console.log("LastAnswered Changed")
+                if(snapshot.val() !== 0)
+                {
+                    //Call the Function Here
+                    this.MarkUsers(false,snapshot.val())
+                }
             }
             else
             {
@@ -195,6 +213,33 @@ class GameScreenMP extends React.Component{
               
             }
         })
+    }
+
+    MarkUsers=(isReset,UserId)=>{
+        let Tempusers=this.state.Users
+        if(isReset)
+         {
+             Tempusers.forEach(element=>{
+                 element.hasAnsCorrect=false
+             })
+         }
+         else
+         {
+             Tempusers.every((element)=>{
+                 if(parseInt(element.User_id) === parseInt(UserId))
+                 {
+                    element.hasAnsCorrect = true
+                     return false
+                 }
+                 else
+                 {
+                     return true
+                 }
+             })
+         }
+     
+         console.log("Mark Users"+UserId,isReset,Tempusers)
+        this.setState({Users:Tempusers})
     }
 
     Timer=()=>{
@@ -298,11 +343,19 @@ class GameScreenMP extends React.Component{
         })
     }
 
-    ChangeLatestAnswered=(userId)=>{
-        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo`).transaction((val)=>{
+    ChangeLatestAnswered=(isReset,userId)=>{
+        // console.log("Just Checking",userId,`questions/${this.state.RoomID}/OtherInfo/latestAnswered`)
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/lastestAnswered`).transaction((val)=>{
             if(val !== null)
             {
-                return userId
+                if(isReset)
+                {
+                    return 0
+                }
+                else
+                {
+                    return userId
+                }
             }
         })
     }
@@ -323,7 +376,7 @@ class GameScreenMP extends React.Component{
                     // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
-                    // this.ChangeLatestAnswered(this.props.Dashboard.Id)
+                    this.ChangeLatestAnswered(false,this.props.Dashboard.Id)
                     this.PostUserAnswers(true,TimeTaken)
                 }
                 else
@@ -392,10 +445,10 @@ class GameScreenMP extends React.Component{
    
     render()
     {
-        let ShowSideUsers=this.state.Users.map((result)=>{
+        let ShowSideUsers=this.state.Users.map((result,index)=>{
             return(
-                <View>
-                    <View style={{width:75,alignItems:'center'}}>
+                <View key={index}>
+                    <View  style={{width:75,alignItems:'center'}}>
                         <Image source={{uri:result.img_url}} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
                         {result.hasAnsCorrect ? 
                         <Image source={require('../../assets/correct.png')} style={{height:20,width:20,marginTop:-15,zIndex:10}}/>:null}

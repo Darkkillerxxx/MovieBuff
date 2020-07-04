@@ -203,7 +203,7 @@ class WelcomeScreen extends React.Component{
 
       componentDidMount()
       {
-        ToastAndroid.show("V 1.0.15",ToastAndroid.SHORT)
+        ToastAndroid.show("V 1.0.17",ToastAndroid.SHORT)
         fetchUser().then(result => {
             if(result.rows.length > 0)
             {

@@ -51,29 +51,49 @@ class CustomModal extends React.Component{
 
     let ShowStandings=this.props.Report.map((result,index)=>{
         return(
-            <View key={index} style={{flexDirection:'row',paddingHorizontal:5,marginVertical:5}}>
-                <View style={{width:'25%'}}>
-                <View style={{borderRadius:100,width:50,overflow:'hidden'}}>
-                    <Image source={require('../../assets/Temp/User1.png')} style={{width:50,height:50}}/>
-                </View>
-                </View>
-            
-                <View style={{flexDirection:'row',alignItems:'center',width:'35%'}}>
-                <View style={{width:'100%'}}>
-                    <NormalText>Some One</NormalText>
-                    <NormalText>Level 6</NormalText>
-                </View>
-                </View>   
-                <View style={{flexDirection:'row',width:'40%',justifyContent:'space-between',alignItems:'center'}}>
-                    <View style={{flexDirection:'row',width:'50%',justifyContent:'space-between',alignItems:'center'}}>
-                        <Image source={require('../../assets/coins.png')} style={{width:25,height:25}}></Image>
-                        <NormalText>300</NormalText>
-                    </View>
-                    <View style={{justifyContent:'center',width:'50%',alignItems:'center'}}>
-                        <Image source={require('../../assets/Gold.png')} style={{width:30,height:30}}></Image>
-                    </View>
-            </View>                                     
+            <View key={index}  style={{flexDirection:'row',paddingHorizontal:5,marginVertical:5}}>
+            <View style={{width:'25%'}}>
+            <View style={{borderRadius:100,width:50,overflow:'hidden'}}>
+                <Image source={{uri:result.ImgUrl}} style={{width:50,height:50}}/>
             </View>
+            </View>
+        
+            <View style={{flexDirection:'row',alignItems:'center',width:'65%'}}>
+            <View style={{width:'100%'}}>
+                <NormalText>{result.ScreenName}</NormalText>
+                <View style={{flexDirection:'row',marginTop:5}}>
+                    <View style={{width:'20%',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',marginRight:5}}>
+                        <Image source={require('../../assets/correct.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> 5 </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/wrong.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> 5 </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/timer.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {result.avgtime} </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/coins.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {result.coins} </NormalText>
+                    </View> 
+                </View>
+            </View>
+            </View>   
+            <View style={{flexDirection:'row',width:'10%',justifyContent:'center',alignItems:'center'}}>
+                <View style={{justifyContent:'center',width:'50%',alignItems:'center'}}>
+                    {index === 0 ? 
+                        <Image source={require('../../assets/Gold.png')} style={{width:30,height:30}}></Image>:
+                    index === 1 ?
+                        <Image source={require('../../assets/Silver.png')} style={{width:30,height:30}}></Image>:
+                    index === 3 ? 
+                        <Image source={require('../../assets/Bronze.png')} style={{width:30,height:30}}></Image>:null
+                    }
+                    
+                </View>
+            </View>                                     
+        </View>
         )
     })    
     return(
@@ -275,6 +295,7 @@ class CustomModal extends React.Component{
                                  :
                                  <View style={{width:'100%',height:250,alignItems:'center',justifyContent:'center'}}>
                                      {ShowStandings}
+                                  
                                  </View>
                             }
                            
