@@ -108,6 +108,10 @@ class MPModal extends React.Component{
        this.setState({LoaderText:LoaderText})
    }
 
+   LobbyIdReset=()=>{
+       this.setState({LobbyId:""})
+   }
+
 
     
 
@@ -220,7 +224,8 @@ class MPModal extends React.Component{
                     JoinedUsers={this.state.JoinedUsers}
                     JoinLobby={this.state.JoinLobby}
                     navigation={this.props.navigation}
-                    Loading={this.changeLoadingModal}/>
+                    Loading={this.changeLoadingModal}
+                    onExitLobby={this.LobbyIdReset}/>
                 
         )
     }

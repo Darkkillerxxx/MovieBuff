@@ -190,6 +190,10 @@ class MpSetUp extends React.Component{
         // console.log("out")
     }
 
+    ExitRoom=()=>{
+        this.props.onExitLobby()
+    }   
+
 
 
     ShowOtherUsers=(itemData)=>{
@@ -249,13 +253,30 @@ class MpSetUp extends React.Component{
                     
                     <View style={{flex:1,alignSelf:'stretch',alignItems:'center',marginVertical:15}}>
                        {this.props.JoinLobby ? 
-                        <NormalText>Please Wait For Your Friend To Start the Game....</NormalText>
+
+                        <View style={{flex:1,alignSelf:'stretch',alignItems:'center'}}>
+                            <NormalText>Please Wait For Your Friend To Start the Game....</NormalText>
+                            <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20,marginTop:10}} onPress={()=>this.ExitRoom()}>
+                                <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"close"} iconSize={18}>
+                                    <NormalText style={{fontSize:20}}>Cancel</NormalText>
+                                </SinglePlayer>
+                            </TouchableOpacity>
+                        </View>
+                     
                         :
-                        <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.MoveToMPScreen()}>
-                            <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
-                                <NormalText style={{fontSize:20}}>Start Game</NormalText>
-                            </SinglePlayer>
-                        </TouchableOpacity>}
+                        <View style={{flex:1,flexDirection:'row',alignSelf:'stretch',alignItems:'center'}}>
+                            <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.ExitRoom()}>
+                                <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"close"} iconSize={18}>
+                                    <NormalText style={{fontSize:20}}>Cancel</NormalText>
+                                </SinglePlayer>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{width:'50%',alignItems:'center',justifyContent:'center',paddingHorizontal:20}} onPress={()=>this.MoveToMPScreen()}>
+                                <SinglePlayer style={{width:'100%',height:70,alignItems:'center'}} icon={"arrow-right"} iconSize={18}>
+                                    <NormalText style={{fontSize:20}}>Start Game</NormalText>
+                                </SinglePlayer>
+                            </TouchableOpacity>
+                        </View>
+                        }
                     </View>
                 </View>
         )

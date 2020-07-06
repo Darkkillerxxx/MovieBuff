@@ -12,7 +12,8 @@ class CustomModal extends React.Component{
         super()
         this.state={
             Part:1,
-            ErrorCode:0
+            ErrorCode:0,
+            Reports:[]
         }
     }
 
@@ -45,11 +46,19 @@ class CustomModal extends React.Component{
         }
        
     }
+
+    componentDidMount()
+    {
+        if(this.props.Report)
+        {
+            this.setState({Reports:this.props.Report})
+        }
+    }
     
     render()
     {
 
-    let ShowStandings=this.props.Report.map((result,index)=>{
+    let ShowStandings=this.state.Reports.map((result,index)=>{
         return(
             <View key={index}  style={{flexDirection:'row',paddingHorizontal:5,marginVertical:5}}>
             <View style={{width:'25%'}}>

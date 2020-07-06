@@ -111,10 +111,6 @@ class GameScreenMP extends React.Component{
         {
 
         }
-        else
-        {
-
-        }
     }
 
     fetchResults=()=>{
@@ -144,7 +140,7 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
-        // this.Timer()
+        this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      

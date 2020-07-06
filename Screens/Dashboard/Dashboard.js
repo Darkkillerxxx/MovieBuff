@@ -481,12 +481,6 @@ class Dashboard extends React.Component{
                                 iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
-
-                            <NormalText 
-                                style={{marginTop:10,textAlign:'center',color:'yellow'}}>
-                                    Comming Soon !!!
-                            </NormalText>
-
                         </TouchableOpacity>
                     
                     </View>
@@ -773,6 +767,7 @@ const styles=StyleSheet.create({
     Container:{
         width:'100%',
         flexDirection:'row',
+        marginVertical:10
     },
     SPContainer:{
         width:'50%',
