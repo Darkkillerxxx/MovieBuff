@@ -18,7 +18,7 @@ class CustomModal extends React.Component{
     }
 
     changeParts=()=>{
-        if(this.props.Type === "SP")
+        if(this.props.Type === "SP" )
         {
             if(this.state.Part === 1)
             {
@@ -30,7 +30,7 @@ class CustomModal extends React.Component{
                 {
                     this.setState({ErrorCode:1})
                 }
-        }
+            }
             else
             {
                 this.props.ProceedToCustom()
@@ -39,6 +39,10 @@ class CustomModal extends React.Component{
         else if(this.props.Type === "Reward")
         {
             this.props.DismissModal()
+        }
+        else if(this.props.Type === "Result" ||this.props.Type === "MPResult")
+        {   
+            this.props.changeModal(null)
         }
         else
         {

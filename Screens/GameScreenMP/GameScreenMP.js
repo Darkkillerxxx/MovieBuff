@@ -7,7 +7,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Options from '../../Components/Options'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
-import {EndGame} from '../../Utils/api'
+import {EndGame,login} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
@@ -70,7 +70,8 @@ class GameScreenMP extends React.Component{
             UsersAnswered:0,
             RoomID:null,
             TotalUsers:null,
-            Users:[]
+            Users:[],
+            Loading:false
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -140,7 +141,7 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
-        this.Timer()
+        // this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      
@@ -164,11 +165,13 @@ class GameScreenMP extends React.Component{
                 //Change Questions
                 if(snapshot.val() < this.state.Questions.length)
                 {
-                    setTimeout(()=>{
-                        this.MarkUsers(true,null)
-                        this.MoveToNextQuestion()
-                        this.ChangeLatestAnswered(true,null)
-                    },1500)
+                    this.setState({Loading:false},()=>{
+                        setTimeout(()=>{
+                            this.MarkUsers(true,null)
+                            this.MoveToNextQuestion()
+                            this.ChangeLatestAnswered(true,null)
+                        },1500)
+                    })
                 }
                 else 
                 {
@@ -181,7 +184,7 @@ class GameScreenMP extends React.Component{
                     
                 }
             }
-            else if(snapshot.key === "lastestAnswered")
+            else if(snapshot.key === "lastestAnsweredCorrect")
             {
                 console.log("LastAnswered Changed")
                 if(snapshot.val() !== 0)
@@ -275,7 +278,7 @@ class GameScreenMP extends React.Component{
             console.log("Timer Payload",this.state.AnsPayload)
             if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
             {
-               this.ChangeFBOQuestionInfo()
+               this.ChangeFBOtherInfo(false)
             }
             else
             {
@@ -325,23 +328,28 @@ class GameScreenMP extends React.Component{
 
     ChangeFBOtherInfo=(reset)=>{
         console.log("Changing FB Other Info")
-        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/UsersAnswered`).transaction((val)=>{
-            if(val !== null)
-            {
-                if(reset)
-                {
-                    return 0
-                }
-                {
-                    return val + 1
-                }
-            }
+        this.setState({Loading:true},()=>{
+            setTimeout(()=>{
+                firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/UsersAnswered`).transaction((val)=>{
+                    if(val !== null)
+                    {
+                        if(reset)
+                        {
+                            return 0
+                        }
+                        {
+                            return val + 1
+                        }
+                    }
+                })
+            },1000)
         })
+      
     }
 
     ChangeLatestAnswered=(isReset,userId)=>{
         // console.log("Just Checking",userId,`questions/${this.state.RoomID}/OtherInfo/latestAnswered`)
-        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/lastestAnswered`).transaction((val)=>{
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/lastestAnsweredCorrect`).transaction((val)=>{
             if(val !== null)
             {
                 if(isReset)
@@ -436,6 +444,53 @@ class GameScreenMP extends React.Component{
              return false
         }
      }
+
+     QuitGame=()=>{
+        Alert.alert(
+            'Quit',
+            'Are You Sure You Want To Quit ???',
+           [ {
+                text: 'Yes',
+                onPress: () => this.cangeModalType(null)
+            },
+            {
+                text: 'No',
+                onPress: () => console.log('Ask me later pressed')
+            }],
+            { cancelable: false });
+    }
+
+    
+    cangeModalType=(type)=>{
+        let SignInPayload={
+            UserId:this.props.Dashboard.FbId.length > 0 ? "":this.props.Dashboard.Id,
+            ScreenName:"",
+            FacebookId:this.props.Dashboard.FbId,
+            Password:this.props.Dashboard.Password
+         }
+         console.log("Login Payload",SignInPayload)
+
+         login(SignInPayload).then(result=>{
+            console.log(result) 
+            if(result.IsSuccess)
+             {
+                 let TempDashboard=result.Data[0]
+                 TempDashboard.FbId=this.props.Dashboard.FbId
+                 TempDashboard.Password=this.props.Dashboard.Password
+                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
+                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+                    console.log("Update",result)
+                 }).catch(err=>{
+                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                 })
+                this.props.onSetDashboard(TempDashboard)
+                this.setState({Timer:0},()=>{
+                    this.props.navigation.replace('Dashboard')
+                })
+               
+             }
+         })
+    }
 
 
    
@@ -576,8 +631,18 @@ class GameScreenMP extends React.Component{
                                     this.setState({DimensionsHeight:layout.height})
                                 }} 
                                 ref={view => {this.val =view}}>
+                                    {this.state.Loading ? 
+                                    <View style={{marginTop:15,marginBottom:5}}>
+                                       <View style={{alignItems:'center',flexDirection:'row',justifyContent:'center'}}>
+                                            <Animatable.View animation={"bounceOut"} iterationCount="infinite" style={{borderRadius:100,backgroundColor:'#FED31F',height:10,width:10,marginHorizontal:5}} />
+                                            <Animatable.View animation={"bounceOut"} iterationCount="infinite" delay={1000} style={{borderRadius:100,backgroundColor:'#FED31F',height:10,width:10,marginHorizontal:5}} />
+                                            <Animatable.View animation={"bounceOut"} iterationCount="infinite" delay={1500} style={{borderRadius:100,backgroundColor:'#FED31F',height:10,width:10,marginHorizontal:5}} />
+                                            <Animatable.View animation={"bounceOut"} iterationCount="infinite" delay={1700} style={{borderRadius:100,backgroundColor:'#FED31F',height:10,width:10,marginHorizontal:5}} />
+                                       </View>
+                                       <NormalText style={{color:'#FED31F'}}>Please Wait While Other Players Are Answering</NormalText>
+                                     </View>:null}  
                                 <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
-                                    
+                                 
                                     {/* {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
@@ -699,7 +764,7 @@ class GameScreenMP extends React.Component{
                     </View>  
 
                     <Modal isVisible={this.state.Result.length > 0} animationType="slide" style={{width:'100%',margin:'auto'}}>
-                        <CustomModal Heading="MPResult" Type="MPResult" Report={this.state.Result}/>
+                        <CustomModal Heading="MPResult" Type="MPResult" Report={this.state.Result} changeModal={this.cangeModalType}/>
                     </Modal>
 
         
