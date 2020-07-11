@@ -261,7 +261,7 @@ class WelcomeScreen extends React.Component{
 
                             <TouchableOpacity onPress={()=>this.setState({IsReg:!this.state.IsReg})}>
                                 <NormalText style={styles.NormalTextRegistered}> 
-                                    {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" } 
+                                    {this.state.IsReg ? "Already Registered ? Click Here":"New User ? Click Here" }  
                                 </NormalText>
                             </TouchableOpacity>
                         

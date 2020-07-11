@@ -135,9 +135,10 @@ class Dashboard extends React.Component{
         this.setState({ShowSettings:false})
     }
 
-    onProceedToMPGame=()=>{
+    onProceedToMPGame=(Id,isHost)=>{
         this.setState({ShowModalMP:false})
-        this.props.navigation.navigate('GameScreenMP')
+        console.log("DB",Id,isHost)
+        this.props.navigation.replace('GameScreenMP',{RoomID:Id,Host:isHost ? true : false})
     }
 
     onLBPressed=()=>{

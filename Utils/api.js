@@ -130,7 +130,8 @@ let Endpoints={
     CreateLobby:'/createRoom',
     JoinRoom:'/joinRoom',
     MoveToMP:'/startMultiPlayerGame',
-    EndGame:'/endGame'
+    EndGame:'/endGame',
+    DeleteUser:'/delete'
 }
 
 ShowErrorCodes=(status)=>{
@@ -320,6 +321,13 @@ export function MPGame(payload)
 export function EndGame(payload)
 {
     return makeRequest("POST",payload,null,Endpoints.EndGame).then(result=>{
+        return result
+    })
+}
+
+export function DeleteUser(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.DeleteUser).then(result=>{
         return result
     })
 }

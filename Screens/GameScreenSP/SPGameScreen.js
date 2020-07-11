@@ -395,6 +395,11 @@ class SPGameScreen extends React.Component{
             { cancelable: false });
     }
 
+    onCoinsAdd=()=>{
+       let Coins = LevelCoins[parseInt(this.props.Dashboard.Level - 1)]    
+       this.setState({EarnedCoins:this.state.EarnedCoins + Coins})
+    }
+
 
     render()
     {
@@ -406,7 +411,7 @@ class SPGameScreen extends React.Component{
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
                               
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
-                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
+                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.onCoinsAdd()} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
                                         <View onLayout={event=>{
                                                 if(this.trunks)
                                                 {

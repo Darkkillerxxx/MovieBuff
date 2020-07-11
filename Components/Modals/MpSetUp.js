@@ -1,10 +1,10 @@
 import React from 'react'
-import { View,StyleSheet,Image,TouchableOpacity,FlatList,YellowBox, ToastAndroid } from 'react-native';
+import { View,StyleSheet,Image,TouchableOpacity,FlatList,YellowBox, ToastAndroid,Linking,AppState } from 'react-native';
 import NormalText from '../NormalText';
 import * as Animatable from 'react-native-animatable';
 import SinglePlayer from '../SinglePlayerBtn'
 import firebase from 'firebase';
-import {MPGame} from '../../Utils/api'
+import {MPGame,DeleteUser} from '../../Utils/api'
 import {connect} from 'react-redux'
 import {setMPQuestions,setUsers} from '../../Store/Actions/ActionMP'
 
@@ -18,17 +18,20 @@ class MpSetUp extends React.Component{
                 {
                     'screen_name':null,
                     'img_url': null,
-                    'User_id': null
+                    'User_id': null,
+                    'Key':null
                 },
                 {
                     'screen_name':null,
                     'img_url': null,
-                    'User_id': null
+                    'User_id': null,
+                    'Key':null
                 },
                 {
                     'screen_name':null,
                     'img_url': null,
-                    'User_id': null
+                    'User_id': null,
+                    'Key':null
                 }
             ],
             TotalOtherUsers:0
@@ -66,7 +69,9 @@ class MpSetUp extends React.Component{
         this.setState({LobbyUser:TempLobbyUsers})
     }
 
+
     AssignAddedUsers=(AddedUser)=>{
+        console.log("Run Added User")
         AddedUser=JSON.parse(AddedUser.replace(/'/g,'"'))
         let TempLobbyUsers=this.state.LobbyUser;
         this.setUsers(AddedUser)
@@ -93,8 +98,34 @@ class MpSetUp extends React.Component{
             this.setState({LobbyUser:TempLobbyUsers},()=>{
                 // console.log(this.props.Id,this.state.LobbyUser)
             })
+        }        
+    }
+
+    RemoveAddedUser=(RemovedUser)=>{
+        RemovedUser=JSON.parse(RemovedUser.replace(/'/g,'"'))
+        if(parseInt(RemovedUser.User_id) !== parseInt(this.props.Dashboard.Id))
+        {
+            let TempLobbyUsers=this.state.LobbyUser;
+            TempLobbyUsers.every((element,index)=>{
+                if(parseInt(element.User_id) === parseInt(RemovedUser.User_id))
+                {
+                    TempLobbyUsers[index].User_id=null
+                    TempLobbyUsers[index].screen_name=null
+                    TempLobbyUsers[index].img_url=null
+                    return false   
+                }
+                else
+                {
+                    return true
+                }
+            })
+            
+            this.setState({LobbyUser:TempLobbyUsers})
         }
-        
+        else
+        {
+            this.props.onExitLobby()
+        }
     }
 
     MoveToMPScreen=()=>{
@@ -106,14 +137,15 @@ class MpSetUp extends React.Component{
         //     }
         // )
         
-        setTimeout(()=>{
+    setTimeout(()=>{
             console.log(`${this.props.Id} Move To MP`,this.props.LobbyId,!this.props.JoinLobby ? 1 : 0)
         MPGame({RoomId:this.props.LobbyId,Host:!this.props.JoinLobby ? 1 : 0}).then(result=>{
             if(result.IsSuccess)
             {
                 // console.log("110",result.Data[0].Questions)
                 this.props.onSetMPQuestions(result.Data[0].Questions)
-                this.props.navigation.replace('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
+                // this.props.navigation.replace('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
+                this.props.StartMP(this.props.LobbyId,!this.props.JoinLobby ? true : false)
                 this.props.Loading("")
             }
         })
@@ -142,7 +174,7 @@ class MpSetUp extends React.Component{
 
         if(!isUserPresent)
         {
-          userObj.hasAnsCorrect=false
+          userObj.hasAnsCorrect=null
           TempUsers.push(userObj)
           this.props.onSetUsers(TempUsers)
         }
@@ -150,13 +182,12 @@ class MpSetUp extends React.Component{
     }
 
 
+
+
     componentDidMount()
     {
-        
         // this.props.Loading()
         // "{'screen_name': 'Trek', 'img_url': 'https://s3.ap-south-1.amazonaws.com/movie.buff.avatars/User+2%401x.png', 'User_id': '104'}"
-        
-
         if(this.props.JoinedUsers.length > 0)
         {
             this.AssignedJoinedUsers(this.props.JoinedUsers)
@@ -168,30 +199,52 @@ class MpSetUp extends React.Component{
                 img_url:this.props.Dashboard.ImgUrl,
                 User_id:this.props.Dashboard.Id
             }   
-    
             this.setUsers(OwnInfo)
         }
         
-        firebase.database().ref(`room/${this.props.LobbyId}/`).endAt().limitToLast(1).on('child_added',(snapShot)=>{
-            console.log(this.props.Id,snapShot.val())
-           
-            if(snapShot.key === "HasStarted")
-            {
-                if(this.props.JoinLobby)
-                {
-                 this.MoveToMPScreen()
-                }
-            }
-            else
+        firebase.database().ref(`room/${this.props.LobbyId}/`).limitToLast(2).on('child_added',(snapShot)=>{
+            console.log("176",this.props.Id,snapShot.val())
+            if(snapShot.key !== "HasStarted")
             {
                 this.AssignAddedUsers(snapShot.val())
-            }            
+            }      
+        })
+
+        if(this.props.JoinLobby)
+        {
+            firebase.database().ref(`room/${this.props.LobbyId}/`).on('child_changed',(snapShot)=>{
+                console.log("195",this.props.Id,snapShot.key)
+                if(snapShot.key === "HasStarted")
+                {
+                    this.MoveToMPScreen()
+                }
+            })
+        }
+
+        firebase.database().ref(`room/${this.props.LobbyId}/`).on('child_removed',(snapShot)=>{
+            console.log("Removed in Set Up",snapShot.val())
+            this.RemoveAddedUser(snapShot.val())
         })
         // console.log("out")
     }
 
+    
+    componentWillUnmount=()=>{
+        firebase.database().ref(`room/${this.props.LobbyId}/`).off('child_removed')   
+    }
+
     ExitRoom=()=>{
-        this.props.onExitLobby()
+        let RemovePayload={
+            "RoomId":this.props.LobbyId,
+            "UserId":this.props.Dashboard.Id.toString()
+        }
+        DeleteUser(RemovePayload).then(result => {
+            console.log("remove",RemovePayload,result)
+            if(!result.IsSuccess)
+            {
+                ToastAndroid.show("Error Removing User",ToastAndroid.SHORT)
+            }
+        })
     }   
 
 
@@ -208,7 +261,9 @@ class MpSetUp extends React.Component{
               </View>
               :
               <View style={{width:'30%',height:80,alignItems:'center',padding:5,borderRadius:5,borderColor:'white',borderWidth:1,margin:5}}>
-                  <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+                  <TouchableOpacity style={{width:'100%'}} onPress={()=>Linking.openURL(`https://wa.me?text=Hey%20Im%20inviting%20you%20to%20play%20a%20game%20on%20FilmyBuzz.%20Use%20Lobby%20Code:%20${this.props.LobbyId}`)}>
+                    <Image source={require('../../assets/EmptyUser.png')} style={{width:'100%',height:'100%',resizeMode:'contain'}}/>
+                  </TouchableOpacity>              
               </View>
             :
             null

@@ -7,7 +7,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Options from '../../Components/Options'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
-import {EndGame,login} from '../../Utils/api'
+import {EndGame,login,DeleteUser} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
@@ -141,7 +141,8 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
-        // this.Timer()
+        setTimeout(()=>{
+             // this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      
@@ -167,9 +168,10 @@ class GameScreenMP extends React.Component{
                 {
                     this.setState({Loading:false},()=>{
                         setTimeout(()=>{
-                            this.MarkUsers(true,null)
+                            this.MarkUsers(true,null,null)
                             this.MoveToNextQuestion()
-                            this.ChangeLatestAnswered(true,null)
+                            this.ChangeLatestAnsweredCorrect(true,null)
+                            this.ChangeLatestAnsweredWrong(true,null)
                         },1500)
                     })
                 }
@@ -190,36 +192,55 @@ class GameScreenMP extends React.Component{
                 if(snapshot.val() !== 0)
                 {
                     //Call the Function Here
-                    this.MarkUsers(false,snapshot.val())
+                    this.MarkUsers(false,true,snapshot.val())
+                }
+            }
+            else if(snapshot.key === "lastestAnsweredWrong")
+            {
+                console.log("LastAnswered Changed")
+                if(snapshot.val() !== 0)
+                {
+                    //Call the Function Here
+                    this.MarkUsers(false,false,snapshot.val())
                 }
             }
             else
             {
+                console.log("Here 0",params.Host)
                 //only accesible to host
                 if(params.Host)
                 {
                     console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
                     if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
                     {
+                        console.log("Here 1")
                         this.ChangeFBOtherInfo(true)
                         this.ChangeFBOQuestionInfo()
                     }
                     else
                     {
+                        console.log("Here 2")
                         this.setState({UsersAnswered:this.state.UsersAnswered + 1})
                     }
                 }
-              
             }
         })
+
+        let RemovedUserListener=firebase.database().ref(`room/${params.RoomID}/`)
+        RemovedUserListener.on('child_removed',(snapShot)=>{
+            console.log("Removed in MP",snapShot.val())
+            this.RemoveAddedUserMP(snapShot.val())
+        })
+        },1000)
+       
     }
 
-    MarkUsers=(isReset,UserId)=>{
+    MarkUsers=(isReset,isCorrect,UserId)=>{
         let Tempusers=this.state.Users
         if(isReset)
          {
              Tempusers.forEach(element=>{
-                 element.hasAnsCorrect=false
+                 element.hasAnsCorrect=null
              })
          }
          else
@@ -227,7 +248,15 @@ class GameScreenMP extends React.Component{
              Tempusers.every((element)=>{
                  if(parseInt(element.User_id) === parseInt(UserId))
                  {
-                    element.hasAnsCorrect = true
+                    if(isCorrect)
+                    {
+                        element.hasAnsCorrect = true
+                    }
+                    else
+                    {
+                        element.hasAnsCorrect = false
+                    }    
+                        
                      return false
                  }
                  else
@@ -347,9 +376,26 @@ class GameScreenMP extends React.Component{
       
     }
 
-    ChangeLatestAnswered=(isReset,userId)=>{
+    ChangeLatestAnsweredCorrect=(isReset,userId)=>{
         // console.log("Just Checking",userId,`questions/${this.state.RoomID}/OtherInfo/latestAnswered`)
         firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/lastestAnsweredCorrect`).transaction((val)=>{
+            if(val !== null)
+            {
+                if(isReset)
+                {
+                    return 0
+                }
+                else
+                {
+                    return userId
+                }
+            }
+        })
+    }
+
+    ChangeLatestAnsweredWrong=(isReset,userId)=>{
+        // console.log("Just Checking",userId,`questions/${this.state.RoomID}/OtherInfo/latestAnswered`)
+        firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/lastestAnsweredWrong`).transaction((val)=>{
             if(val !== null)
             {
                 if(isReset)
@@ -380,11 +426,12 @@ class GameScreenMP extends React.Component{
                     // this.playCoinsSound()
                     this.setState({StartCoinAnimation:true})
                     this.setState({CorrectAns:this.state.CorrectAns+1})
-                    this.ChangeLatestAnswered(false,this.props.Dashboard.Id)
+                    this.ChangeLatestAnsweredCorrect(false,this.props.Dashboard.Id)
                     this.PostUserAnswers(true,TimeTaken)
                 }
                 else
                 {
+                    this.ChangeLatestAnsweredWrong(false,this.props.Dashboard.Id)
                     this.PostUserAnswers(false,TimeTaken)
                     // this.playWrongSound()
                 }
@@ -451,13 +498,56 @@ class GameScreenMP extends React.Component{
             'Are You Sure You Want To Quit ???',
            [ {
                 text: 'Yes',
-                onPress: () => this.cangeModalType(null)
+                onPress: () => this.QuitGameMP()
             },
             {
                 text: 'No',
                 onPress: () => console.log('Ask me later pressed')
             }],
             { cancelable: false });
+    }
+
+    QuitGameMP=()=>{
+        let RemovePayload={
+            "RoomId":this.state.RoomID,
+            "UserId":this.props.Dashboard.Id.toString()
+        }
+        DeleteUser(RemovePayload).then(result => {
+            console.log("remove",RemovePayload,result)
+            if(!result.IsSuccess)
+            {
+              ToastAndroid.show("Error Removing User",ToastAndroid.SHORT)  
+            }
+        })
+    }
+
+    RemoveAddedUserMP=(RemovedUser)=>{
+        RemovedUser=JSON.parse(RemovedUser.replace(/'/g,'"'))
+        console.log("In Progress")
+        console.log("520",parseInt(RemovedUser.User_id),parseInt(this.props.Dashboard.Id))
+        if(parseInt(RemovedUser.User_id) !== parseInt(this.props.Dashboard.Id))
+        {
+            let TempLobbyUsers=this.state.Users;
+            TempLobbyUsers.every((element,index)=>{
+                if(parseInt(element.User_id) === parseInt(RemovedUser.User_id))
+                {
+                    TempLobbyUsers[index].User_id=null
+                    TempLobbyUsers[index].screen_name=null
+                    TempLobbyUsers[index].img_url=null
+                    return false   
+                }
+                else
+                {
+                    return true
+                }
+            })
+            this.setState({TotalUsers:TotalUsers - 1})
+            this.setState({Users:TempLobbyUsers})
+        }
+        else
+        {
+            this.props.navigation.replace('Dashboard')
+        }
     }
 
     
@@ -487,7 +577,6 @@ class GameScreenMP extends React.Component{
                 this.setState({Timer:0},()=>{
                     this.props.navigation.replace('Dashboard')
                 })
-               
              }
          })
     }
@@ -497,12 +586,15 @@ class GameScreenMP extends React.Component{
     render()
     {
         let ShowSideUsers=this.state.Users.map((result,index)=>{
+          
             return(
                 <View key={index}>
                     <View  style={{width:75,alignItems:'center'}}>
                         <Image source={{uri:result.img_url}} style={{height:50,width:50,marginVertical:5,marginLeft:10,alignSelf:'flex-start',zIndex:10}}></Image>
-                        {result.hasAnsCorrect ? 
-                        <Image source={require('../../assets/correct.png')} style={{height:20,width:20,marginTop:-15,zIndex:10}}/>:null}
+                        {result.hasAnsCorrect  ? 
+                        <Image source={require('../../assets/correct.png')} style={{height:20,width:20,marginTop:-15,zIndex:10}}/>:
+                        result.hasAnsCorrect === false ? 
+                        <Image source={require('../../assets/wrong.png')} style={{height:20,width:20,marginTop:-15,zIndex:10}}/>:null}
                         <NormalText>{result.screen_name}</NormalText>
                     </View>
                     

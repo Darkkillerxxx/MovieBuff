@@ -112,6 +112,11 @@ class MPModal extends React.Component{
        this.setState({LobbyId:""})
    }
 
+   StartMPGame=(RoomId,isHost)=>{
+    console.log("Custom MP Modal",RoomId,isHost)
+    this.props.MoveToMPGame(RoomId,isHost)
+   }
+
 
     
 
@@ -225,7 +230,8 @@ class MPModal extends React.Component{
                     JoinLobby={this.state.JoinLobby}
                     navigation={this.props.navigation}
                     Loading={this.changeLoadingModal}
-                    onExitLobby={this.LobbyIdReset}/>
+                    onExitLobby={this.LobbyIdReset}
+                    StartMP={this.StartMPGame}/>
                 
         )
     }
