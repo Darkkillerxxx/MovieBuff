@@ -1,4 +1,4 @@
-import {SET_MP_QUESTIONS,SET_USERS} from './ActionType'
+import {SET_MP_QUESTIONS,SET_USERS,SET_STATUS} from './ActionType'
 
 export const setMPQuestions=(response)=>{
     return{
@@ -14,3 +14,10 @@ export const setUsers=(response)=>{
     }
 }
 
+
+export const setAppStatus=(response)=>{
+    return{
+        type:SET_STATUS,
+        data:response
+    }
+}

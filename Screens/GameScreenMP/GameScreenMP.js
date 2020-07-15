@@ -9,12 +9,14 @@ import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {EndGame,login,DeleteUser} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
+import {setUsers,setMPQuestions} from '../../Store/Actions/ActionMP'
 import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
 import firebase from 'firebase';
+let BackTimer
 // const IncreaseWidth={
 //     0:{
 //         width:50,
@@ -71,7 +73,8 @@ class GameScreenMP extends React.Component{
             RoomID:null,
             TotalUsers:null,
             Users:[],
-            Loading:false
+            Loading:false,
+            isHost:false
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -107,13 +110,6 @@ class GameScreenMP extends React.Component{
         return array;
       }
 
-    CheckAnswers=(isReset,userId)=>{
-        if(isReset)
-        {
-
-        }
-    }
-
     fetchResults=()=>{
         let payload={
             RoomId:this.state.RoomID
@@ -123,6 +119,7 @@ class GameScreenMP extends React.Component{
            console.log("126",result)
             if(result.IsSuccess)
             {
+                this.setState({isLoading:false})
                 this.setState({Result:result.Data})
             }
         })
@@ -141,14 +138,17 @@ class GameScreenMP extends React.Component{
 
     componentDidMount()
     {
+        
         setTimeout(()=>{
-             // this.Timer()
+            
+            this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
         console.log("135",params.Host)
+        this.setState({isHost:params.Host})
         // console.log("119",params)
 
         // // setTimeout(()=>this.setState({TempAnimation:true}),
@@ -177,6 +177,7 @@ class GameScreenMP extends React.Component{
                 }
                 else 
                 {
+                    this.setState({isLoading:true})
                     this.fetchResults()   
                     
                     // firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
@@ -210,6 +211,7 @@ class GameScreenMP extends React.Component{
                 //only accesible to host
                 if(params.Host)
                 {
+                    
                     console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
                     if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
                     {
@@ -219,21 +221,39 @@ class GameScreenMP extends React.Component{
                     }
                     else
                     {
-                        console.log("Here 2")
+                        console.log("Here 2")       
                         this.setState({UsersAnswered:this.state.UsersAnswered + 1})
                     }
+                }
+                else
+                {
+                    clearTimeout(BackTimer)
                 }
             }
         })
 
-        let RemovedUserListener=firebase.database().ref(`room/${params.RoomID}/`)
-        RemovedUserListener.on('child_removed',(snapShot)=>{
+        firebase.database().ref(`room/${params.RoomID}/`).on('child_removed',(snapShot)=>{
             console.log("Removed in MP",snapShot.val())
             this.RemoveAddedUserMP(snapShot.val())
         })
         },1000)
        
     }
+
+    // BackgroundTimer=()=>{
+    //     console.log("Setting TimeOut")
+    //     BackTimer=setTimeout(()=>{
+    //         console.log("Reducing Total User")
+    //         this.setState({TotalUsers:this.state.TotalUsers - 1},()=>{
+    //             this.setState({Loading:false})
+    //             this.MarkUsers(true,null,null)
+    //             this.MoveToNextQuestion()
+    //             this.ChangeLatestAnsweredCorrect(true,null)
+    //             this.ChangeLatestAnsweredWrong(true,null)
+    //         })
+            
+    //     },20000)
+    // }
 
     MarkUsers=(isReset,isCorrect,UserId)=>{
         let Tempusers=this.state.Users
@@ -332,6 +352,7 @@ class GameScreenMP extends React.Component{
     }
 
     MoveToNextQuestion=()=>{
+        clearInterval(BackTimer)
         this.setState({UsersAnswered:0})
         this.setState({Timer:this.state.TimeAloted})
         this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
@@ -413,7 +434,13 @@ class GameScreenMP extends React.Component{
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
         // this.setState({ShowImageAnimation:true})
-        console.log("Id",id)
+        console.log("Idddddd",id)
+        console.log(this.state.isHost)
+        // if(this.state.isHost)
+        // {
+        //     console.log("Calling Timer")
+        //     this.BackgroundTimer()
+        // }
         this.setState({ImageLoaded:false})
         if(!this.state.HasSelected)
         {
@@ -541,7 +568,16 @@ class GameScreenMP extends React.Component{
                     return true
                 }
             })
-            this.setState({TotalUsers:TotalUsers - 1})
+            this.setState({TotalUsers:this.state.TotalUsers - 1},()=>{
+                if(this.state.isHost)
+                {
+                    if(parseInt(this.state.UsersAnswered) >= parseInt(this.state.TotalUsers))
+                    {
+                        this.ChangeFBOtherInfo(true)
+                        this.ChangeFBOQuestionInfo()
+                    }
+                }
+            })
             this.setState({Users:TempLobbyUsers})
         }
         else
@@ -581,8 +617,30 @@ class GameScreenMP extends React.Component{
          })
     }
 
+    componentWillUnmount=()=>{
+        this.props.onSetMpUsers([])
+        this.props.onSetQuestions([])
+        firebase.database().ref(`room/${this.state.RoomID}/`).off('child_removed')
+        firebase.database().ref(`room/${this.state.RoomID}/`).off('value')
+        firebase.database().ref(`room/${this.state.RoomID}/`).off('child_changed')
+    }
 
+    // componentDidUpdate(prevProps,prevState,ss)
+    // {
+    //     if(prevProps.AppStatus !== this.props.AppStatus)
+    //     {
+    //         if(this.props.AppStatus === 'Active')
+    //         {
+    //            //call api to join back room 
+    //         }
+    //         else if(this.props.AppStatus === 'background')
+    //         {
+    //             //call api to remove user from the lobby
+    //         }
+    //     }
+    // }
    
+
     render()
     {
         let ShowSideUsers=this.state.Users.map((result,index)=>{
@@ -866,7 +924,7 @@ class GameScreenMP extends React.Component{
                             <AdMobBanner
                             bannerSize="banner"
                             adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
-                            onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
+                            onDidFailToReceiveAdWithError={(err)=>{}} />
                         </View>
                     
                 <Modal isVisible={this.state.isLoading}>
@@ -999,16 +1057,16 @@ const mapStateToProps= state =>{
       SP:state.SP.GamePayload,
       SPQuestions:state.SP.Questions,
       MPQuestions:state.MP.Questions,
-      MPUsers:state.MP.Users
+      MPUsers:state.MP.Users,
+      AppStatus:state.MP.AppStatus
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
-        onSetFB:(response)=>dispatch(setFB(response)),
-        onSetLogin:(response)=>dispatch(setLogin(response)),
-        onSetGame:(response)=>dispatch(setGame(response)),
-        onSetDashboard:(response)=>dispatch(setDashboard(response))
+        onSetDashboard:(response)=>dispatch(setDashboard(response)),
+        onSetMpUsers:(response)=>dispatch(setUsers(response)),
+        onSetQuestions:(response)=>dispatch(setMPQuestions(response))
     }
 }
 

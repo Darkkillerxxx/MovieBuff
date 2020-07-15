@@ -1,5 +1,5 @@
 import React from 'react'
-import {View,Image, StyleSheet,TouchableOpacity,TouchableWithoutFeedback, ImageBackground} from 'react-native'
+import {View,Image, StyleSheet,TouchableOpacity,TouchableWithoutFeedback, ImageBackground,Linking} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from '../NormalText'
 import SinglePlayer from '../SinglePlayerBtn'
@@ -291,9 +291,21 @@ class CustomModal extends React.Component{
                                 </View>:
                                 this.props.Type === "Opt" ?
                                  <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
-                                    <NormalText style={{fontSize:20,marginVertical:10}}>Help</NormalText>
-                                    <TouchableOpacity onPress={()=>this.props.Logout()}>
-                                        <NormalText style={{fontSize:20,marginVertical:10}}>Logout</NormalText>    
+                                    
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>{}}>
+                                        <FontAwesome  name="question" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Help</NormalText>    
+                                    </TouchableOpacity>
+                                    
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>Linking.openURL(`https://wa.me?text=Hey Come Checkout This Awesome Game Called FilmyBuzz.
+                                                                                                                                    Here is the Link : https://play.google.com/store/apps/details?id=com.naxbit.moviebuff`)}>
+                                        <FontAwesome  name="share" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Share</NormalText>    
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>this.props.Logout()}>
+                                        <FontAwesome  name="sign-out" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Logout</NormalText>    
                                     </TouchableOpacity>
                                     
                                  </View>:

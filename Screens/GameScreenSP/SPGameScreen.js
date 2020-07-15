@@ -9,11 +9,11 @@ import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {getResult,login,LevelCoins} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
-import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
+import {checkAnswer,calcTimerValue,ChAns} from '../../Utils/common'
 
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
@@ -126,25 +126,7 @@ class SPGameScreen extends React.Component{
    
 
     checkAnswer=(id,step)=>{
-       if(this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[id].Id)
-       {
-           if(step === 0)
-           {
-               return true
-           }
-        if(this.state.Questions[this.state.SelectedQuestion].options[id].Id === 4)
-        {
-            return true
-        }
-        else
-        {
-            return false
-        }
-       }
-       else
-       {
-            return false
-       }
+       return ChAns(id,step,this.state.SelectedOptions,this.state.Questions[this.state.SelectedQuestion].options[id].Id)
     }
 
     cangeModalType=(type)=>{
@@ -177,11 +159,6 @@ class SPGameScreen extends React.Component{
              }
          })
 
-    }
-
-    calcTimerValue=()=>{
-        let TimerValue=this.state.Timer/this.state.TimeAloted * 100
-        this.setState({TimerValue:parseInt(TimerValue)})
     }
 
     SkipQuestion=()=>{
@@ -221,7 +198,7 @@ class SPGameScreen extends React.Component{
              if(this.state.Timer > 0 && this.state.ImageLoaded)
              {
                 this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
+                    this.setState({TimerValue:calcTimerValue(this.state.Timer,this.state.TimeAloted)})
                     if(this.state.Timer === 0)
                     {
                        this.SkipQuestion()
@@ -288,16 +265,11 @@ class SPGameScreen extends React.Component{
         this.setState({Questions:this.props.SPQuestions},()=>{
             console.log("Questions",this.state.Questions)
         })
-            this.Timer()
+            // this.Timer()
             this.show();
 
             // console.log("Dimensions",this.state.Dimensions)
         
-    }
-
-    componentWillUnmount()
-    {
-        BackHandler.removeEventListener('hardwareBackPress', ()=>{});
     }
 
     MoveToNextQuestion=()=>{
@@ -377,7 +349,6 @@ class SPGameScreen extends React.Component{
         this.setState({SelectedQuestion:this.state.Questions.length - 1},()=>{
             this.setState({Timer:0})
         })
-     
     }
 
     QuitGame=()=>{
@@ -707,19 +678,19 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         width:'100%',
-        height:Dimensions.get('window').height < 670 ? 170 : 205,
+        height:Dimensions.get('window').height < 670 ? 170 : 215,
         marginVertical:10
     },
     Pic1:{
         height:'100%',
-        width:Dimensions.get('window').height < 670 ? 185 : 205,
+        width:Dimensions.get('window').height < 670 ? 185 : 185,
         borderRadius:10,
         overflow:'hidden',
         elevation:1
     },
     Pic2:{
         height:'90%',
-        width:Dimensions.get('window').height < 670 ? 170 : 190,
+        width:Dimensions.get('window').height < 670 ? 170 : 170,
         marginLeft:-155,
         borderRadius:10,
         overflow:'hidden',
@@ -728,7 +699,7 @@ const style=StyleSheet.create({
     },
     Pic3:{
         height:'80%',
-        width:Dimensions.get('window').height < 670 ? 140 : 160,
+        width:Dimensions.get('window').height < 670 ? 140 : 145,
         marginLeft:-135,
         borderRadius:10,
         overflow:'hidden',
@@ -736,9 +707,9 @@ const style=StyleSheet.create({
         elevation:1
     },
     Pic:{
-        height:'110%',
-        width:210,
-        resizeMode:'stretch'
+        height:'100%',
+        width:200,
+        resizeMode:'cover'
     },
     QuestionContainer:{
         width:'100%',
@@ -788,13 +759,3 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(SPGameScreen);
-
-
- {/* <View style={{width:65,height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
-                            <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User2.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User3.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User4.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User5.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User6.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                        </View> */}

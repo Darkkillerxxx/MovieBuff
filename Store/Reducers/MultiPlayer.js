@@ -1,8 +1,9 @@
-import {SET_MP_QUESTIONS, SET_USERS} from '../Actions/ActionType'
+import {SET_MP_QUESTIONS, SET_USERS,SET_STATUS} from '../Actions/ActionType'
 
 const initialState={
   Questions:[],
-  Users:[]
+  Users:[],
+  AppStatus:null
 }
 
 
@@ -19,6 +20,12 @@ const MPReducer=(state=initialState,action)=>{
             return{
                 ...state,
                 Users:action.data
+            }
+        
+        case SET_STATUS:
+            return{
+                ...state,
+                AppStatus:action.data
             }
 
         default:
