@@ -17,26 +17,26 @@ import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
 import firebase from 'firebase';
 let BackTimer
-// const IncreaseWidth={
-//     0:{
-//         width:50,
-//         opacity:0
-//     },
-//     1:{
-//         width:250,
-//         opacity:1
-//     }
-//   }
-//   const DecreaseWidth={
-//     0:{
-//         width:50,
-//         opacity:0
-//     },
-//     1:{
-//         width:250,
-//         opacity:1
-//     }
-//   }
+const IncreaseWidth={
+    0:{
+        width:50,
+        opacity:0
+    },
+    1:{
+        width:250,
+        opacity:1
+    }
+  }
+  const DecreaseWidth={
+    0:{
+        width:250,
+        opacity:1
+    },
+    1:{
+        width:50,
+        opacity:0
+    }
+  }
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
   } from 'expo-ads-admob';
@@ -74,7 +74,9 @@ class GameScreenMP extends React.Component{
             TotalUsers:null,
             Users:[],
             Loading:false,
-            isHost:false
+            isHost:false,
+            FirstAnsweredId:null,
+            FirstAnimationState:null
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -116,7 +118,7 @@ class GameScreenMP extends React.Component{
         }
 
         EndGame(payload).then(result=>{
-           console.log("126",result)
+        //    console.log("126",result)
             if(result.IsSuccess)
             {
                 this.setState({isLoading:false})
@@ -141,26 +143,23 @@ class GameScreenMP extends React.Component{
         
         setTimeout(()=>{
             
-            this.Timer()
+            // this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      
         const { params } = this.props.navigation.state;
         this.setState({RoomID:params.RoomID})
-        console.log("135",params.Host)
+        // console.log("135",params.Host)
         this.setState({isHost:params.Host})
-        // console.log("119",params)
 
-        // // setTimeout(()=>this.setState({TempAnimation:true}),
-        // // 3000)
         firebase.database().ref(`room/${params.RoomID}`).once("value",(snapshot)=>{
             this.setState({TotalUsers:snapshot.numChildren() -1},()=>{
-                console.log('Total Users',this.state.TotalUsers)
+                // console.log('Total Users',this.state.TotalUsers)
             })
         })
 
         firebase.database().ref(`questions/${params.RoomID}/OtherInfo`).on('child_changed',(snapshot)=>{
-            console.log("Other Info Changed",snapshot.key)
+            // console.log("Other Info Changed",snapshot.key)
             if(snapshot.key === "QuestionNo")
             {
                 //Change Questions
@@ -168,6 +167,7 @@ class GameScreenMP extends React.Component{
                 {
                     this.setState({Loading:false},()=>{
                         setTimeout(()=>{
+                            this.setState({FirstAnsweredId:null})
                             this.MarkUsers(true,null,null)
                             this.MoveToNextQuestion()
                             this.ChangeLatestAnsweredCorrect(true,null)
@@ -179,17 +179,11 @@ class GameScreenMP extends React.Component{
                 {
                     this.setState({isLoading:true})
                     this.fetchResults()   
-                    
-                    // firebase.database().ref(`questions/${this.state.RoomID}/reports`).on('value',(snapshot)=>{
-                    //     console.log("Getting Results")
-                    //     console.log(snapshot.val())
-                    // })
-                    
                 }
             }
             else if(snapshot.key === "lastestAnsweredCorrect")
             {
-                console.log("LastAnswered Changed")
+                // console.log("LastAnswered Changed")
                 if(snapshot.val() !== 0)
                 {
                     //Call the Function Here
@@ -198,7 +192,7 @@ class GameScreenMP extends React.Component{
             }
             else if(snapshot.key === "lastestAnsweredWrong")
             {
-                console.log("LastAnswered Changed")
+                // console.log("LastAnswered Changed")
                 if(snapshot.val() !== 0)
                 {
                     //Call the Function Here
@@ -207,21 +201,21 @@ class GameScreenMP extends React.Component{
             }
             else
             {
-                console.log("Here 0",params.Host)
+                // console.log("Here 0",params.Host)
                 //only accesible to host
                 if(params.Host)
                 {
                     
-                    console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
+                    // console.log("Changing Info",parseInt(snapshot.val()),parseInt(this.state.TotalUsers))
                     if(parseInt(snapshot.val()) >= parseInt(this.state.TotalUsers))
                     {
-                        console.log("Here 1")
+                        // console.log("Here 1")
                         this.ChangeFBOtherInfo(true)
                         this.ChangeFBOQuestionInfo()
                     }
                     else
                     {
-                        console.log("Here 2")       
+                        // console.log("Here 2")       
                         this.setState({UsersAnswered:this.state.UsersAnswered + 1})
                     }
                 }
@@ -233,11 +227,51 @@ class GameScreenMP extends React.Component{
         })
 
         firebase.database().ref(`room/${params.RoomID}/`).on('child_removed',(snapShot)=>{
-            console.log("Removed in MP",snapShot.val())
+            // console.log("Removed in MP",snapShot.val())
             this.RemoveAddedUserMP(snapShot.val())
         })
         },1000)
-       
+    }
+
+    FirstAnsweredAnimation=(id)=>{
+        if(this.state.FirstAnsweredId === null)
+        {
+            
+            // console.log("Check : "+ id,this.props.Dashboard.Id,this.state.Users)
+            let ArrangedUsers=[]
+            this.state.Users.forEach(element => {
+                let i = 1
+                if(parseInt(element.User_id) === parseInt(id))
+                {
+                    ArrangedUsers[0]=element
+                }
+                else
+                {
+                    ArrangedUsers[i]=element
+                    i++
+                }
+            })
+            
+            this.setState({Users:ArrangedUsers},()=>{
+                // console.log("Check 2 : "+id,this.props.Dashboard.Id,this.state.Users)
+                this.setState({FirstAnsweredId:id},()=>{
+                      this.setState({FirstAnimationState:1})
+                })
+            })
+        }
+    }
+
+    changeAnimationState=()=>{
+        console.log("OutSide if/else",this.state.FirstAnimationState)
+        if(this.state.FirstAnimationState === 1)
+        {
+            console.log("InSide if/else",this.state.FirstAnimationState)
+            setTimeout(()=>{
+                this.setState({FirstAnimationState:2},()=>{
+                    this.setState({FirstAnimationState:null})
+                })
+            },2000)
+        }
     }
 
     // BackgroundTimer=()=>{
@@ -286,8 +320,13 @@ class GameScreenMP extends React.Component{
              })
          }
      
-         console.log("Mark Users"+UserId,isReset,Tempusers)
-        this.setState({Users:Tempusers})
+        //  console.log("Mark Users"+UserId,isReset,Tempusers)
+        this.setState({Users:Tempusers},()=>{
+            if(isCorrect)
+            {
+                this.FirstAnsweredAnimation(UserId)
+            }
+        })
     }
 
     Timer=()=>{
@@ -324,7 +363,7 @@ class GameScreenMP extends React.Component{
             })
 
         this.setState({AnsPayload:TempReport},()=>{
-            console.log("Timer Payload",this.state.AnsPayload)
+            // console.log("Timer Payload",this.state.AnsPayload)
             if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
             {
                this.ChangeFBOtherInfo(false)
@@ -337,7 +376,7 @@ class GameScreenMP extends React.Component{
     }
     else
     {
-        console.log("Feching Result Activated By timer")
+        // console.log("Feching Result Activated By timer")
         // this.fetchResult()
         // console.log(this.state.CorrectAns,this.state.AnsPayload) 
     }
@@ -377,7 +416,7 @@ class GameScreenMP extends React.Component{
     }
 
     ChangeFBOtherInfo=(reset)=>{
-        console.log("Changing FB Other Info")
+        // console.log("Changing FB Other Info")
         this.setState({Loading:true},()=>{
             setTimeout(()=>{
                 firebase.database().ref(`questions/${this.state.RoomID}/OtherInfo/UsersAnswered`).transaction((val)=>{
@@ -434,8 +473,8 @@ class GameScreenMP extends React.Component{
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
         // this.setState({ShowImageAnimation:true})
-        console.log("Idddddd",id)
-        console.log(this.state.isHost)
+        // console.log("Idddddd",id)
+        // console.log(this.state.isHost)
         // if(this.state.isHost)
         // {
         //     console.log("Calling Timer")
@@ -540,7 +579,7 @@ class GameScreenMP extends React.Component{
             "UserId":this.props.Dashboard.Id.toString()
         }
         DeleteUser(RemovePayload).then(result => {
-            console.log("remove",RemovePayload,result)
+            // console.log("remove",RemovePayload,result)
             if(!result.IsSuccess)
             {
               ToastAndroid.show("Error Removing User",ToastAndroid.SHORT)  
@@ -550,8 +589,8 @@ class GameScreenMP extends React.Component{
 
     RemoveAddedUserMP=(RemovedUser)=>{
         RemovedUser=JSON.parse(RemovedUser.replace(/'/g,'"'))
-        console.log("In Progress")
-        console.log("520",parseInt(RemovedUser.User_id),parseInt(this.props.Dashboard.Id))
+        // console.log("In Progress")
+        // console.log("520",parseInt(RemovedUser.User_id),parseInt(this.props.Dashboard.Id))
         if(parseInt(RemovedUser.User_id) !== parseInt(this.props.Dashboard.Id))
         {
             let TempLobbyUsers=this.state.Users;
@@ -594,10 +633,10 @@ class GameScreenMP extends React.Component{
             FacebookId:this.props.Dashboard.FbId,
             Password:this.props.Dashboard.Password
          }
-         console.log("Login Payload",SignInPayload)
+        //  console.log("Login Payload",SignInPayload)
 
          login(SignInPayload).then(result=>{
-            console.log(result) 
+            // console.log(result) 
             if(result.IsSuccess)
              {
                  let TempDashboard=result.Data[0]
@@ -605,7 +644,7 @@ class GameScreenMP extends React.Component{
                  TempDashboard.Password=this.props.Dashboard.Password
                  TempDashboard.ScreenName=this.props.Dashboard.ScreenName
                  UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                    console.log("Update",result)
+                    // console.log("Update",result)
                  }).catch(err=>{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
@@ -656,19 +695,23 @@ class GameScreenMP extends React.Component{
                         <NormalText>{result.screen_name}</NormalText>
                     </View>
                     
-                    <Animatable.View animation={""} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-55,alignItems:'center',justifyContent:'center',borderRadius:15}} >
-                        {/* <View style={{alignItems:'center',width:'100%'}}>
+                    {this.state.FirstAnimationState !== null && parseInt(this.state.FirstAnsweredId) === parseInt(result.User_id)  ? 
+                   
+                    <Animatable.View animation={this.state.FirstAnimationState === 1 ? IncreaseWidth:this.state.FirstAnimationState === 2 ? DecreaseWidth:null } onAnimationEnd={()=>this.changeAnimationState()} duration={2000} style={{backgroundColor:"#2E2247",opacity:0,width:50,height:50,marginTop:-75,alignItems:'center',justifyContent:'center',borderRadius:15}} >
+                        <View style={{alignItems:'center',width:'100%'}}>
                             <View style={{backgroundColor:"#FFD764",flexDirection:'row',alignItems:'center',justifyContent:'center',width:'90%',padding:5,borderRadius:10}}>
-                                <NormalText>Hetal</NormalText>
+                                <NormalText>{result.screen_name}</NormalText>
                                 <View style={{marginLeft:15,flexDirection:'row'}}>
                                     <Image source={require('../../assets/correct.png')} style={{width:20,height:20,marginRight:5}} />
                                     <NormalText>
-                                        3/25
+                                        3/10
                                     </NormalText>
                                 </View>
                             </View>
-                        </View> */}
+                        </View>
                     </Animatable.View>
+                    :null}
+
                 </View>
             )
         })
@@ -771,12 +814,12 @@ class GameScreenMP extends React.Component{
                             <View style={{flex:1,alignItems:'center',justifyContent:'center'}}
                                 onLayout={event=>{
                                     const layout = event.nativeEvent.layout;
-                                    console.log('height:', layout.height);
-                                    console.log('width:', layout.width);
-                                    console.log('x:', layout.x);
-                                    console.log('y:', layout.y);
+                                    // console.log('height:', layout.height);
+                                    // console.log('width:', layout.width);
+                                    // console.log('x:', layout.x);
+                                    // console.log('y:', layout.y);
                                     this.setState({CoinDimension:layout.y},()=>{
-                                        console.log(this.state.CoinDimension)
+                                        // console.log(this.state.CoinDimension)
                                     })
                                     this.setState({DimensionsHeight:layout.height})
                                 }} 
@@ -987,20 +1030,21 @@ const style=StyleSheet.create({
     PicContainer:{
         flexDirection:'row',
         alignItems:'center',
+        justifyContent:'center',
         width:'100%',
-        height:Dimensions.get('window').height < 670 ? 170 : 205,
+        height:Dimensions.get('window').height < 670 ? 170 : 215,
         marginVertical:10
     },
     Pic1:{
         height:'100%',
-        width:Dimensions.get('window').height < 670 ? 185 : 205,
+        width:Dimensions.get('window').height < 670 ? 185 : 185,
         borderRadius:10,
         overflow:'hidden',
         elevation:1
     },
     Pic2:{
         height:'90%',
-        width:Dimensions.get('window').height < 670 ? 170 : 190,
+        width:Dimensions.get('window').height < 670 ? 170 : 170,
         marginLeft:-155,
         borderRadius:10,
         overflow:'hidden',
@@ -1009,7 +1053,7 @@ const style=StyleSheet.create({
     },
     Pic3:{
         height:'80%',
-        width:Dimensions.get('window').height < 670 ? 140 : 160,
+        width:Dimensions.get('window').height < 670 ? 140 : 145,
         marginLeft:-135,
         borderRadius:10,
         overflow:'hidden',
@@ -1017,9 +1061,9 @@ const style=StyleSheet.create({
         elevation:1
     },
     Pic:{
-        height:'110%',
-        width:210,
-        resizeMode:'stretch'
+        height:'100%',
+        width:200,
+        resizeMode:'cover'
     },
     QuestionContainer:{
         width:'100%',
