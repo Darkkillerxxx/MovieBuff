@@ -19,7 +19,9 @@ class Leaderboard extends React.Component{
     componentDidMount()
     {
         const {Leaderboard,UserId}=this.props.navigation.state.params
-        this.setState({LB:Leaderboard})
+        this.setState({LB:Leaderboard},()=>{
+            console.log(this.state.LB)
+        })
         this.setState({UId:UserId})
     }
 
@@ -51,14 +53,14 @@ class Leaderboard extends React.Component{
                     <View style={style.CoinsAndCrowns}>
                             <View style={{width:'30%',height:25,borderRadius:15,backgroundColor:'#11233A',flexDirection:'row',justifyContent:'space-between',paddingHorizontal:5,alignItems:'center'}}>
                                 <Image source={require('../../assets/TreasureBox.png')} style={{height:20,width:20}} />
-                                <NormalText>25</NormalText>
+                                <NormalText>{result.LeaderBoard[0].Coins}</NormalText>
                             </View>
                             <View style={{width:'30%',height:25,borderRadius:15,backgroundColor:'#11233A',flexDirection:'row',justifyContent:'space-between',paddingHorizontal:5,alignItems:'center'}}>
                                 <Image source={require('../../assets/Crown.png')} style={{height:20,width:20}} />
-                                <NormalText>25</NormalText>
+                                <NormalText>{result.LeaderBoard[0].Crown}</NormalText>
                             </View>
                             <View style={{width:'30%'}}></View>
-                        </View>
+                    </View>
                     </View>
                     <View style={result.UserRank === 1 ? style.PositionF:result.UserRank === 2 || result.UserRank === 3 ? style.PositionSF : style.Position}>
                         <NormalText style={{fontSize:18}}>{result.UserRank}</NormalText>

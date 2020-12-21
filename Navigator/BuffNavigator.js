@@ -12,7 +12,7 @@ import EarnCoins from '../Screens/EarnCoins/EarnCoins'
 import Profile from '../Screens/Profile/Profile'
 import ProfileDetails from '../Screens/ProfileDetails/ProfileDetails'
 import GameScreenMP from '../Screens/GameScreenMP/GameScreenMP'
-
+import Levels from '../Screens/Levels/Levels'
 
 const BuffSwitchNavigator=createSwitchNavigator({
     Start:createStackNavigator({
@@ -50,6 +50,9 @@ const BuffSwitchNavigator=createSwitchNavigator({
         },
         GameScreenMP:{
             screen:GameScreenMP
+        },
+        Levels:{
+            screen:Levels
         }
     }
     ,{

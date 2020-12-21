@@ -77,11 +77,11 @@ class CustomModal extends React.Component{
                 <View style={{flexDirection:'row',marginTop:5}}>
                     <View style={{width:'20%',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',marginRight:5}}>
                         <Image source={require('../../assets/correct.png')} style={{width:15,height:15}}></Image>
-                        <NormalText> 5 </NormalText>
+                        <NormalText> {result.CorrectAnswered} </NormalText>
                     </View>
                     <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
                         <Image source={require('../../assets/wrong.png')} style={{width:15,height:15}}></Image>
-                        <NormalText> 5 </NormalText>
+                        <NormalText> {10 - result.CorrectAnswered} </NormalText>
                     </View>
                     <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
                         <Image source={require('../../assets/timer.png')} style={{width:15,height:15}}></Image>

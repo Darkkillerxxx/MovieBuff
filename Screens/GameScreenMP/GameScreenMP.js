@@ -76,7 +76,8 @@ class GameScreenMP extends React.Component{
             Loading:false,
             isHost:false,
             FirstAnsweredId:null,
-            FirstAnimationState:null
+            FirstAnimationState:null,
+            LoadingText:null
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -118,7 +119,7 @@ class GameScreenMP extends React.Component{
         }
 
         EndGame(payload).then(result=>{
-        //    console.log("126",result)
+           console.log("126",result)
             if(result.IsSuccess)
             {
                 this.setState({isLoading:false})
@@ -143,7 +144,7 @@ class GameScreenMP extends React.Component{
         
         setTimeout(()=>{
             
-            // this.Timer()
+            this.Timer()
         this.setState({Users:this.props.MPUsers})
         this.SortQuestions()
      
@@ -178,6 +179,7 @@ class GameScreenMP extends React.Component{
                 else 
                 {
                     this.setState({isLoading:true})
+                    this.setState({LoadingText:"Fetching Your Results ..."})
                     this.fetchResults()   
                 }
             }
@@ -236,11 +238,10 @@ class GameScreenMP extends React.Component{
     FirstAnsweredAnimation=(id)=>{
         if(this.state.FirstAnsweredId === null)
         {
-            
+            let i = 1
             // console.log("Check : "+ id,this.props.Dashboard.Id,this.state.Users)
             let ArrangedUsers=[]
             this.state.Users.forEach(element => {
-                let i = 1
                 if(parseInt(element.User_id) === parseInt(id))
                 {
                     ArrangedUsers[0]=element
@@ -574,6 +575,8 @@ class GameScreenMP extends React.Component{
     }
 
     QuitGameMP=()=>{
+        this.setState({isLoading:true})
+        this.setState({LoadingText:"Removing You From The Lobby ..."})
         let RemovePayload={
             "RoomId":this.state.RoomID,
             "UserId":this.props.Dashboard.Id.toString()
@@ -971,7 +974,7 @@ class GameScreenMP extends React.Component{
                         </View>
                     
                 <Modal isVisible={this.state.isLoading}>
-                    <Loader Text={"Fetching Results ..."}/>
+                    <Loader Text={this.state.LoadingText}/>
                 </Modal>  
             </AppContainer>
         )

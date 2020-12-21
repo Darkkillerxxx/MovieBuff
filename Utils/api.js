@@ -1,4 +1,4 @@
-const base_url="https://9gq7wxspl9.execute-api.ap-south-1.amazonaws.com/dev"
+const base_url="https://6b5h9ucx6g.execute-api.ap-south-1.amazonaws.com/dev"
 import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {
@@ -131,7 +131,8 @@ let Endpoints={
     JoinRoom:'/joinRoom',
     MoveToMP:'/startMultiPlayerGame',
     EndGame:'/endGame',
-    DeleteUser:'/delete'
+    DeleteUser:'/delete',
+    GetLevels:'/getLevels'
 }
 
 ShowErrorCodes=(status)=>{
@@ -328,6 +329,15 @@ export function EndGame(payload)
 export function DeleteUser(payload)
 {
     return makeRequest("POST",payload,null,Endpoints.DeleteUser).then(result=>{
+        return result
+    })
+}
+
+export function GetLevels(UserId)
+{
+    let Parameters="/"+UserId
+    console.log(UserId)
+    return makeRequest("GET",null,Parameters,Endpoints.GetLevels).then(result=>{
         return result
     })
 }

@@ -71,7 +71,7 @@ class MpSetUp extends React.Component{
 
 
     AssignAddedUsers=(AddedUser)=>{
-        console.log("Run Added User")
+        // console.log("Run Added User")
         AddedUser=JSON.parse(AddedUser.replace(/'/g,'"'))
         let TempLobbyUsers=this.state.LobbyUser;
         this.setUsers(AddedUser)
@@ -130,21 +130,14 @@ class MpSetUp extends React.Component{
 
     MoveToMPScreen=()=>{
         this.props.Loading("Loading The Game")
-        // firebase.database().ref(`questions/${this.props.LobbyId}/OtherInfo`).set(
-        //     {
-        //         QuestionNo:0,
-        //         UsersAnswered:0
-        //     }
-        // )
-        
+
     setTimeout(()=>{
-            console.log(`${this.props.Id} Move To MP`,this.props.LobbyId,!this.props.JoinLobby ? 1 : 0)
+            // console.log(`${this.props.Id} Move To MP`,this.props.LobbyId,!this.props.JoinLobby ? 1 : 0)
         MPGame({RoomId:this.props.LobbyId,Host:!this.props.JoinLobby ? 1 : 0}).then(result=>{
             if(result.IsSuccess)
             {
                 // console.log("110",result.Data[0].Questions)
                 this.props.onSetMPQuestions(result.Data[0].Questions)
-                // this.props.navigation.replace('GameScreenMP',{RoomID:this.props.LobbyId,Host:!this.props.JoinLobby ? true : false})
                 this.props.StartMP(this.props.LobbyId,!this.props.JoinLobby ? true : false)
                 this.props.Loading("")
             }
@@ -170,7 +163,7 @@ class MpSetUp extends React.Component{
                 return true
             }
         })
-        console.log("138",isUserPresent)
+        // console.log("138",isUserPresent)
 
         if(!isUserPresent)
         {
@@ -203,7 +196,7 @@ class MpSetUp extends React.Component{
         }
         
         firebase.database().ref(`room/${this.props.LobbyId}/`).limitToLast(2).on('child_added',(snapShot)=>{
-            console.log("176",this.props.Id,snapShot.val())
+            // console.log("176",this.props.Id,snapShot.val())
             if(snapShot.key !== "HasStarted")
             {
                 this.AssignAddedUsers(snapShot.val())
@@ -213,7 +206,7 @@ class MpSetUp extends React.Component{
         if(this.props.JoinLobby)
         {
             firebase.database().ref(`room/${this.props.LobbyId}/`).on('child_changed',(snapShot)=>{
-                console.log("195",this.props.Id,snapShot.key)
+                // console.log("195",this.props.Id,snapShot.key)
                 if(snapShot.key === "HasStarted")
                 {
                     this.MoveToMPScreen()
@@ -222,7 +215,7 @@ class MpSetUp extends React.Component{
         }
 
         firebase.database().ref(`room/${this.props.LobbyId}/`).on('child_removed',(snapShot)=>{
-            console.log("Removed in Set Up",snapShot.val())
+            // console.log("Removed in Set Up",snapShot.val())
             this.RemoveAddedUser(snapShot.val())
         })
         // console.log("out")
@@ -234,15 +227,24 @@ class MpSetUp extends React.Component{
     }
 
     ExitRoom=()=>{
+        this.props.Loading("Removing You From the Lobby")
+
         let RemovePayload={
             "RoomId":this.props.LobbyId,
             "UserId":this.props.Dashboard.Id.toString()
         }
         DeleteUser(RemovePayload).then(result => {
-            console.log("remove",RemovePayload,result)
+            
+            // console.log("remove",RemovePayload,result)
             if(!result.IsSuccess)
             {
+                this.props.Loading("")
                 ToastAndroid.show("Error Removing User",ToastAndroid.SHORT)
+            }
+            else
+            {
+                this.props.Loading("")
+                this.props.onExitLobby()
             }
         })
     }   

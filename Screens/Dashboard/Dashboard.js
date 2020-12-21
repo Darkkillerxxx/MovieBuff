@@ -458,7 +458,7 @@ class Dashboard extends React.Component{
                         
                         <TouchableOpacity 
                             style={{width:'100%',alignItems:'center'}} 
-                            onPress={()=>this.setState({ShowModalSP:true})}>
+                            onPress={() => this.props.navigation.navigate('Levels')}>
                             
                             <SinglePlayer 
                                 style={{width:125,height:75}} 

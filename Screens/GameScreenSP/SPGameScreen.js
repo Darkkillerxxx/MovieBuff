@@ -265,7 +265,7 @@ class SPGameScreen extends React.Component{
         this.setState({Questions:this.props.SPQuestions},()=>{
             console.log("Questions",this.state.Questions)
         })
-            // this.Timer()
+            this.Timer()
             this.show();
 
             // console.log("Dimensions",this.state.Dimensions)
@@ -470,7 +470,7 @@ class SPGameScreen extends React.Component{
                             </View>
                             {this.state.Questions.length > 0 ? 
                         
-                            <View onLayout={event=>{
+                            <View style={{justifyContent:'center',alignItems:'center'}} onLayout={event=>{
                                 if(this.val)
                                 {
                                     this.val.measure((x, y, width, height, pageX, pageY)=>{
@@ -480,14 +480,14 @@ class SPGameScreen extends React.Component{
                                     })
                                 }
                             }} 
-                            ref={view => {this.val =view}}>
+                                ref={view => {this.val =view}}>
                                 <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
                                     
                                     {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
                                             from: { translateX:0,translateY:0,opacity:1},
-                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY:this.state.TrunksDimensionY - this.state.CoinDimensionY + 10,opacity:0.4},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY:this.state.TrunksDimensionY - this.state.CoinDimensionY - 100,opacity:0.4},
                                         }}
                                         duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
                                         
@@ -507,9 +507,9 @@ class SPGameScreen extends React.Component{
                                             style={{width:20,height:20,resizeMode:'stretch'}}/>
                                             
                                     </Animatable.View>
-                                    <Animatable.View animation={{
+                                   <Animatable.View animation={{
                                             from: { translateX:0,translateY:0,opacity:1},
-                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 10,opacity:0.4 },
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 110,opacity:0.4 },
                                         }}
                                         duration={1000} delay={50} interationCount={3} useNativeDriver={true} >
                                         
@@ -531,7 +531,7 @@ class SPGameScreen extends React.Component{
                                     </Animatable.View>
                                     <Animatable.View animation={{
                                             from: { translateX:0,translateY:0,opacity:1},
-                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 20,opacity:0.4 },
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 120,opacity:0.4 },
                                         }}
                                         duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
                                         
@@ -550,10 +550,14 @@ class SPGameScreen extends React.Component{
                                             direction="alternate"  
                                             style={{width:20,height:20,resizeMode:'stretch'}}/>
                                             
-                                    </Animatable.View>
-                                   </View>:null }
-                                   
+                                    </Animatable.View> 
+                                   </View>:null } 
                                 </View>
+
+                                <View style={style.QContainer}>
+                                    <NormalText>{this.state.Questions[this.state.SelectedQuestion].Qname}</NormalText>
+                                </View>
+
                                 <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "pulse":"wobble":"":"bounceInLeft"} delay={100}>
                                     <TouchableOpacity 
                                         disabled={this.state.OptionsDisabled} 
@@ -737,6 +741,11 @@ const style=StyleSheet.create({
         justifyContent:'center',
         alignSelf:'stretch',
         marginTop:10
+    },
+    QContainer:{
+        marginVertical:5,
+        justifyContent:'center',
+        alignItems:'center'
     }
     
 })
