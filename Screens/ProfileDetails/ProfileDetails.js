@@ -1,12 +1,10 @@
 import React from 'react'
 import { View,StyleSheet,Text,TextInput,Image,Alert,ActivityIndicator,Keyboard, ToastAndroid } from 'react-native';
+import {NavigationActions} from 'react-navigation'
 import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer';
-import Input from '../../Components/TextInput'
 import NormalText from '../../Components/NormalText';
-import NextButton from '../../Components/NextButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import {Ionicons,FontAwesome} from '@expo/vector-icons'
 import {setFB, setLogin, setPrevPage} from '../../Store/Actions/ActionJoin'
 import { connect }from 'react-redux'
 import * as Permissions from 'expo-permissions';
@@ -45,37 +43,13 @@ class ProfileDetails extends React.Component{
         }
     }
 
-     VerifyPermissions = async ()=>{
-        const result=await Permissions.askAsync(Permissions.CAMERA,Permissions.CAMERA_ROLL)
-        if(result.status !== 'granted')
-        {
-            Alert.alert('Insufficient permissions','You Need to Grant Permissions',[{text:'Kkay'}])
-            return false
-        }
-        return true
-     }
-
-     takeImage=()=>{
-     ImagePicker.launchCameraAsync({allowsEditing:true,aspect:[4,4],base64:true,quality:0.5}).then(
-         image=>{
-            this.setState({ImageBase64:image.base64})
-         }
-        )
-     }
-
     componentDidMount()
     {
-        console.log(this.props.Login)
-        console.log(this.props.PrevPage)
-        console.log("FB",this.props.FB)
-        this.setState({LoginDetails:this.props.Login},()=>{
-            console.log("Login Details",this.state.LoginDetails)
-        })
+        this.setState({LoginDetails:this.props.Login})
         this.setState({ImageBase64:this.props.Login.AvatarBase64})
         this.setState({FirstName:this.props.PrevPage === "Avatar" ? "":this.props.FB.first_name})
         this.setState({LastName:this.props.PrevPage === "Avatar" ? "":this.props.FB.last_name})
         this.setState({Username:this.props.PrevPage === "Avatar" ? this.props.Login.ScreenName:""})
-        
     }
 
     validation=()=>{
@@ -121,23 +95,13 @@ class ProfileDetails extends React.Component{
         return true;
     }
 
-
-    pickImage=async()=>{
-      const hasPermission=await this.VerifyPermissions() 
-      if(hasPermission)
-      {
-        this.takeImage()
-      }
-    }
-
     onProceed=()=>{
         Keyboard.dismiss();
         if(this.validation())
         {
-            console.log("Here")
-        if(this.props.PrevPage !== "Avatar")
-        {
-            this.setState({isLoading:true},()=>{
+            if(this.props.PrevPage !== "Avatar")
+            {
+                this.setState({isLoading:true},()=>{
                 setTimeout(()=>{
                     checkAvailable(this.state.Username).then(response=>{
                         this.setState({UsernameAvailable:response.Data.Available},()=>{
@@ -184,9 +148,8 @@ class ProfileDetails extends React.Component{
                                         TempDB.Coins=500
                                         insertUser(JSON.stringify(TempDB))
                                         this.props.onSetDashbaord(TempDB)
-                                        console.log("Response Genre",response.Data)
                                         this.setState({isLoading:false},()=>{
-                                            this.props.navigation.replace('Dashboard')
+                                            this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                                         }) 
                                     }
                                     else
@@ -226,7 +189,6 @@ class ProfileDetails extends React.Component{
                     }
         
                     registerUser(RegPayload).then(response=>{
-                        console.log(response)
                         if(response.IsSuccess)
                         {
                             let TempDB=response.Data[0];
@@ -237,9 +199,8 @@ class ProfileDetails extends React.Component{
                             TempDB.Coins=500
                             insertUser(JSON.stringify(TempDB))
                             this.props.onSetDashbaord(TempDB)
-                            console.log("Response Genre",response.Data)
                             this.setState({isLoading:false},()=>{
-                                this.props.navigation.replace('Dashboard')
+                                this.props.navigation.navigate('Game',{},NavigationActions.navigate({routeName:'Dashboard'}))
                             })   
                         }
                     })
@@ -267,50 +228,142 @@ class ProfileDetails extends React.Component{
             <AppContainer style={styles.AppContainer}>
                 <View style={styles.ProfilePicContainer}>
                     {this.props.PrevPage !== "Avatar" ? 
-                    this.state.ImageBase64 === "" ? 
-                    <Image source={this.state.LoginDetails === null ? require('../../assets/Temp/User1.png'):{uri:this.state.LoginDetails.AvatarFacebook}} style={styles.ProfilePic}/>:
-                    <Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
+                        this.state.ImageBase64 === "" ? 
+                        <Image 
+                            source={
+                                    this.state.LoginDetails === null ? 
+                                        require('../../assets/Temp/User1.png'):
+                                        {
+                                            uri:this.state.LoginDetails.AvatarFacebook
+                                        }
+                                    } 
+                            style={styles.ProfilePic}/>:
+
+                            <Image 
+                                source={
+                                        {
+                                            uri:`data:image/jpeg;base64,${this.state.ImageBase64}`
+                                        }
+                                    } 
+                                style={styles.ProfilePicBase64}/>
                     :
                     this.state.ImageBase64 === "" ? 
-                    <Image source={{uri:`${this.props.Login.AvatarURL}`}} style={styles.ProfilePicBase64}/>:<Image source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} style={styles.ProfilePicBase64}/>
+                        <Image 
+                            source={{uri:`${this.props.Login.AvatarURL}`}} 
+                            style={styles.ProfilePicBase64}/>
+                            :
+                        <Image 
+                            source={{uri:`data:image/jpeg;base64,${this.state.ImageBase64}`}} 
+                            style={styles.ProfilePicBase64}/>
                     }
-                   
-                    {/* <View style={styles.EditIconContainer}>
-                        <TouchableOpacity onPress={()=>this.pickImage()}>
-                            <FontAwesome name="pencil" size={14} color="white"/>
-                        </TouchableOpacity>
-                    </View> */}
                 </View>
+
                 {this.props.PrevPage !== "Avatar" ? 
                     <NormalText>* Enter Your Screen Name</NormalText>:null}
                 {this.props.PrevPage !== "Avatar" ? 
-                 <TextInput onFocus={()=>this.setState({UsernameAvailable:true})} onChangeText={this.onUserNameChange} style={this.state.UsernameAvailable ? {...styles.Input,...{width:'100%'}}:{...styles.InputError,...{width:'100%'}}} onChangeText={(e)=>this.setState({Username:e})} placeholder={this.state.UsernameAvailable ? "Screen Name":this.state.ErrorMessage === "" ? `${this.state.Username} is Not Available`:this.state.ErrorMessage} placeholderTextColor={this.state.UsernameAvailable ? "#BAC1C9":"#ff6961"}  />:null}
+                    <TextInput 
+                        onFocus={()=>this.setState({UsernameAvailable:true})} 
+                        onChangeText={this.onUserNameChange} 
+                        style={this.state.UsernameAvailable ? 
+                            {...styles.Input,...{width:'100%'}}
+                            :
+                            {...styles.InputError,...{width:'100%'}}} 
+                        onChangeText={(e)=>this.setState({Username:e})} 
+                        placeholder={this.state.UsernameAvailable ?
+                                        "Screen Name"
+                                        :
+                                        this.state.ErrorMessage === "" ?
+                                        `${this.state.Username} is Not Available`
+                                        :this.state.ErrorMessage
+                                    } 
+                        placeholderTextColor={this.state.UsernameAvailable ?
+                                                "#BAC1C9"
+                                                :
+                                                "#ff6961"
+                                                }  />:
+                                                null
+                                            }
         
                 <View style={styles.FLContainer}>
                     <View style={{width:'48%',marginRight:10}}>
-                        {this.state.isFirstNameEmpty ? <NormalText style={{color:'#ff6961'}}>First Name is Required</NormalText>:<NormalText>(*) Enter First Name</NormalText>}
-                        <TextInput value={this.state.FirstName} style={{...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({FirstName:e},()=>this.setState({isFirstNameEmpty:false}))} placeholder="First Name" placeholderTextColor="#BAC1C9"  />
+                        {this.state.isFirstNameEmpty ? 
+                            <NormalText style={{color:'#ff6961'}}>First Name is Required</NormalText>
+                            :
+                            <NormalText>(*) Enter First Name</NormalText>
+                        }
+                        <TextInput 
+                            value={this.state.FirstName} 
+                            style={{...styles.Input,...{width:'100%'}}} 
+                            onChangeText={(e)=>this.setState({FirstName:e},()=>this.setState({isFirstNameEmpty:false}))} 
+                            placeholder="First Name" 
+                            placeholderTextColor="#BAC1C9"  />
                     </View>
+
                     <View style={{width:'48%'}}>
-                        {this.state.isLastNameEmpty ? <NormalText style={{color:'#ff6961'}}>Last Name is Required</NormalText>:<NormalText>(*) Enter Last Name</NormalText>}
-                        <TextInput value={this.state.LastName} style={ {...styles.Input,...{width:'100%'}}} onChangeText={(e)=>this.setState({LastName:e},()=>this.setState({isLastNameEmpty:false}))} placeholder="Last Name" placeholderTextColor="#BAC1C9"  />
+                        {this.state.isLastNameEmpty ? 
+                            <NormalText style={{color:'#ff6961'}}>Last Name is Required</NormalText>
+                            :
+                            <NormalText>(*) Enter Last Name</NormalText>
+                        }
+                        <TextInput 
+                            value={this.state.LastName} 
+                            style={ {...styles.Input,...{width:'100%'}}} 
+                            onChangeText={(e)=>this.setState({LastName:e},()=>this.setState({isLastNameEmpty:false}))} 
+                            placeholder="Last Name" 
+                            placeholderTextColor="#BAC1C9"  />
                     </View>
+
                 </View>
+
                 <View style={styles.FLContainer}>
                     {this.props.PrevPage === "Avatar" ?  
-                    <View style={{width:'48%',marginRight:10}}>
-                    {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:this.state.isPasswordEmpty ? <NormalText style={{color:'#ff6961'}}>Passwords Cannot be Blank</NormalText>:<NormalText>(*) Enter Password</NormalText>}
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({Password:e},()=>this.setState({PasswordMatch:true}))} placeholder="Enter Password"  placeholderTextColor="#BAC1C9"  />
-                    </View>:null}
+                        <View style={{width:'48%',marginRight:10}}>
+                        {!this.state.PasswordMatch ? 
+                            <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>
+                            :
+                            this.state.isPasswordEmpty ? 
+                            <NormalText style={{color:'#ff6961'}}>Passwords Cannot be Blank</NormalText>
+                            :
+                            <NormalText>(*) Enter Password</NormalText>
+                        }
+                        
+                        <TextInput 
+                            style={ {...styles.Input,...{width:'100%'}}} 
+                            secureTextEntry={true} 
+                            onChangeText={(e)=>this.setState({Password:e},()=>this.setState({PasswordMatch:true}))} 
+                            placeholder="Enter Password"  
+                            placeholderTextColor="#BAC1C9" />
+                        </View>:null}
+
                     {this.props.PrevPage === "Avatar" ? 
-                    <View style={{width:'48%'}}>
-                    {!this.state.PasswordMatch ? <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>:<NormalText>(*) Re-Enter Password</NormalText>}
-                        <TextInput style={ {...styles.Input,...{width:'100%'}}} secureTextEntry={true} onChangeText={(e)=>this.setState({ConfirmPassword:e},()=>this.setState({PasswordMatch:true}))} placeholder="Re-Enter Password" placeholderTextColor="#BAC1C9"  />
-                    </View>:null}
+                        <View style={{width:'48%'}}>
+                        {!this.state.PasswordMatch ? 
+                            <NormalText style={{color:'#ff6961'}}>Passwords Did Not Match</NormalText>
+                            :
+                            <NormalText>(*) Re-Enter Password</NormalText>
+                        }
+                        
+                        <TextInput 
+                            style={ {...styles.Input,...{width:'100%'}}} 
+                            secureTextEntry={true} 
+                            onChangeText={(e)=>this.setState({ConfirmPassword:e},()=>this.setState({PasswordMatch:true}))} 
+                            placeholder="Re-Enter Password" 
+                            placeholderTextColor="#BAC1C9"  />
+                    </View>
+                    :
+                    null}
                 </View>
+
                 <View style={styles.ButtonContainer}>
-                    <TouchableOpacity onPress={()=>this.onProceed()} style={{width:300,alignItems:'center'}}>
-                        <SinglePlayer style={{width:125,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={20}>
+                    <TouchableOpacity 
+                        onPress={()=>this.onProceed()} 
+                        style={styles.ProceedButtonContainer}>
+                        
+                        <SinglePlayer 
+                            style={styles.ProceedButton} 
+                            FlexDirection="row" 
+                            icon='chevron-right' 
+                            iconSize={20}>
                             <NormalText style={{fontSize:18}}>Proceed</NormalText>
                         </SinglePlayer>
                     </TouchableOpacity>
@@ -392,8 +445,18 @@ const styles=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         elevation:1
+    },
+    ProceedButton:{
+        width:125,
+        flexDirection:'row'
+    },
+    ProceedButtonContainer:{
+        width:300,
+        alignItems:'center'
     }
 })
+
+
 const mapStateToProps= state =>{
     return{
         FB:state.FB.FBDetails,
@@ -412,5 +475,3 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(ProfileDetails);
-
-// export default ProfileDetails

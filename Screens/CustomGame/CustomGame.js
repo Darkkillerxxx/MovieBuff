@@ -5,8 +5,6 @@ import AppContainer from '../../Components/AppContainer';
 import BoldText from '../../Components/BoldText';
 import {Checkbox} from 'react-native-paper'
 import NormalText from '../../Components/NormalText';
-import * as Progress from 'react-native-progress';
-import NextButton from '../../Components/NextButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux'
 import {BollyWood,HollyWood,Mixed,getQuestions} from '../../Utils/api'
@@ -28,7 +26,6 @@ class CustomGame extends React.Component{
     }
 
     componentDidMount(){
-        console.log("SP Redux 2",this.props.SP)
         if(this.props.SP.Region.includes(1) && this.props.SP.Region.includes(2))
         {
             this.setState({Region:Mixed})
@@ -78,10 +75,6 @@ class CustomGame extends React.Component{
                    },1500)
                   
                }
-               else
-               {
-                  
-               }
            }) 
         }
     }
@@ -101,26 +94,35 @@ class CustomGame extends React.Component{
 
     RegionCard=(itemData)=>{
        return(
-        <View style={{...style.ModalButton,...{width:'50%',height:150}}}>
-            <ImageBackground style={style.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
+        <View 
+            style={{...style.ModalButton,...{width:'50%',height:150}}}>
+            
+            <ImageBackground 
+                style={style.ModalButtonImage} 
+                imageStyle={{borderRadius:10}} 
+                source={require('../../assets/ModalButton.png')}>
+
                 <View style={style.TiltImageContainer}>
-                    <Image  source={{uri:itemData.item.Url1}} style={style.TiltImageLeft}/>
-                    <Image  source={{uri:itemData.item.Url2}} style={style.TiltImageRight}/>
+                    <Image 
+                        source={{uri:itemData.item.Url1}} 
+                        style={style.TiltImageLeft}/>
+                    <Image 
+                        source={{uri:itemData.item.Url2}} 
+                        style={style.TiltImageRight}/>
                 </View>
-                <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+
+                <View 
+                    style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+                
                 <Checkbox
-                status={itemData.item.Checked ? "checked":"unchecked"}
-                onPress={()=>this.selectUnselectEra(itemData.item.id)}
-                uncheckedColor="white"
-                disabled={!this.state.CustomSelection}/>
+                    status={itemData.item.Checked ? "checked":"unchecked"}
+                    onPress={()=>this.selectUnselectEra(itemData.item.id)}
+                    uncheckedColor="white"
+                    disabled={!this.state.CustomSelection}/>
                 <NormalText style={style.NormalText}>{itemData.item.Name}</NormalText>
                 </View>
                 
             </ImageBackground>
-           
-            {/* <View style={style.ProgressBarContianer}>
-                <Progress.Bar borderColor="#11233A" unfilledColor="#11233A" color="#59D654" progress={0.1} width={120}/>  
-            </View> */}
         </View>
        )
     }
@@ -132,21 +134,35 @@ class CustomGame extends React.Component{
                 <BoldText style={style.BoldText}>Select Era</BoldText>
                 <View style={style.ChooseContainer}>
                   
-                    <View  style={{width:'50%'}}>
-                        <TouchableOpacity style={{width:'100%'}} onPress={()=>this.changeSelectionType(false)}>
-                            <View style={{...style.ModalButton,...{borderColor:`${!this.state.CustomSelection ? "#FED31F":"#4B0E88"}`}}}>
-                                <ImageBackground style={style.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                    <NormalText style={{fontSize:18}}>Random Selection</NormalText>
+                    <View style={{width:'50%'}}>
+                        <TouchableOpacity 
+                            style={{width:'100%'}} 
+                            onPress={()=>this.changeSelectionType(false)}>
+                            
+                            <View 
+                                style={{...style.ModalButton,...{borderColor:`${!this.state.CustomSelection ? "#FED31F":"#4B0E88"}`}}}>
+                                <ImageBackground 
+                                    style={style.ModalButtonImage} 
+                                    imageStyle={{borderRadius:10}} 
+                                    source={require('../../assets/ModalButton.png')}>
+                                        <NormalText style={{fontSize:18}}>Random Selection</NormalText>
                                 </ImageBackground>
                             </View>
                         </TouchableOpacity>
                     </View>
 
                     <View  style={{width:'50%'}}>
-                        <TouchableOpacity style={{width:'100%'}} onPress={()=>this.changeSelectionType(true)}>
-                            <View style={{...style.ModalButton,...{borderColor:`${this.state.CustomSelection ? "#FED31F":"#4B0E88"}`}}}>
-                                <ImageBackground style={style.ModalButtonImage} imageStyle={{borderRadius:10}} source={require('../../assets/ModalButton.png')}>
-                                    <NormalText style={{fontSize:18}}>Custom Selection</NormalText>
+                        <TouchableOpacity 
+                            style={{width:'100%'}} 
+                            onPress={()=>this.changeSelectionType(true)}>
+                            
+                            <View 
+                                style={{...style.ModalButton,...{borderColor:`${this.state.CustomSelection ? "#FED31F":"#4B0E88"}`}}}>
+                                <ImageBackground 
+                                    style={style.ModalButtonImage} 
+                                    imageStyle={{borderRadius:10}} 
+                                    source={require('../../assets/ModalButton.png')}>
+                                        <NormalText style={{fontSize:18}}>Custom Selection</NormalText>
                                 </ImageBackground>
                             </View>
                         </TouchableOpacity>
@@ -162,17 +178,30 @@ class CustomGame extends React.Component{
                
                 <View style={style.RegionView}>
                     {this.state.Region.length > 0 ? 
-                    <FlatList extraData={this.state.RefreshFlatList} data={this.state.Region} renderItem={this.RegionCard} numColumns={2}/>:null}
+                        <FlatList 
+                            extraData={this.state.RefreshFlatList} 
+                            data={this.state.Region} 
+                            renderItem={this.RegionCard} 
+                            numColumns={2}/>
+                            :
+                            null}
                 </View>
-                        <View style={{width:'100%',alignItems:'center'}}>
-                        <TouchableOpacity style={{width:200,height:100}} onPress={()=>this.getQuestions()}>
-                            <View style={{width:'100%',flex:1,borderColor:'white',alignItems:'center',justifyContent:'center'}}>
-                                <SinglePlayer style={{width:125,height:70,alignItems:'center'}} icon={"arrow-right"}  iconSize={20}>
-                                    <NormalText style={{fontSize:20}}>Proceed</NormalText>
-                                </SinglePlayer>
-                            </View>
-                        </TouchableOpacity>
-
+                        <View 
+                            style={{width:'100%',alignItems:'center'}}>
+                            <TouchableOpacity 
+                                style={{width:200,height:100}} 
+                                onPress={()=>this.getQuestions()}>
+                                
+                                <View 
+                                    style={{width:'100%',flex:1,borderColor:'white',alignItems:'center',justifyContent:'center'}}>
+                                    <SinglePlayer 
+                                        style={{width:125,height:70,alignItems:'center'}} 
+                                        icon={"arrow-right"}  
+                                        iconSize={20}>
+                                        <NormalText style={{fontSize:20}}>Proceed</NormalText>
+                                    </SinglePlayer>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     
                 <Modal isVisible={this.state.isLoading}>

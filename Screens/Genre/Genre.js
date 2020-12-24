@@ -5,7 +5,6 @@ import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText';
 import NormalText from '../../Components/NormalText';
 import { FlatList } from 'react-native-gesture-handler';
-import NextButton from '../../Components/NextButton';
 import {setFB, setLogin} from '../../Store/Actions/ActionJoin'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
 import { connect }from 'react-redux'

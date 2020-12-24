@@ -4,18 +4,16 @@ import { StyleSheet,View,Text, Image,ScrollView,TouchableOpacity, ToastAndroid,A
 import Modal from 'react-native-modal';
 import NormalText from '../../Components/NormalText';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import BriefInfo2 from '../../Components/BriefInfo2';
 import Options from '../../Components/Options'
-import Levelup from '../../Components/Modals/LevelUp'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
-import {getResult,login} from '../../Utils/api'
+import {getResult,login,LevelCoins} from '../../Utils/api'
 import {setDashboard} from '../../Store/Actions/ActionDashboard'
-import CustomButton from '../../Components/CustomButton'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
 import { Audio } from 'expo-av';
+import {checkAnswer,calcTimerValue,ChAns} from '../../Utils/common'
 
 import {
     AdMobBanner,setTestDeviceIDAsync,AdMobInterstitial
@@ -60,7 +58,10 @@ class SPGameScreen extends React.Component{
             EarnedCoins:0,
             back:false,
             DimensionsHeight:0,
-            CoinDimension:0,
+            CoinDimensionY:0,
+            TrunksDimensionY:0,
+            CoinsDimensionX:0,
+            TrunksDimensionX:0,
             StartCoinAnimation:false,
             ShowZoomAnimation:false,
             ShowImageAnimation:false,
@@ -125,25 +126,7 @@ class SPGameScreen extends React.Component{
    
 
     checkAnswer=(id,step)=>{
-       if(this.state.SelectedOptions === this.state.Questions[this.state.SelectedQuestion].options[id].Id)
-       {
-           if(step === 0)
-           {
-               return true
-           }
-        if(this.state.Questions[this.state.SelectedQuestion].options[id].Id === 4)
-        {
-            return true
-        }
-        else
-        {
-            return false
-        }
-       }
-       else
-       {
-            return false
-       }
+       return ChAns(id,step,this.state.SelectedOptions,this.state.Questions[this.state.SelectedQuestion].options[id].Id)
     }
 
     cangeModalType=(type)=>{
@@ -153,7 +136,6 @@ class SPGameScreen extends React.Component{
             FacebookId:this.props.Dashboard.FbId,
             Password:this.props.Dashboard.Password
          }
-
          console.log("Login Payload",SignInPayload)
 
          login(SignInPayload).then(result=>{
@@ -170,15 +152,13 @@ class SPGameScreen extends React.Component{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
                 this.props.onSetDashboard(TempDashboard)
-                this.props.navigation.navigate('Dashboard')
+                this.setState({Timer:0},()=>{
+                    this.props.navigation.navigate('Dashboard')
+                })
+               
              }
          })
 
-    }
-
-    calcTimerValue=()=>{
-        let TimerValue=this.state.Timer/this.state.TimeAloted * 100
-        this.setState({TimerValue:parseInt(TimerValue)})
     }
 
     SkipQuestion=()=>{
@@ -218,7 +198,7 @@ class SPGameScreen extends React.Component{
              if(this.state.Timer > 0 && this.state.ImageLoaded)
              {
                 this.setState({Timer:this.state.Timer-1},()=>{
-                    this.calcTimerValue()
+                    this.setState({TimerValue:calcTimerValue(this.state.Timer,this.state.TimeAloted)})
                     if(this.state.Timer === 0)
                     {
                        this.SkipQuestion()
@@ -278,9 +258,6 @@ class SPGameScreen extends React.Component{
       }
 
     componentDidMount=()=>{
-        BackHandler.addEventListener('hardwareBackPress', ()=>{
-            console.log("Back Pressed")
-        });
         console.log("Dashboard",this.props.Dashboard)
         this.props.SPQuestions.forEach(element => {
                 element.options = this.shuffle(element.options)
@@ -293,11 +270,6 @@ class SPGameScreen extends React.Component{
 
             // console.log("Dimensions",this.state.Dimensions)
         
-    }
-
-    componentWillUnmount()
-    {
-        BackHandler.removeEventListener('hardwareBackPress', ()=>{});
     }
 
     MoveToNextQuestion=()=>{
@@ -359,9 +331,12 @@ class SPGameScreen extends React.Component{
                     {
                         this.setState({Timer:0})
                         console.log(this.state.CorrectAns,this.state.AnsPayload)
-                        this.setState({StartCoinAnimation:false})
-                        this.setState({ShowImageAnimation:false})
-                        this.fetchResult()
+                        setTimeout(()=>{
+                            this.setState({StartCoinAnimation:false})
+                            this.setState({ShowImageAnimation:false})
+                            this.fetchResult()      
+                        },2000)
+                      
                     }
                 })
             })
@@ -374,7 +349,6 @@ class SPGameScreen extends React.Component{
         this.setState({SelectedQuestion:this.state.Questions.length - 1},()=>{
             this.setState({Timer:0})
         })
-     
     }
 
     QuitGame=()=>{
@@ -392,6 +366,11 @@ class SPGameScreen extends React.Component{
             { cancelable: false });
     }
 
+    onCoinsAdd=()=>{
+       let Coins = LevelCoins[parseInt(this.props.Dashboard.Level - 1)]    
+       this.setState({EarnedCoins:this.state.EarnedCoins + Coins})
+    }
+
 
     render()
     {
@@ -403,9 +382,21 @@ class SPGameScreen extends React.Component{
                             <View style={{width:'25%',backgroundColor:'#11233A',justifyContent:'center',alignItems:'center'}}>
                               
                                 <View style={{width:"60%",alignItems:'center',borderRadius:10,padding:5}}>
-                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.setState({EarnedCoins:this.state.EarnedCoins + 10})} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
-                                        <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
-                                        <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
+                                    <Animatable.View animation={this.state.ShowZoomAnimation ? ZoomAnimation:""} onAnimationBegin={()=>this.onCoinsAdd()} onAnimationEnd={()=>this.setState({ShowZoomAnimation:false})}>
+                                        <View onLayout={event=>{
+                                                if(this.trunks)
+                                                {
+                                                    this.trunks.measure((x, y, width, height, pageX, pageY)=>{
+                                                        this.setState({TrunksDimensionY:parseInt(pageY)})
+                                                        console.log("PageX",pageX)
+                                                        this.setState({TrunksDimensionX:parseInt(pageX)})
+                                                    })
+                                                }
+                                            }} 
+                                            ref={view => {this.trunks =view}} >
+                                            <Image source={require('../../assets/TreasureBox.png')} style={{width:40,height:40,marginBottom:0,resizeMode:'stretch'}}></Image>
+                                            <NormalText style={{textAlign:'center'}}>{this.state.EarnedCoins}</NormalText>
+                                        </View>
                                     </Animatable.View>
                                 </View>
                             </View>
@@ -479,28 +470,48 @@ class SPGameScreen extends React.Component{
                             </View>
                             {this.state.Questions.length > 0 ? 
                         
-                            <View 
-                                onLayout={event=>{
-                                    const layout = event.nativeEvent.layout;
-                                    console.log('height:', layout.height);
-                                    console.log('width:', layout.width);
-                                    console.log('x:', layout.x);
-                                    console.log('y:', layout.y);
-                                    this.setState({CoinDimension:layout.y},()=>{
-                                        console.log(this.state.CoinDimension)
+                            <View style={{justifyContent:'center',alignItems:'center'}} onLayout={event=>{
+                                if(this.val)
+                                {
+                                    this.val.measure((x, y, width, height, pageX, pageY)=>{
+                                        this.setState({CoinDimensionY:pageY})
+                                        console.log("CoinsDimensionX",pageX)
+                                        this.setState({CoinsDimensionX:pageX})
                                     })
-                                    this.setState({DimensionsHeight:layout.height})
-                                }} 
+                                }
+                            }} 
                                 ref={view => {this.val =view}}>
                                 <View style={{width:'100%',height:50,position:'absolute',alignItems:'flex-start',paddingHorizontal:17}}>
                                     
                                     {this.state.StartCoinAnimation ?
                                     <View>
                                         <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: { translateY: - this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension),opacity:0.4 },
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY:this.state.TrunksDimensionY - this.state.CoinDimensionY - 100,opacity:0.4},
                                         }}
-                                        duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        duration={1000} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
+                                        
+                                        <Animatable.Image animation={{
+                                            from: {
+                                                rotateX: this.state.back ? '0deg' : '180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },
+                                            to: {
+                                                rotateX: this.state.back ? '360deg' : '-180deg',
+                                                rotate: !this.state.back ? '180deg' : '0deg',
+                                            },}} 
+                                            source={require('../../assets/coins2.png')}
+                                            duration={200} 
+                                            iterationCount="infinite" 
+                                            direction="alternate"  
+                                            style={{width:20,height:20,resizeMode:'stretch'}}/>
+                                            
+                                    </Animatable.View>
+                                   <Animatable.View animation={{
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 110,opacity:0.4 },
+                                        }}
+                                        duration={1000} delay={50} interationCount={3} useNativeDriver={true} >
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -519,10 +530,10 @@ class SPGameScreen extends React.Component{
                                             
                                     </Animatable.View>
                                     <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 20),opacity:0.3 },
+                                            from: { translateX:0,translateY:0,opacity:1},
+                                            to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 120,opacity:0.4 },
                                         }}
-                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>this.setState({ShowZoomAnimation:true})}>
+                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -539,32 +550,14 @@ class SPGameScreen extends React.Component{
                                             direction="alternate"  
                                             style={{width:20,height:20,resizeMode:'stretch'}}/>
                                             
-                                    </Animatable.View>
-                                    <Animatable.View animation={{
-                                            from: { translateY:0,opacity:1},
-                                            to: { translateY: (- this.state.CoinDimension - (this.state.DimensionsHeight - this.state.CoinDimension) - 30),opacity:0.2 },
-                                        }}
-                                        duration={1000} delay={120} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
-                                        
-                                        <Animatable.Image animation={{
-                                            from: {
-                                                rotateX: this.state.back ? '0deg' : '180deg',
-                                                rotate: !this.state.back ? '180deg' : '0deg',
-                                            },
-                                            to: {
-                                                rotateX: this.state.back ? '360deg' : '-180deg',
-                                                rotate: !this.state.back ? '180deg' : '0deg',
-                                            },}} 
-                                            source={require('../../assets/coins2.png')}
-                                            duration={200} 
-                                            iterationCount="infinite" 
-                                            direction="alternate"  
-                                            style={{width:20,height:20,resizeMode:'stretch'}}/>
-                                            
-                                    </Animatable.View>
-                                   </View>:null }
-                                   
+                                    </Animatable.View> 
+                                   </View>:null } 
                                 </View>
+
+                                <View style={style.QContainer}>
+                                    <NormalText>{this.state.Questions[this.state.SelectedQuestion].Qname}</NormalText>
+                                </View>
+
                                 <Animatable.View animation={this.state.HasSelected ? this.checkAnswer(0,0) ? this.checkAnswer(0,1) ? "pulse":"wobble":"":"bounceInLeft"} delay={100}>
                                     <TouchableOpacity 
                                         disabled={this.state.OptionsDisabled} 
@@ -612,9 +605,6 @@ class SPGameScreen extends React.Component{
                             </View>:null}
                         </View>
                     </View>  
-                    <Modal isVisible={this.state.ModalType === "Level" ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
-                        <Levelup changeModal={this.cangeModalType}/>
-                    </Modal> 
 
                     <Modal isVisible={this.state.Result.length > 0 ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
@@ -692,19 +682,19 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         width:'100%',
-        height:Dimensions.get('window').height < 670 ? 170 : 205,
+        height:Dimensions.get('window').height < 670 ? 170 : 215,
         marginVertical:10
     },
     Pic1:{
         height:'100%',
-        width:Dimensions.get('window').height < 670 ? 185 : 205,
+        width:Dimensions.get('window').height < 670 ? 185 : 185,
         borderRadius:10,
         overflow:'hidden',
         elevation:1
     },
     Pic2:{
         height:'90%',
-        width:Dimensions.get('window').height < 670 ? 170 : 190,
+        width:Dimensions.get('window').height < 670 ? 170 : 170,
         marginLeft:-155,
         borderRadius:10,
         overflow:'hidden',
@@ -713,7 +703,7 @@ const style=StyleSheet.create({
     },
     Pic3:{
         height:'80%',
-        width:Dimensions.get('window').height < 670 ? 140 : 160,
+        width:Dimensions.get('window').height < 670 ? 140 : 145,
         marginLeft:-135,
         borderRadius:10,
         overflow:'hidden',
@@ -721,9 +711,9 @@ const style=StyleSheet.create({
         elevation:1
     },
     Pic:{
-        height:'110%',
-        width:210,
-        resizeMode:'stretch'
+        height:'100%',
+        width:200,
+        resizeMode:'cover'
     },
     QuestionContainer:{
         width:'100%',
@@ -751,6 +741,11 @@ const style=StyleSheet.create({
         justifyContent:'center',
         alignSelf:'stretch',
         marginTop:10
+    },
+    QContainer:{
+        marginVertical:5,
+        justifyContent:'center',
+        alignItems:'center'
     }
     
 })
@@ -773,13 +768,3 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(SPGameScreen);
-
-
- {/* <View style={{width:65,height:'100%',position:'absolute',alignItems:'center',justifyContent:'flex-start',zIndex:10}}>
-                            <Image source={require('../../assets/Temp/User1.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User2.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User3.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User4.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User5.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                            <Image source={require('../../assets/Temp/User6.png')} style={{height:50,width:50,marginVertical:5}}></Image>
-                        </View> */}

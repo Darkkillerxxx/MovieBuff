@@ -1,5 +1,5 @@
 import React from 'react'
-import {View,Image, StyleSheet,TouchableOpacity,TouchableWithoutFeedback, ImageBackground} from 'react-native'
+import {View,Image, StyleSheet,TouchableOpacity,TouchableWithoutFeedback, ImageBackground,Linking} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from '../NormalText'
 import SinglePlayer from '../SinglePlayerBtn'
@@ -12,12 +12,13 @@ class CustomModal extends React.Component{
         super()
         this.state={
             Part:1,
-            ErrorCode:0
+            ErrorCode:0,
+            Reports:[]
         }
     }
 
     changeParts=()=>{
-        if(this.props.Type === "SP")
+        if(this.props.Type === "SP" )
         {
             if(this.state.Part === 1)
             {
@@ -29,7 +30,7 @@ class CustomModal extends React.Component{
                 {
                     this.setState({ErrorCode:1})
                 }
-        }
+            }
             else
             {
                 this.props.ProceedToCustom()
@@ -39,15 +40,75 @@ class CustomModal extends React.Component{
         {
             this.props.DismissModal()
         }
+        else if(this.props.Type === "Result" ||this.props.Type === "MPResult")
+        {   
+            this.props.changeModal(null)
+        }
         else
         {
             this.props.changeModal("Level")
         }
        
     }
+
+    componentDidMount()
+    {
+        if(this.props.Report)
+        {
+            this.setState({Reports:this.props.Report})
+        }
+    }
     
     render()
     {
+
+    let ShowStandings=this.state.Reports.map((result,index)=>{
+        return(
+            <View key={index}  style={{flexDirection:'row',paddingHorizontal:5,marginVertical:5}}>
+            <View style={{width:'25%'}}>
+            <View style={{borderRadius:100,width:50,overflow:'hidden'}}>
+                <Image source={{uri:result.ImgUrl}} style={{width:50,height:50}}/>
+            </View>
+            </View>
+        
+            <View style={{flexDirection:'row',alignItems:'center',width:'65%'}}>
+            <View style={{width:'100%'}}>
+                <NormalText>{result.ScreenName}</NormalText>
+                <View style={{flexDirection:'row',marginTop:5}}>
+                    <View style={{width:'20%',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',marginRight:5}}>
+                        <Image source={require('../../assets/correct.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {result.CorrectAnswered} </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/wrong.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {10 - result.CorrectAnswered} </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/timer.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {result.avgtime} </NormalText>
+                    </View>
+                    <View style={{width:'20%',flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginRight:5}}>
+                        <Image source={require('../../assets/coins.png')} style={{width:15,height:15}}></Image>
+                        <NormalText> {result.coins} </NormalText>
+                    </View> 
+                </View>
+            </View>
+            </View>   
+            <View style={{flexDirection:'row',width:'10%',justifyContent:'center',alignItems:'center'}}>
+                <View style={{justifyContent:'center',width:'50%',alignItems:'center'}}>
+                    {index === 0 ? 
+                        <Image source={require('../../assets/Gold.png')} style={{width:30,height:30}}></Image>:
+                    index === 1 ?
+                        <Image source={require('../../assets/Silver.png')} style={{width:30,height:30}}></Image>:
+                    index === 3 ? 
+                        <Image source={require('../../assets/Bronze.png')} style={{width:30,height:30}}></Image>:null
+                    }
+                    
+                </View>
+            </View>                                     
+        </View>
+        )
+    })    
     return(
         <View style={{justifyContent:'center'}}>
             <View style={styles.Modal}>
@@ -58,11 +119,12 @@ class CustomModal extends React.Component{
                                 <View style={{width:'100%',height:'60%',alignItems:'center',justifyContent:'center'}}>
                                     <NormalText style={{fontSize:18,fontFamily:'Roboto-bold'}}>
                                         {this.props.Type === "SP" ? 
-                                        "Choose Game":this.props.Type === "Result" ?
+                                        "Choose Game":this.props.Type === "Result" || this.props.Type === "MPResult" ?
                                          "Result":this.props.Type === "Opt" ?
                                           "Options":this.props.Type === "Reward" ?
                                           "Reward":this.props.Type === "Insuff" ? 
-                                          "Insufficient Balance":<View></View>}</NormalText>
+                                          "Insufficient Balance":
+                                          <View></View>}</NormalText>
                                 </View>
                             </ImageBackground>
                             {this.props.Type === "SP" ?
@@ -229,9 +291,21 @@ class CustomModal extends React.Component{
                                 </View>:
                                 this.props.Type === "Opt" ?
                                  <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
-                                    <NormalText style={{fontSize:20,marginVertical:10}}>Help</NormalText>
-                                    <TouchableOpacity onPress={()=>this.props.Logout()}>
-                                        <NormalText style={{fontSize:20,marginVertical:10}}>Logout</NormalText>    
+                                    
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>{}}>
+                                        <FontAwesome  name="question" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Help</NormalText>    
+                                    </TouchableOpacity>
+                                    
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>Linking.openURL(`https://wa.me?text=Hey Come Checkout This Awesome Game Called FilmyBuzz.
+                                                                                                                                    Here is the Link : https://play.google.com/store/apps/details?id=com.naxbit.moviebuff`)}>
+                                        <FontAwesome  name="share" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Share</NormalText>    
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}} onPress={()=>this.props.Logout()}>
+                                        <FontAwesome  name="sign-out" size={20} color="white" />
+                                        <NormalText style={{fontSize:20,margin:10}}>Logout</NormalText>    
                                     </TouchableOpacity>
                                     
                                  </View>:
@@ -244,7 +318,10 @@ class CustomModal extends React.Component{
                                             </ImageBackground>
                                         </View>
                                  :
-                                 <View></View>
+                                 <View style={{width:'100%',height:250,alignItems:'center',justifyContent:'center'}}>
+                                     {ShowStandings}
+                                  
+                                 </View>
                             }
                            
                            

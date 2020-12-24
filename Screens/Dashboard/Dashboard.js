@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ScrollView,ToastAndroid,Alert,Dimensions } from 'react-native'
+import { View, StyleSheet,Image,TouchableOpacity,BackHandler,ToastAndroid,Alert,Dimensions } from 'react-native'
+import {NavigationActions} from 'react-navigation'
 import Modal from 'react-native-modal';
 import AppContainer from '../../Components/AppContainer';
 import NormalText from '../../Components/NormalText';
@@ -21,6 +22,7 @@ import * as StoreReview from 'expo-store-review';
 import {
     AdMobRewarded
   } from 'expo-ads-admob';
+
 
 class Dashboard extends React.Component{
     
@@ -47,17 +49,15 @@ class Dashboard extends React.Component{
             RewardUserVideo:false,
             isLoading:false,
             LoadingText:null,
-            ScreenHeight:Dimensions.get('window').height
+            ScreenHeight:Dimensions.get('window').height,
+            LobbyId:""
         }
-        
+
+      
     }
 
     setSPNoQuestions=(ques)=>{
         this.setState({SPNoQuestions:ques})
-    }
-
-    onBackPress=()=>{
-        console.log("Back Pressed")
     }
     
     setSpRegion=(id)=>{
@@ -98,8 +98,13 @@ class Dashboard extends React.Component{
        })
     }
 
-    DismissSpModal=()=>{
+    DismissSPMPModal=()=>{
         this.setState({ShowModalSP:false})
+        this.setState({ShowModalMP:false})
+    }
+
+    changeLobbyId=()=>{
+        this.setState({LobbyId:"abc"})
     }
 
     onProceedToCustom=()=>{
@@ -128,6 +133,12 @@ class Dashboard extends React.Component{
 
     DismissSettingsModal=()=>{
         this.setState({ShowSettings:false})
+    }
+
+    onProceedToMPGame=(Id,isHost)=>{
+        this.setState({ShowModalMP:false})
+        console.log("DB",Id,isHost)
+        this.props.navigation.replace('GameScreenMP',{RoomID:Id,Host:isHost ? true : false})
     }
 
     onLBPressed=()=>{
@@ -166,17 +177,12 @@ class Dashboard extends React.Component{
             "Debit":"False"                                                                                                                                                      
         }
 
-        console.log("Sending Payload form Adreward Video",payload)
-
         AddCoins(payload).then((result)=>{
             if(result.IsSuccess)
             {
                 this.setState({isLoading:false},()=>{
-                    this.setState({ShowRewardModal:true},()=>{
-                        // this.setState({RewardUserVideo:false})
-                    })
+                    this.setState({ShowRewardModal:true})
                 })
-                
             }
         })
     }
@@ -190,7 +196,6 @@ class Dashboard extends React.Component{
          }  
 
          login(SignInPayload).then(result=>{
-            console.log(result) 
             if(result.IsSuccess)
              {
                  this.setState({ShowRewardModal:false})
@@ -199,7 +204,7 @@ class Dashboard extends React.Component{
                  TempDashboard.Password=this.props.Dashboard.Password
                  TempDashboard.ScreenName=this.props.Dashboard.ScreenName
                  UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                    console.log("Update",result)
+                   
                  }).catch(err=>{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
@@ -210,28 +215,24 @@ class Dashboard extends React.Component{
 
     componentDidMount()
     {
-        console.log("204",this.state.ScreenHeight)
-     
-     AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
-            console.log("Reward")
-            ToastAndroid.show("Reward",ToastAndroid.SHORT)
-            this.setState({RewardUserVideo:true})
-        })
-        
-     AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
-            console.log("Closed")
-            this.setState({LoadingText:"Fetching Your Reward"})
-            this.setState({isLoading:true},()=>{
-                if(this.state.RewardUserVideo)
-                {
-                this.rewardUser()
-                this.setState({RewardUserVideo:false})
-                }
-                else
-                {
-                    this.setState({isLoading:false})
-                }
+        AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
+                ToastAndroid.show("Reward",ToastAndroid.SHORT)
+                this.setState({RewardUserVideo:true})
             })
+        
+        AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
+                this.setState({LoadingText:"Fetching Your Reward"})
+                this.setState({isLoading:true},()=>{
+                    if(this.state.RewardUserVideo)
+                    {
+                    this.rewardUser()
+                    this.setState({RewardUserVideo:false})
+                    }
+                    else
+                    {
+                        this.setState({isLoading:false})
+                    }
+                })
         })
         
         this.FetchVideoAd()
@@ -246,13 +247,11 @@ class Dashboard extends React.Component{
         {
             if(this.props.Dashboard.isNew)
             {
-              console.log("Coins Added Successfully")
               let DashboardRedux=this.props.Dashboard;
               DashboardRedux.isNew=false
               DashboardRedux.Coins=500
               this.props.onSetDashbaord(DashboardRedux)
               UpdateUser(JSON.stringify(DashboardRedux)).then(result=>{
-                  console.log("Update",result)
                   this.setState({ShowSignUpModal:true})
               }).catch(err=>{
                    ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
@@ -261,35 +260,29 @@ class Dashboard extends React.Component{
         }
     }
 
+    componentWillUnmount() {
+        console.log("Unmount")
+        BackHandler.removeEventListener('hardwareBackPress', ()=>{
+            return true
+        })
+      }
+
     FetchVideoAd=()=>{
         FetchAds().then((result)=>{
-            if(result)
+            if(!result)
             {
-                console.log("Lock and Loaded")
-            }
-            else
-            {
-                ToastAndroid.show("Cannot Load Ads",ToastAndroid.SHORT)
             }
         })
     }
 
      componentDidUpdate(prevProps,prevState,Ss)
      {
-         console.log("Props Update Below")
-         console.log(prevProps.Dashboard.Coins,this.props.Dashboard.Coins)
          if(prevProps.Dashboard.Coins !== this.props.Dashboard.Coins || prevProps.Dashboard.GOLD !== this.props.Dashboard.GOLD 
             || prevProps.Dashboard.Silver !== this.props.Dashboard.Silver || prevProps.Dashboard.Bronze !== this.props.Dashboard.Bronze ||
             prevProps.Dashboard.Crowns !== this.props.Dashboard.Crowns )
          {
-
             this.FetchVideoAd()
-            //  console.log("Update State",this.props.Dashboard.Coins)
-            //  console.log("Update State Object",this.props.Dashboard)
-            
-            this.setState({Coins:this.props.Dashboard.Coins},()=>{
-                console.log("Daashbard Coins",this.state.DashboardCoins)
-            })
+            this.setState({Coins:this.props.Dashboard.Coins})
             this.setState({Gold:this.props.Dashboard.Gold})
             this.setState({Silver:this.props.Dashboard.Silver})
             this.setState({Bronze:this.props.Dashboard.Bronze})
@@ -315,14 +308,11 @@ class Dashboard extends React.Component{
                 "SelectedRegion":"",
                 "AvatarURL":""
             }
-            console.log("Delete User",result)
             this.props.onSetDashbaord({})
             this.props.onSetLogin(DefaultLogin)
-            console.log('Welcome')
-            this.props.navigation.replace('Welcome')
+            this.props.navigation.navigate('Start',{},NavigationActions.navigate({routeName:'Welcome'}))
 
         }).catch(err=>{
-            console.log("Error Deleting User",err)
         })
      }
 
@@ -353,18 +343,26 @@ class Dashboard extends React.Component{
                             <TouchableOpacity>
                                 
                                 <View style={styles.ProfilePic}>
-                                    <Image style={{width:'100%',height:'100%'}} source={this.state.ImgUrl !== "" ? {uri:this.state.ImgUrl}:require('../../assets/Temp/User1.png')}></Image>
+                                    <Image 
+                                        style={{width:'100%',height:'100%'}} 
+                                        source={this.state.ImgUrl !== "" ? 
+                                        {uri:this.state.ImgUrl}:
+                                        require('../../assets/Temp/User1.png')}>
+                                    </Image>
                                 </View>
                                 
-                                <NormalText style={{textAlign:'center'}}>{this.props.Dashboard.ScreenName}</NormalText>
-                            
-                            
+                                <NormalText 
+                                    style={{textAlign:'center'}}>
+                                        {this.props.Dashboard.ScreenName}
+                                </NormalText>
+
                             </TouchableOpacity>
                         </View>
                         
                         <View style={styles.BriefContainer}>
                             
-                            <View style={{width:'100%',flexDirection:'row',marginVertical:5}}>
+                            <View 
+                                style={{width:'100%',flexDirection:'row',marginVertical:5}}>
                                 
                                 <BriefInfo 
                                     style={{width:'33.33%'}} 
@@ -385,7 +383,8 @@ class Dashboard extends React.Component{
                             
                             </View>
                             
-                            <View style={{width:'100%',flexDirection:'row',marginTop:10}}>
+                            <View 
+                                style={{width:'100%',flexDirection:'row',marginTop:10}}>
                             
                                 <BriefInfo 
                                     style={{width:'33.33%'}} 
@@ -410,30 +409,45 @@ class Dashboard extends React.Component{
                             
                             {this.state.ScreenHeight < 650 ? 
                                    
-                                    <Animatable.View animation="bounce" iterationCount="infinite">
+                                    <Animatable.View 
+                                        animation="bounce" 
+                                        iterationCount="infinite">
+                                        
                                         <TouchableOpacity onPress={()=>this.RunVideoAd()}>
-                                            <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                                            <Image 
+                                                source={require('../../assets/videoDB.png')} 
+                                                style={{width:40,height:40,resizeMode:'stretch'}}/>
                                             <NormalText style={{textAlign:'center'}}>Watch</NormalText>
                                             <NormalText style={{textAlign:'center'}}>Ad</NormalText>
                                         </TouchableOpacity>    
-                                    </Animatable.View>:null
+                                    </Animatable.View>
+                                    :
+                                    null
                             }
 
                             {this.state.ScreenHeight < 650 ?     
-                                   <Animatable.View animation="tada" duration={2500} iterationCount="infinite">
+                                   <Animatable.View 
+                                        animation="tada" 
+                                        duration={2500} 
+                                        iterationCount="infinite">
                                        <TouchableOpacity onPress={()=>this.Rate()}>
-                                           <Image source={require('../../assets/star.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                                           <Image 
+                                                source={require('../../assets/star.png')} 
+                                                style={{width:40,height:40,resizeMode:'stretch'}}/>
                                            <NormalText style={{textAlign:'center'}}>Rate</NormalText>
                                            <NormalText style={{textAlign:'center'}}>Us</NormalText>
                                        </TouchableOpacity>    
-                                   </Animatable.View>:null
+                                   </Animatable.View>
+                                   :
+                                   null
                            }
                          
-
                         </View>
                         
                     <View style={styles.BackImageContainer}>
-                        <Image style={styles.BackImage} source={require('../../assets/moviebuffback.png')}/>
+                        <Image 
+                            style={styles.BackImage} 
+                            source={require('../../assets/moviebuffback.png')}/>
                     </View>
 
                 </View>
@@ -442,9 +456,14 @@ class Dashboard extends React.Component{
                     
                     <View style={styles.SPContainer}>
                         
-                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>this.setState({ShowModalSP:true})}>
+                        <TouchableOpacity 
+                            style={{width:'100%',alignItems:'center'}} 
+                            onPress={() => this.props.navigation.navigate('Levels')}>
                             
-                            <SinglePlayer style={{width:125,height:75}} icon={"user"} iconSize={20}>
+                            <SinglePlayer 
+                                style={{width:125,height:75}} 
+                                icon={"user"} 
+                                iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Single Player</NormalText>
                             </SinglePlayer>
                         
@@ -453,14 +472,16 @@ class Dashboard extends React.Component{
                     
                     <View style={styles.SPContainer}>
                         
-                        <TouchableOpacity style={{width:'100%',alignItems:'center'}} onPress={()=>ToastAndroid.show("Comming Soon",ToastAndroid.LONG)}>
+                        <TouchableOpacity 
+                            style={{width:'100%',alignItems:'center'}} 
+                            onPress={()=>this.setState({ShowModalMP:true})}>
                             
-                            <SinglePlayer style={{width:125,height:75}} icon={"users"} iconSize={20}>
+                            <SinglePlayer 
+                                style={{width:125,height:75}} 
+                                icon={"users"} 
+                                iconSize={20}>
                                 <NormalText style={styles.NormalTextSP}>Play With Friends</NormalText>
                             </SinglePlayer>
-
-                            <NormalText style={{marginTop:10,textAlign:'center',color:'yellow'}}>Comming Soon !!!</NormalText>
-
                         </TouchableOpacity>
                     
                     </View>
@@ -487,7 +508,9 @@ class Dashboard extends React.Component{
                         <TouchableOpacity onPress={()=>this.setState({ShowSettings:true})}>
                             
                             <SmallBtn>
-                                <Image style={{...styles.Podium,...{height:35,width:35}}} source={require('../../assets/Setting.png')}/>
+                                <Image 
+                                    style={{...styles.Podium,...{height:35,width:35}}} 
+                                    source={require('../../assets/Setting.png')}/>
                             </SmallBtn>
                             <NormalText style={{textAlign:'center'}}>Settings</NormalText>
                         
@@ -500,9 +523,14 @@ class Dashboard extends React.Component{
                         <TouchableOpacity onPress={()=>this.props.navigation.navigate('EarnCoins')}>
                             
                             <SmallBtn>
-                                <Image style={styles.Podium} source={require('../../assets/Treasure.png')}/>
+                                <Image 
+                                    style={styles.Podium} 
+                                    source={require('../../assets/Treasure.png')}/>
                             </SmallBtn>
-                            <NormalText style={{textAlign:'center'}}>Earn Coins</NormalText>
+                            <NormalText 
+                                style={{textAlign:'center'}}>
+                                        Earn Coins
+                            </NormalText>
 
                         </TouchableOpacity>
                    
@@ -512,10 +540,14 @@ class Dashboard extends React.Component{
 
                 <View style={styles.Footer}>
                     {this.state.ScreenHeight > 650 ? 
-                         <Animatable.View animation="bounce" iterationCount="infinite">
+                         <Animatable.View 
+                            animation="bounce" 
+                            iterationCount="infinite">
                         
                          <TouchableOpacity onPress={()=>this.RunVideoAd()}>
-                             <Image source={require('../../assets/videoDB.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                             <Image 
+                                source={require('../../assets/videoDB.png')} 
+                                style={{width:40,height:40,resizeMode:'stretch'}}/>
                              <NormalText style={{textAlign:'center'}}>Watch</NormalText>
                              <NormalText style={{textAlign:'center'}}>Ad</NormalText>
                          </TouchableOpacity>    
@@ -524,10 +556,15 @@ class Dashboard extends React.Component{
                     }
 
                     {this.state.ScreenHeight > 650 ? 
-                         <Animatable.View animation="tada" duration={2500} iterationCount="infinite">
+                         <Animatable.View 
+                            animation="tada" 
+                            duration={2500} 
+                            iterationCount="infinite">
                         
                          <TouchableOpacity onPress={()=>this.Rate() }>
-                             <Image source={require('../../assets/star.png')} style={{width:40,height:40,resizeMode:'stretch'}}/>
+                             <Image 
+                                source={require('../../assets/star.png')} 
+                                style={{width:40,height:40,resizeMode:'stretch'}}/>
                              <NormalText style={{textAlign:'center'}}>Rate</NormalText>
                              <NormalText style={{textAlign:'center'}}>us</NormalText>
                          </TouchableOpacity>    
@@ -538,26 +575,53 @@ class Dashboard extends React.Component{
                 </View>
                 {/* Modals From Here */}
 
-                    <Modal backdropColor={'black'} isVisible={this.state.ShowModalSP} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowModalSP} 
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="SP" 
                             Type="SP" 
-                            DismissModal={this.DismissSpModal} 
+                            DismissModal={this.DismissSPMPModal} 
                             SetQuestions={this.setSPNoQuestions} 
                             setRegion={this.setSpRegion} 
                             Questions={this.state.SPNoQuestions} 
                             Region={this.state.SPRegion} 
                             SetRegion={this.setSpRegion} 
-                            ProceedToCustom={this.onProceedToCustom}/>
-                    
+                            ProceedToCustom={this.onProceedToCustom}
+                            />
                     </Modal>
-    {/*                    
-                    <Modal visible={this.state.ShowModalMP} transparent={true} animationType="slide">
-                        <MPModal/>
-                    </Modal>   */}
+                       
+                    <Modal 
+                        isVisible={this.state.ShowModalMP} 
+                        coverScreen={false} backdropOpacity={0.9} 
+                        backdropColor="#1D1331" transparent={true} 
+                        animationType="slide">
+                        
+                        <MPModal 
+                            Region={this.state.SPRegion}
+                            DismissModal={this.DismissSPMPModal}
+                            setRegion={this.setSpRegion}
+                            Id={this.props.Dashboard.Id}
+                            ProfileImg={this.props.Dashboard.ImgUrl}
+                            UserName={this.props.Dashboard.ScreenName}
+                            MoveToMPGame={this.onProceedToMPGame}
+                            navigation={this.props.navigation} />
+                    </Modal>  
 
-                    <Modal backdropColor={'black'} isVisible={this.state.ShowSignUpModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        isVisible={this.state.ShowSignUpModal} 
+                        transparent={true} 
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="Reward" 
@@ -570,7 +634,14 @@ class Dashboard extends React.Component{
 
                     </Modal>
 
-                    <Modal backdropColor={'black'} isVisible={this.state.ShowInsuffModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowInsuffModal}  
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
                         
                         <CustomModal 
                             Heading="Insuff" 
@@ -582,15 +653,31 @@ class Dashboard extends React.Component{
                     
                     </Modal>
                     
-                    <Modal backdropColor={'black'} isVisible={this.state.ShowSettings} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowSettings}  
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
+                        
                         <CustomModal 
-                        Heading="Opt" 
-                        Type="Opt" 
-                        Logout={this.onLogOutPressed} 
-                        DismissModal={this.DismissSettingsModal}/>
+                            Heading="Opt" 
+                            Type="Opt" 
+                            Logout={this.onLogOutPressed} 
+                            DismissModal={this.DismissSettingsModal}/>
                     </Modal>
 
-                    <Modal backdropColor={'black'} isVisible={this.state.ShowRewardModal} transparent={true} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowRewardModal} 
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
+                        
                         <CustomModal 
                             Heading="Reward" 
                             Type="Reward" 
@@ -600,9 +687,11 @@ class Dashboard extends React.Component{
                             DismissModal={this.DismissRewardModal} />
                     </Modal>
 
-                    <Modal isVisible={this.state.isLoading}>
+                    <Modal 
+                        isVisible={this.state.isLoading}>
                         <Loader Text={this.state.LoadingText}/>
                     </Modal>
+
                 {/* Modals Ends Here      */}
             </AppContainer>
         )
@@ -679,6 +768,7 @@ const styles=StyleSheet.create({
     Container:{
         width:'100%',
         flexDirection:'row',
+        marginVertical:10
     },
     SPContainer:{
         width:'50%',
@@ -717,6 +807,7 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignSelf:'stretch',
         justifyContent:'space-between',
+        alignItems:'flex-end',
         padding:15
     }
 })
@@ -739,5 +830,3 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(Dashboard);
-
-// console.log("Dasbhoard Redux",this.props.Dashboard)

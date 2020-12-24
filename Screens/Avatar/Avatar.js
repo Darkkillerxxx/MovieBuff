@@ -1,11 +1,9 @@
 import React from 'react'
-import { View, StyleSheet,Image,FlatList,Button,TouchableOpacity } from 'react-native';
+import { View, StyleSheet,Image,FlatList,TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal'
 import AppContainer from '../../Components/AppContainer'
 import BoldText from '../../Components/BoldText'
 import NormalText from '../../Components/NormalText';
-import FacebookButton from '../../Components/FacebookButton'
-import NextButton from '../../Components/NextButton'
 import {setFB,setLogin,setPrevPage} from '../../Store/Actions/ActionJoin'
 import { connect }from 'react-redux'
 import {getAvatarList} from '../../Utils/api'
@@ -31,11 +29,7 @@ class Avatar extends React.Component{
 
     componentDidMount()
     {
-        console.log("Avatar Redux",this.props.FB)
-        console.log("Avatar Login Redux",this.props.Login)
-
         getAvatarList().then(result=>{
-            console.log("Avatar List",result)
             if(result.IsSuccess)
             {
                 this.setState({Icons:result.Data})
@@ -75,18 +69,6 @@ class Avatar extends React.Component{
         })
     }
 
-
-    miniIcon=(itemData)=>{
-        return(
-            <TouchableOpacity onPress={()=>this.onIconsSelected(itemData.item.avatar_id)}>
-                <View style={{ height:50,width:55,borderColor:`${itemData.item.avatar_id === this.state.SelectedIcon ? "#6665FF":"#1D3451"}`,borderWidth:itemData.item.avatar_id === this.state.SelectedIcon ? 1: 0,alignItems:'center',justifyContent:'center'}}>  
-                    <Image source={{uri:itemData.item.a_img_url}} style={{height:40,width:40}}/>
-                </View>
-            </TouchableOpacity>
-           
-        )
-    }
-
     onProceedClick=()=>{
         this.setState({isLoading:true})
 
@@ -106,31 +88,72 @@ class Avatar extends React.Component{
       
     }
 
+
+    miniIcon=(itemData)=>{
+        return(
+            <TouchableOpacity onPress={()=>this.onIconsSelected(itemData.item.avatar_id)}>
+                <View 
+                    style={
+                        {
+                            height:50,
+                            width:55,
+                            borderColor:`${itemData.item.avatar_id === this.state.SelectedIcon ? "#6665FF":"#1D3451"}`,
+                            borderWidth:itemData.item.avatar_id === this.state.SelectedIcon ? 1: 0,
+                            alignItems:'center',
+                            justifyContent:'center'
+                            }
+                        }>  
+                    <Image source={{uri:itemData.item.a_img_url}} style={{height:40,width:40}}/>
+                </View>
+            </TouchableOpacity>
+        )
+    }
+
     render()
     {
         return(
             <AppContainer>
                 <BoldText style={style.BoldText}>Choose Your Avatar</BoldText>
+                
                 <View style={style.AvatarContainer}>
                     {this.state.ImageBase64 !==  "" ? 
-                    <Image source={{uri: `data:image/jpeg;base64,${this.state.ImageBase64}`}} style={style.AvatarBase64} />:
-                    <Image source={{uri:this.state.Icons.length > 0 ? this.state.Icons[this.state.SelectedIcon - 1].a_img_url:null}} style={style.Avatar} />}
+                        <Image source={{uri: `data:image/jpeg;base64,${this.state.ImageBase64}`}} style={style.AvatarBase64} />:
+                        <Image 
+                            source={
+                                    {uri:this.state.Icons.length > 0 ? 
+                                    this.state.Icons[this.state.SelectedIcon - 1].a_img_url:
+                                    null}
+                                    } 
+                            style={style.Avatar} />}
                    
                     <View style={style.EditIconContainer}>
                         <TouchableOpacity onPress={()=>this.pickImage()}>
                             <FontAwesome name="pencil" size={14} color="white"/>
                         </TouchableOpacity>
                     </View>
+
                 </View>
+
                 <View style={style.MiniIconContainer}>
                     <View>
-                        <FlatList keyExtractor={(item, index) => item.avatar_id} data={this.state.Icons} renderItem={this.miniIcon} numColumns={5} />
+                        <FlatList 
+                            keyExtractor={(item, index) => item.avatar_id} 
+                            data={this.state.Icons} 
+                            renderItem={this.miniIcon} 
+                            numColumns={5} />
                     </View>
                 </View>
-               <TouchableOpacity style={{width:'100%',alignItems:'center',marginVertical:10}} onPress={()=>this.onProceedClick()}>
-                    <SinglePlayer style={{width:125,flexDirection:'row'}} FlexDirection="row" icon='chevron-right' iconSize={20}>
-                        <NormalText style={{fontSize:18}}>Proceed</NormalText>
-                    </SinglePlayer>
+
+               <TouchableOpacity 
+                    style={style.ProceedButtonContainer} 
+                    onPress={()=>this.onProceedClick()}>
+                        <SinglePlayer 
+                            style={style.ProceedButton} 
+                            FlexDirection="row" 
+                            icon='chevron-right' 
+                            iconSize={20}>
+                                <NormalText style={{fontSize:18}}>Proceed</NormalText>
+                        </SinglePlayer>
                </TouchableOpacity>
                     
                 <Modal isVisible={this.state.isLoading}>
@@ -207,6 +230,17 @@ const style=StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         elevation:1
+    },
+    ProceedButtonContainer:
+    {
+        width:'100%',
+        alignItems:'center',
+        marginVertical:10
+    },
+    ProceedButton:
+    {
+        width:125,
+        flexDirection:'row'
     }
 })
 

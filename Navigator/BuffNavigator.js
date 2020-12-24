@@ -1,5 +1,6 @@
-import { createStackNavigator,createSwitchNavigator } from 'react-navigation-stack';
-import { createAppContainer } from 'react-navigation';
+import { createStackNavigator} from 'react-navigation-stack';
+import React from 'react'
+import { createAppContainer,createSwitchNavigator } from 'react-navigation';
 import WelcomeScreen from  '../Screens/Welcome/WelcomeScreen'
 import Avatar from '../Screens/Avatar/Avatar'
 import Genre from '../Screens/Genre/Genre'
@@ -10,41 +11,53 @@ import Leaderboard from '../Screens/Leaderboard/Leaderboard'
 import EarnCoins from '../Screens/EarnCoins/EarnCoins'
 import Profile from '../Screens/Profile/Profile'
 import ProfileDetails from '../Screens/ProfileDetails/ProfileDetails'
+import GameScreenMP from '../Screens/GameScreenMP/GameScreenMP'
+import Levels from '../Screens/Levels/Levels'
 
-const BuffNavigator=createStackNavigator({
-    Welcome:{
-        screen:WelcomeScreen
-    },
-    Avatar:{
-        screen:Avatar
-    },
-    Genre:{
-        screen:Genre
-    },
-    Dashboard:{
-        screen:Dashboard
-    },
-    CustomGame:{
-        screen:CustomGame
-    },
-    SPGameScreen:{
-        screen:SPGameScreen
-    },
-    Leaderboard:{
-        screen:Leaderboard
-    },
-    EarnCoins:{
-        screen:EarnCoins
-    },
-    Profile:{
-        screen:Profile
-    },
-    ProfileDetails:{
-        screen:ProfileDetails
+const BuffSwitchNavigator=createSwitchNavigator({
+    Start:createStackNavigator({
+        Welcome:{
+            screen:WelcomeScreen
+        },
+        Avatar:{
+            screen:Avatar
+        },
+        ProfileDetails:{
+            screen:ProfileDetails
+        },
+        
+    },{
+        headerMode:'none'
+    }),
+    Game:createStackNavigator({
+        Dashboard:{
+            screen:Dashboard
+        },
+        CustomGame:{
+            screen:CustomGame
+        },
+        SPGameScreen:{
+            screen:SPGameScreen
+        },
+        Leaderboard:{
+            screen:Leaderboard
+        },
+        EarnCoins:{
+            screen:EarnCoins
+        },
+        Profile:{
+            screen:Profile
+        },
+        GameScreenMP:{
+            screen:GameScreenMP
+        },
+        Levels:{
+            screen:Levels
+        }
     }
-
-},{
-    headerMode:'none'
+    ,{
+        headerMode:'none'
+    })
 })
 
-export default createAppContainer(BuffNavigator)
+export default createAppContainer(BuffSwitchNavigator)

@@ -1,4 +1,4 @@
-const base_url="https://9gq7wxspl9.execute-api.ap-south-1.amazonaws.com/dev/"
+const base_url="https://6b5h9ucx6g.execute-api.ap-south-1.amazonaws.com/dev"
 import {ToastAndroid} from 'react-native'
 export const BollyWood=[
     {
@@ -116,6 +116,8 @@ export const Mixed=[
     }
 ]
 
+export const LevelCoins=[10,10,12,12,15,15,15,18,18,18,20,20,22,22,25,25,25,28,28,30]
+
 let Endpoints={
     checkAvailable:"/register",
     GetAvatars:"/avatar",
@@ -124,7 +126,13 @@ let Endpoints={
     GetResult:"/result",
     Login:"/login",
     AddCoins:'/earncoins',
-    Leaderboard:'/leaderBoard'
+    Leaderboard:'/leaderBoard',
+    CreateLobby:'/createRoom',
+    JoinRoom:'/joinRoom',
+    MoveToMP:'/startMultiPlayerGame',
+    EndGame:'/endGame',
+    DeleteUser:'/delete',
+    GetLevels:'/getLevels'
 }
 
 ShowErrorCodes=(status)=>{
@@ -286,6 +294,50 @@ export function GetLeaderBoard(UserId)
     let Parameters="/"+UserId
 
     return makeRequest("GET",null,Parameters,Endpoints.Leaderboard).then(result=>{
+        return result
+    })
+}
+
+export function CreateRoom(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.CreateLobby).then(result=>{
+        return result
+    })
+}
+
+export function JoinRoom(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.JoinRoom).then(result=>{
+        return result
+    })
+}
+
+export function MPGame(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.MoveToMP).then(result=>{
+        return result
+    })
+}
+
+export function EndGame(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.EndGame).then(result=>{
+        return result
+    })
+}
+
+export function DeleteUser(payload)
+{
+    return makeRequest("POST",payload,null,Endpoints.DeleteUser).then(result=>{
+        return result
+    })
+}
+
+export function GetLevels(UserId)
+{
+    let Parameters="/"+UserId
+    console.log(UserId)
+    return makeRequest("GET",null,Parameters,Endpoints.GetLevels).then(result=>{
         return result
     })
 }
