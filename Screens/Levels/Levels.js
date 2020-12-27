@@ -3,10 +3,11 @@ import { StyleSheet,View,ImageBackground,Text,Image, ScrollView,TouchableOpacity
 import Modal from 'react-native-modal'
 import { LinearGradient } from 'expo-linear-gradient';
 import NormalText from '../../Components/NormalText';
-import {GetLevels} from '../../Utils/api'
+import {GetLevels,getQuestions} from '../../Utils/api'
 import { connect } from 'react-redux'
 import Loader from '../../Components/Modals/Loader'
 import CustomModal from '../../Components/Modals/Modal'
+import { setQuestions,setGame } from '../../Store/Actions/ActionSp';
 import { FontAwesome } from '@expo/vector-icons'; 
 
 class Levels extends React.Component{
@@ -33,7 +34,7 @@ class Levels extends React.Component{
             {
                 this.setState({isLoading:false})
                 this.setState({LevelData:result.Data[0].Progress},()=>{
-                    console.log(this.state.LevelData)
+                    // console.log(this.state.LevelData)
                 })
             }
         })
@@ -48,6 +49,7 @@ class Levels extends React.Component{
     }
 
     setSpRegion=(id)=>{
+        // console.log(id)
         if(this.state.SPRegion.includes(id))
         {
             let tempRegion=this.state.SPRegion;
@@ -77,7 +79,7 @@ class Levels extends React.Component{
         }
         else
         {
-            this.props.navigation.navigate('CustomGame')
+            this.GetQuestions();
         }
         this.setState({ShowModalSP:false})
     }
@@ -85,6 +87,33 @@ class Levels extends React.Component{
     ShowModal=(Level)=>{
         this.setState({SelectedLevel:Level})
         this.setState({ShowModalSP:true})
+    }
+
+
+
+    GetQuestions=()=>{
+            this.setState({isLoading:true})
+            let payload={
+                "Region": this.props.SP.Region,
+                "noQ": this.props.SP.Questions.toString(),
+                "Level":parseInt(this.state.SelectedLevel),
+                "user_id":this.props.Dashboard.Id.toString()
+            }
+            // console.log(payload)
+           getQuestions(payload).then(result=>{
+               if(result.IsSuccess)
+               {
+                //    console.log(result)
+                   this.props.onSetQuestions(result.Data)
+                   setTimeout(()=>{
+                        this.setState({isLoading:false},()=>{
+                            this.props.navigation.navigate('SPGameScreen')
+                        })
+                   },1500)
+                  
+               }
+           }) 
+        
     }
 
     render()
@@ -101,22 +130,22 @@ class Levels extends React.Component{
                                 </View>
                             </ImageBackground>
                             
-                            <NormalText style={{fontSize:16,color:'white',marginTop:-20}}>Very Easy</NormalText>
+                            <NormalText style={{fontSize:16,color:'white',marginTop:-20}}>{result.Difficulty}</NormalText>
                     
                             <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:10,paddingHorizontal:10}}>
                                 <View style={{width:'50%'}}>
-                                    <NormalText style={{fontSize:14,color:'white'}}>IMDB : 10 - 9</NormalText>
-                                    <NormalText style={{fontSize:14,color:'white'}}>Era : 2017 - 2020</NormalText>
+                                    {/* <NormalText style={{fontSize:14,color:'white'}}>IMDB : 10 - 9</NormalText> */}
+                                    <NormalText style={{fontSize:14,color:'white'}}>Era : {result.Era}</NormalText>
                                     
                                     <View style={{width:'100%'}}>
                                         <View style={{width:'100%',flexDirection:'row',justifyContent:'space-between',marginTop:15,paddingHorizontal:10}}>
                                             <NormalText style={{fontSize:14}}>Progress</NormalText>
-                                            <NormalText style={{fontSize:14}}>{5} %</NormalText>
+                                            <NormalText style={{fontSize:14}}>{result.Progress_bar === undefined ? 0 :parseInt(result.Progress_bar)} %</NormalText>
                                         </View>
                                     <Image source={require('../../assets/progressOuter.png')} style={{width:'100%',height:25,borderWidth:1,resizeMode:'stretch',marginTop:5}}/>
                                         <View style={styles.ProgressInner}>
                                             <View style={styles.ProgressbarStrip}>
-                                                <Image source={require('../../assets/ProgressInner.png')} style={{width:'5%',height:'100%',resizeMode:'stretch'}}></Image>
+                                                <Image source={require('../../assets/ProgressInner.png')} style={{width:result.Progress_bar === undefined ? 0 : `${parseInt(result.Progress_bar)}%`,height:'100%',resizeMode:'stretch'}}></Image>
                                             </View>
                                         </View>
                                     </View>
@@ -124,7 +153,7 @@ class Levels extends React.Component{
                                 </View>
                                 <View style={{width:'50%',alignItems:'flex-end',justifyContent:'center'}}>
                                     {result.isUnlocked ? 
-                                    <TouchableOpacity onPress={()=>this.setState({ShowModalSP:true})}>
+                                    <TouchableOpacity onPress={()=>this.setState({ShowModalSP:true},()=>this.setState({SelectedLevel:result.Level}))}>
                                         <ImageBackground resizeMode="stretch" source={require('../../assets/Yellow.png')} style={{width:90,height:60,alignItems:'center',justifyContent:'center'}}>
                                             <NormalText style={{fontSize:18}}>Start</NormalText>
                                         </ImageBackground>
@@ -244,7 +273,7 @@ const styles = StyleSheet.create({
       overflow:'hidden'
     },
     ProgressbarStrip:{
-        width:'83%',
+        width:'95%',
         height:'100%',
         resizeMode:'stretch',
         overflow:'hidden'
@@ -253,12 +282,17 @@ const styles = StyleSheet.create({
 
   const mapStateToProps= state =>{
     return{
-      Dashboard:state.Dashboard.Dashboard
+      Dashboard:state.Dashboard.Dashboard,
+      SP:state.SP.GamePayload
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return{
+        onSetFB:(response)=>dispatch(setFB(response)),
+        onSetLogin:(response)=>dispatch(setLogin(response)),
+        onSetGame:(response)=>dispatch(setGame(response)),
+        onSetQuestions:(response)=>dispatch(setQuestions(response))
     }
 }
 

@@ -24,7 +24,7 @@
       "bundleIdentifier": "com.naxbit.moviebuff",
       "buildNumber": "1.0.0",
       "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3341671606021251~4788542340"
+        "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935"
       }
     },
     "android": {
@@ -35,7 +35,7 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3341671606021251~4788542340" 
+        "googleMobileAdsAppId": "ca-app-pub-7546310836693112~5253450935" 
       },
       "playStoreUrl":"https://play.google.com/store/apps/details?id=com.naxbit.moviebuff"
     }

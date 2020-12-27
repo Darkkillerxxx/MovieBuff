@@ -8,7 +8,7 @@ import Options from '../../Components/Options'
 import CustomModal from '../../Components/Modals/Modal'
 import { connect } from 'react-redux'
 import {getResult,login,LevelCoins} from '../../Utils/api'
-import {setDashboard} from '../../Store/Actions/ActionDashboard'
+import {setDashboard,setRewards} from '../../Store/Actions/ActionDashboard'
 import {UpdateUser} from '../../Database/Helper'
 import * as Animatable from 'react-native-animatable';
 import Loader from '../../Components/Modals/Loader'
@@ -56,6 +56,7 @@ class SPGameScreen extends React.Component{
             ImageLoaded:false,
             OptionsDisabled:false,
             EarnedCoins:0,
+            CurrentCoins:0,
             back:false,
             DimensionsHeight:0,
             CoinDimensionY:0,
@@ -65,7 +66,10 @@ class SPGameScreen extends React.Component{
             StartCoinAnimation:false,
             ShowZoomAnimation:false,
             ShowImageAnimation:false,
-            isLoading:false
+            isLoading:false,
+            ShowRewardModal:false,
+            ShowResultModal:false,
+            ShowHint:false
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -73,7 +77,7 @@ class SPGameScreen extends React.Component{
     }
 
     show=async()=>{
-        await AdMobInterstitial.setAdUnitID('ca-app-pub-3341671606021251/5015224314');
+        await AdMobInterstitial.setAdUnitID('ca-app-pub-7546310836693112/3281268998');
         await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: false});
     }
 
@@ -136,10 +140,10 @@ class SPGameScreen extends React.Component{
             FacebookId:this.props.Dashboard.FbId,
             Password:this.props.Dashboard.Password
          }
-         console.log("Login Payload",SignInPayload)
+        //  console.log("Login Payload",SignInPayload)
 
          login(SignInPayload).then(result=>{
-            console.log(result) 
+            // console.log(result) 
             if(result.IsSuccess)
              {
                  let TempDashboard=result.Data[0]
@@ -147,18 +151,30 @@ class SPGameScreen extends React.Component{
                  TempDashboard.Password=this.props.Dashboard.Password
                  TempDashboard.ScreenName=this.props.Dashboard.ScreenName
                  UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                    console.log("Update",result)
+                    // console.log("Update",result)
                  }).catch(err=>{
                      ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
                  })
                 this.props.onSetDashboard(TempDashboard)
                 this.setState({Timer:0},()=>{
-                    this.props.navigation.navigate('Dashboard')
+                    console.log("DidLevel",this.state.Result[0].LevelUp)
+                        if(this.state.Result[0].LevelUp)
+                        {  
+                            this.setState({ShowResultModal:false},()=>{
+                                this.setState({ShowRewardModal:true})
+                            })
+                        }
+                        else
+                        {
+                            this.DismissRewardModal();                    
+                        }
                 })
-               
              }
          })
+    }
 
+    DismissRewardModal=()=>{
+        this.props.navigation.navigate('Dashboard')
     }
 
     SkipQuestion=()=>{
@@ -167,13 +183,12 @@ class SPGameScreen extends React.Component{
             let TempReport=this.state.AnsPayload;
             TempReport.push(
                 {
-                    QID:this.state.Questions[this.state.SelectedQuestion].Qid,
+                    QID:this.state.Queestions[this.state.SelectedQuestion].Qid,
                     isCorrect:false,
                     time:this.state.TimeAloted
                 })
-    
             this.setState({AnsPayload:TempReport},()=>{
-                console.log("Timer Payload",this.state.AnsPayload)
+                // console.log("Timer Payload",this.state.AnsPayload)
                 if(this.state.SelectedQuestion + 1 < this.state.Questions.length)
                 {
                    this.MoveToNextQuestion()
@@ -187,7 +202,7 @@ class SPGameScreen extends React.Component{
         else
         {
             this.fetchResult()
-            console.log(this.state.CorrectAns,this.state.AnsPayload) 
+            // console.log(this.state.CorrectAns,this.state.AnsPayload) 
         }
     }
 
@@ -210,8 +225,7 @@ class SPGameScreen extends React.Component{
 
     fetchResult=()=>{
         this.setState({isLoading:true})
-        
-        
+           
         let payload={
             Report:this.state.AnsPayload,
             Ccount:this.state.CorrectAns,
@@ -219,23 +233,28 @@ class SPGameScreen extends React.Component{
         }
 
         getResult(payload).then(result=>{
-            console.log("Result",result)
-            ToastAndroid.show(`Result ${result.IsSuccess}`,ToastAndroid.LONG)
+            // console.log("Result",result)
+            // ToastAndroid.show(`Result ${result.IsSuccess}`,ToastAndroid.LONG)
             if(result.IsSuccess)
             {
+
                 setTimeout(()=>{
                     this.setState({isLoading:false},()=>{
                         console.log(result.Data)
-                        this.setState({Result:result.Data},()=>{
-                        let ShowInterstital=Math.random() * 10
-                        console.log("Show Ads",ShowInterstital)
-                        if(Math.floor(ShowInterstital) < 5)
-                            {
-                                setTimeout(()=>{
-                                    this.showads()
-                                },500)
-                            }
-                        })
+                            this.setState({Result:result.Data},()=>{
+                                
+                                this.setState({ShowResultModal:true},()=>{
+                                    
+                                let ShowInterstital=Math.random() * 10
+                                // console.log("Show Ads",ShowInterstital)
+                                if(Math.floor(ShowInterstital) < 5)
+                                    {
+                                        setTimeout(()=>{
+                                            this.showads()
+                                        },500)
+                                    }  
+                                })
+                            })
                     })
                 },1500)
             }
@@ -258,14 +277,15 @@ class SPGameScreen extends React.Component{
       }
 
     componentDidMount=()=>{
-        console.log("Dashboard",this.props.Dashboard)
+        // console.log("Dashboard",this.props.Dashboard)
+        this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins)})
         this.props.SPQuestions.forEach(element => {
                 element.options = this.shuffle(element.options)
         });
         this.setState({Questions:this.props.SPQuestions},()=>{
             console.log("Questions",this.state.Questions)
         })
-            this.Timer()
+            // this.Timer()
             this.show();
 
             // console.log("Dimensions",this.state.Dimensions)
@@ -291,7 +311,7 @@ class SPGameScreen extends React.Component{
     onSelectOptions=(options,id)=>{
         let TimeTaken=this.state.TimeAloted-this.state.Timer
         this.setState({ShowImageAnimation:true})
-        console.log("Id",id)
+        // console.log("Id",id)
         this.setState({ImageLoaded:false})
         if(!this.state.HasSelected)
         {
@@ -318,7 +338,7 @@ class SPGameScreen extends React.Component{
                     })
                 this.setState({OptionsDisabled:true})
                 this.setState({AnsPayload:TempReport},()=>{
-                    console.log("Normal Payload",this.state.AnsPayload)
+                    // console.log("Normal Payload",this.state.AnsPayload)
                     if(this.state.SelectedQuestion+1 < this.state.Questions.length)
                     {
                         setTimeout(()=>{
@@ -330,7 +350,7 @@ class SPGameScreen extends React.Component{
                     else
                     {
                         this.setState({Timer:0})
-                        console.log(this.state.CorrectAns,this.state.AnsPayload)
+                        // console.log(this.state.CorrectAns,this.state.AnsPayload)
                         setTimeout(()=>{
                             this.setState({StartCoinAnimation:false})
                             this.setState({ShowImageAnimation:false})
@@ -361,14 +381,19 @@ class SPGameScreen extends React.Component{
             },
             {
                 text: 'No',
-                onPress: () => console.log('Ask me later pressed')
+                onPress: () => {}
             }],
             { cancelable: false });
     }
 
     onCoinsAdd=()=>{
-       let Coins = LevelCoins[parseInt(this.props.Dashboard.Level - 1)]    
+        console.log(this.props.SP.SelectedLevel)
+       let Coins = LevelCoins[parseInt(this.props.SP.SelectedLevel - 1)]    
        this.setState({EarnedCoins:this.state.EarnedCoins + Coins})
+    }
+
+    ToggleShowHints=()=>{
+        this.setState({ShowHint:!this.state.ShowHint})
     }
 
 
@@ -388,7 +413,7 @@ class SPGameScreen extends React.Component{
                                                 {
                                                     this.trunks.measure((x, y, width, height, pageX, pageY)=>{
                                                         this.setState({TrunksDimensionY:parseInt(pageY)})
-                                                        console.log("PageX",pageX)
+                                                        // console.log("PageX",pageX)
                                                         this.setState({TrunksDimensionX:parseInt(pageX)})
                                                     })
                                                 }
@@ -445,7 +470,16 @@ class SPGameScreen extends React.Component{
                     </View> 
                     <View style={{width:'100%',flexDirection:'row'}}>
                        
-                        <View style={{width:'100%',alignItems:'center'}}>      
+                        <View style={{width:'100%',alignItems:'center'}}>
+                            <View style={{width:'100%',alignItems:'flex-start',zIndex:1,elevation:1,marginBottom:-45,flexDirection:'row'}}>
+                                <TouchableOpacity onPress={()=>this.ToggleShowHints()}>
+                                    <Animatable.Image animation="tada" iterationCount="infinite" style={{height:35,width:35,resizeMode:'contain'}} source={require('../../assets/Bell.png')}/>
+                                </TouchableOpacity>
+                                {this.state.ShowHint ? 
+                                <View style={{height:35,backgroundColor:'white',marginLeft:15,borderRadius:5,alignItems:'center',justifyContent:'center',paddingHorizontal:10}}>
+                                    <NormalText style={{color:'black'}}>This Is The Hint For This Question</NormalText>
+                                </View>:null}
+                            </View>      
                             <View style={style.PicContainer}>
                                 {
                                     this.state.Questions.length > 0 ?
@@ -465,9 +499,9 @@ class SPGameScreen extends React.Component{
                                         }
                                     </View>:
                                     null
-                                }
-                             
+                                }                             
                             </View>
+
                             {this.state.Questions.length > 0 ? 
                         
                             <View style={{justifyContent:'center',alignItems:'center'}} onLayout={event=>{
@@ -475,7 +509,7 @@ class SPGameScreen extends React.Component{
                                 {
                                     this.val.measure((x, y, width, height, pageX, pageY)=>{
                                         this.setState({CoinDimensionY:pageY})
-                                        console.log("CoinsDimensionX",pageX)
+                                        // console.log("CoinsDimensionX",pageX)
                                         this.setState({CoinsDimensionX:pageX})
                                     })
                                 }
@@ -533,7 +567,7 @@ class SPGameScreen extends React.Component{
                                             from: { translateX:0,translateY:0,opacity:1},
                                             to: { translateX:this.state.CoinsDimensionX - this.state.TrunksDimensionX + 18,translateY: this.state.TrunksDimensionY - this.state.CoinDimensionY - 120,opacity:0.4 },
                                         }}
-                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} onAnimationEnd={()=>console.log("Animation Ends")}>
+                                        duration={1000} delay={100} interationCount={3} useNativeDriver={true} >
                                         
                                         <Animatable.Image animation={{
                                             from: {
@@ -606,7 +640,7 @@ class SPGameScreen extends React.Component{
                         </View>
                     </View>  
 
-                    <Modal isVisible={this.state.Result.length > 0 ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
+                    <Modal isVisible={this.state.ShowResultModal ?  true:false} animationType="slide" style={{width:'100%',margin:'auto'}}>
                         <CustomModal Heading="Result" Type="Result" TimeAloted={this.state.TimeAloted * this.state.Questions.length} Result={this.state.Result} CorrectAns={this.state.CorrectAns} Questions={this.state.Questions} changeModal={this.cangeModalType}/>
                     </Modal>
                     
@@ -614,13 +648,31 @@ class SPGameScreen extends React.Component{
                         <View style={style.Footer}>
                             <AdMobBanner
                             bannerSize="banner"
-                            adUnitID="ca-app-pub-3341671606021251/1779235625" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
-                            onDidFailToReceiveAdWithError={(err)=>{console.log(err)}} />
+                            adUnitID="ca-app-pub-7546310836693112/5169065739" // Test ID, Replace with your-admob-unit-id ca-app-pub-7546310836693112/5169065739
+                            onDidFailToReceiveAdWithError={(err)=>{}}/>
                         </View>
                     
                 <Modal isVisible={this.state.isLoading}>
                     <Loader Text={"Fetching Results ..."}/>
-                </Modal>  
+                </Modal> 
+
+                <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowRewardModal} 
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
+                        
+                        <CustomModal 
+                            Heading="Reward" 
+                            Type="Reward" 
+                            FMsg="Woah!!!! You Have Leveled Up" 
+                            SMsg="Here Is Your Reward"
+                            Coins="100" 
+                            DismissModal={this.DismissRewardModal} />
+                </Modal> 
             </AppContainer>
            
         )
@@ -683,7 +735,9 @@ const style=StyleSheet.create({
         justifyContent:'center',
         width:'100%',
         height:Dimensions.get('window').height < 670 ? 170 : 215,
-        marginVertical:10
+        marginVertical:10,
+        zIndex:-1,
+        elevation:1
     },
     Pic1:{
         height:'100%',
@@ -754,7 +808,8 @@ const mapStateToProps= state =>{
     return{
       Dashboard:state.Dashboard.Dashboard,
       SP:state.SP.GamePayload,
-      SPQuestions:state.SP.Questions
+      SPQuestions:state.SP.Questions,
+      Rewards:state.Dashboard.Rewards
     }
 }
 
@@ -763,7 +818,8 @@ const mapDispatchToProps = dispatch =>{
         onSetFB:(response)=>dispatch(setFB(response)),
         onSetLogin:(response)=>dispatch(setLogin(response)),
         onSetGame:(response)=>dispatch(setGame(response)),
-        onSetDashboard:(response)=>dispatch(setDashboard(response))
+        onSetDashboard:(response)=>dispatch(setDashboard(response)),
+        onSetRewards:(response)=>dispatch(setRewards(response))
     }
 }
 

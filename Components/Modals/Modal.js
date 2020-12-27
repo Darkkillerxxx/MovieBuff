@@ -40,7 +40,7 @@ class CustomModal extends React.Component{
         {
             this.props.DismissModal()
         }
-        else if(this.props.Type === "Result" ||this.props.Type === "MPResult")
+        else if(this.props.Type === "Result" || this.props.Type === "MPResult")
         {   
             this.props.changeModal(null)
         }

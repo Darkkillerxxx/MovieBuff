@@ -1,11 +1,13 @@
-import {SET_DASHBOARD} from '../Actions/ActionType'
+import {SET_DASHBOARD,SET_REWARDS} from '../Actions/ActionType'
 
 const initialState={
-    Dashboard:{}
+    Dashboard:{},
+    Rewards:null
 }
 
 
 const DashboardReducer=(state=initialState,action)=>{
+    
     switch(action.type)
     {    
         case SET_DASHBOARD:
@@ -13,6 +15,13 @@ const DashboardReducer=(state=initialState,action)=>{
                 ...state,
                 Dashboard:action.data
             }
+        
+        case SET_REWARDS:
+                return {
+                    ...state,
+                    Rewards:action.data
+                }
+            
 
         default:
             return state    

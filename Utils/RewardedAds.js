@@ -5,7 +5,7 @@ import {
 
   export const SetUnitId=()=>{
     //
-    return AdMobRewarded.setAdUnitID('ca-app-pub-3341671606021251/4823652626').then(()=>{
+    return AdMobRewarded.setAdUnitID('ca-app-pub-7546310836693112/3539987979').then(()=>{
         
         return true
     

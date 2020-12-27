@@ -22,6 +22,7 @@ import * as StoreReview from 'expo-store-review';
 import {
     AdMobRewarded
   } from 'expo-ads-admob';
+  import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 
 class Dashboard extends React.Component{
@@ -50,7 +51,10 @@ class Dashboard extends React.Component{
             isLoading:false,
             LoadingText:null,
             ScreenHeight:Dimensions.get('window').height,
-            LobbyId:""
+            LobbyId:"",
+            RewardType:null,
+            LevelUp:false,
+            ShowLevelUpModal:false
         }
 
       
@@ -82,7 +86,7 @@ class Dashboard extends React.Component{
         StoreReview.isAvailableAsync().then(()=>{
             StoreReview.requestReview()
         }).catch(err=>{
-            console.log(err)
+            // console.log(err)
         })
     }
 
@@ -137,7 +141,8 @@ class Dashboard extends React.Component{
 
     onProceedToMPGame=(Id,isHost)=>{
         this.setState({ShowModalMP:false})
-        console.log("DB",Id,isHost)
+        // console.log("DB",Id,isHost)
+
         this.props.navigation.replace('GameScreenMP',{RoomID:Id,Host:isHost ? true : false})
     }
 
@@ -181,6 +186,11 @@ class Dashboard extends React.Component{
             if(result.IsSuccess)
             {
                 this.setState({isLoading:false},()=>{
+                    
+                    if(result.Data[0].LevelUp)
+                    {
+                        this.setState({LevelUp:true});
+                    }
                     this.setState({ShowRewardModal:true})
                 })
             }
@@ -198,26 +208,39 @@ class Dashboard extends React.Component{
          login(SignInPayload).then(result=>{
             if(result.IsSuccess)
              {
-                 this.setState({ShowRewardModal:false})
-                 let TempDashboard=result.Data[0]
-                 TempDashboard.FbId=this.props.Dashboard.FbId
-                 TempDashboard.Password=this.props.Dashboard.Password
-                 TempDashboard.ScreenName=this.props.Dashboard.ScreenName
-                 UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
-                   
-                 }).catch(err=>{
-                     ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                 this.setState({ShowRewardModal:false},()=>{
+                    let TempDashboard=result.Data[0]
+                    TempDashboard.FbId=this.props.Dashboard.FbId
+                    TempDashboard.Password=this.props.Dashboard.Password
+                    TempDashboard.ScreenName=this.props.Dashboard.ScreenName
+                    UpdateUser(JSON.stringify(TempDashboard)).then(result=>{
+                       this.setState({RewardType:null})
+                    }).catch(err=>{
+                        ToastAndroid.show("Failed To Update Database",ToastAndroid.SHORT)
+                    })
+                   this.props.onSetDashbaord(TempDashboard)
+
+
+                   if(this.state.LevelUp)
+                   {
+                       this.setState({ShowLevelUpModal:true})
+                   }
                  })
-                this.props.onSetDashbaord(TempDashboard)
+                 
              }
          })
     }
 
     componentDidMount()
     {
+        console.log("Rewards Data")
+        console.log("Rewards",this.props.Rewards)
+        console.log(this.props.Dashboard)
         AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',()=>{
                 ToastAndroid.show("Reward",ToastAndroid.SHORT)
                 this.setState({RewardUserVideo:true})
+                
+                
             })
         
         AdMobRewarded.addEventListener('rewardedVideoDidClose',()=>{
@@ -261,7 +284,7 @@ class Dashboard extends React.Component{
     }
 
     componentWillUnmount() {
-        console.log("Unmount")
+        // console.log("Unmount")
         BackHandler.removeEventListener('hardwareBackPress', ()=>{
             return true
         })
@@ -275,8 +298,14 @@ class Dashboard extends React.Component{
         })
     }
 
+    DismissLevelModal=()=>{
+        this.setState({LevelUp:false});
+        this.setState({ShowLevelUpModal:false})
+    }
+
      componentDidUpdate(prevProps,prevState,Ss)
      {
+       
          if(prevProps.Dashboard.Coins !== this.props.Dashboard.Coins || prevProps.Dashboard.GOLD !== this.props.Dashboard.GOLD 
             || prevProps.Dashboard.Silver !== this.props.Dashboard.Silver || prevProps.Dashboard.Bronze !== this.props.Dashboard.Bronze ||
             prevProps.Dashboard.Crowns !== this.props.Dashboard.Crowns )
@@ -326,7 +355,7 @@ class Dashboard extends React.Component{
             },
             {
                 text: 'No',
-                onPress: () => console.log('Ask me later pressed')
+                onPress: () => {}
             }],
             { cancelable: false });
      }
@@ -343,17 +372,37 @@ class Dashboard extends React.Component{
                             <TouchableOpacity>
                                 
                                 <View style={styles.ProfilePic}>
-                                    <Image 
-                                        style={{width:'100%',height:'100%'}} 
-                                        source={this.state.ImgUrl !== "" ? 
-                                        {uri:this.state.ImgUrl}:
-                                        require('../../assets/Temp/User1.png')}>
-                                    </Image>
+
+                                    <AnimatedCircularProgress
+                                        size={50}
+                                        width={3}
+                                        fill={70}
+                                        rotation={0}
+                                        tintColor={"#f6d000"}
+                                        backgroundColor="#3d5875"
+                                        duration={3000}
+                                        linecap="round" >
+                                    {
+                                        (fill)=>(
+                                        <Image 
+                                            style={{width:'100%',height:'100%'}} 
+                                            source={this.state.ImgUrl !== "" ? 
+                                            {uri:this.state.ImgUrl}:
+                                            require('../../assets/Temp/User1.png')}>
+                                        </Image>)
+                                    }
+                                    </AnimatedCircularProgress>
+
                                 </View>
                                 
                                 <NormalText 
                                     style={{textAlign:'center'}}>
                                         {this.props.Dashboard.ScreenName}
+                                </NormalText>
+                                
+                                <NormalText 
+                                    style={{textAlign:'center'}}>
+                                       Level {this.props.Dashboard.Level}
                                 </NormalText>
 
                             </TouchableOpacity>
@@ -688,6 +737,24 @@ class Dashboard extends React.Component{
                     </Modal>
 
                     <Modal 
+                        coverScreen={false} 
+                        backdropOpacity={0.9} 
+                        backdropColor="#1D1331" 
+                        transparent={true} 
+                        isVisible={this.state.ShowLevelUpModal} 
+                        animationType="slide" 
+                        style={{width:'100%',margin:'auto'}}>
+                        
+                        <CustomModal 
+                            Heading="Reward" 
+                            Type="Reward" 
+                            FMsg={"Amazingggg!!!! You Leveled Up"} 
+                            SMsg={"Here Is Your Reward"}
+                            Coins="500" 
+                            DismissModal={this.DismissLevelModal} />
+                    </Modal>
+
+                    <Modal 
                         isVisible={this.state.isLoading}>
                         <Loader Text={this.state.LoadingText}/>
                     </Modal>
@@ -816,7 +883,8 @@ const styles=StyleSheet.create({
 const mapStateToProps= state =>{
     return{
       Dashboard:state.Dashboard.Dashboard,
-      SP:state.SP.GamePayload
+      SP:state.SP.GamePayload,
+      Rewards:state.Dashboard.Rewards
     }
 }
 
