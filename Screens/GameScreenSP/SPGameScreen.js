@@ -69,7 +69,8 @@ class SPGameScreen extends React.Component{
             isLoading:false,
             ShowRewardModal:false,
             ShowResultModal:false,
-            ShowHint:false
+            ShowHint:false,
+            TotalHintsUsed:0
         }
         this.rightSound = new Audio.Sound();
         this.wrongSound = new Audio.Sound();
@@ -183,7 +184,7 @@ class SPGameScreen extends React.Component{
             let TempReport=this.state.AnsPayload;
             TempReport.push(
                 {
-                    QID:this.state.Queestions[this.state.SelectedQuestion].Qid,
+                    QID:this.state.Questions[this.state.SelectedQuestion].Qid,
                     isCorrect:false,
                     time:this.state.TimeAloted
                 })
@@ -229,7 +230,9 @@ class SPGameScreen extends React.Component{
         let payload={
             Report:this.state.AnsPayload,
             Ccount:this.state.CorrectAns,
-            userId:this.props.Dashboard.Id.toString()
+            userId:this.props.Dashboard.Id.toString(),
+            Hints:this.state.TotalHintsUsed,
+            Level:parseInt(this.props.SP.SelectedLevel)
         }
 
         getResult(payload).then(result=>{
@@ -276,16 +279,42 @@ class SPGameScreen extends React.Component{
         return array;
       }
 
+    setEarnedCoins=()=>{
+        const {Questions}=this.props.SP
+        console.log("Game Payload",Questions)
+        switch(Questions)
+        {
+            case 5:
+                this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins) - 10})
+                break;
+            
+            case 15:
+                this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins) - 30})
+                break;
+
+            case 25:
+                this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins) - 50})
+                break;
+            
+            case 30:
+                this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins) - 60})
+                break;
+
+            default:
+                break;
+        }
+    }
+
     componentDidMount=()=>{
+        this.setEarnedCoins();
         // console.log("Dashboard",this.props.Dashboard)
-        this.setState({EarnedCoins:parseInt(this.props.Dashboard.Coins)})
         this.props.SPQuestions.forEach(element => {
                 element.options = this.shuffle(element.options)
         });
         this.setState({Questions:this.props.SPQuestions},()=>{
             console.log("Questions",this.state.Questions)
         })
-            // this.Timer()
+            this.Timer()
             this.show();
 
             // console.log("Dimensions",this.state.Dimensions)
@@ -294,6 +323,7 @@ class SPGameScreen extends React.Component{
 
     MoveToNextQuestion=()=>{
         this.setState({Timer:this.state.TimeAloted})
+        this.setState({ShowHint:false})
         this.setState({SelectedImage:this.state.SelectedImage+1},()=>{
             let ImgWait=setInterval(()=>{
                 if(this.state.ImageLoaded)
@@ -387,13 +417,21 @@ class SPGameScreen extends React.Component{
     }
 
     onCoinsAdd=()=>{
-        console.log(this.props.SP.SelectedLevel)
+        // console.log(this.props.SP.SelectedLevel)
        let Coins = LevelCoins[parseInt(this.props.SP.SelectedLevel - 1)]    
        this.setState({EarnedCoins:this.state.EarnedCoins + Coins})
     }
 
     ToggleShowHints=()=>{
-        this.setState({ShowHint:!this.state.ShowHint})
+        this.setState({ShowHint:!this.state.ShowHint},()=>{
+            this.state.ShowHint ?
+                this.setState({TotalHintsUsed:this.state.TotalHintsUsed + 1},()=>{
+                    console.log("Total Hints Used",this.state.TotalHintsUsed)
+                    this.setState({EarnedCoins:this.state.EarnedCoins - 10})
+                })
+                :
+                null
+        })
     }
 
 
@@ -476,8 +514,8 @@ class SPGameScreen extends React.Component{
                                     <Animatable.Image animation="tada" iterationCount="infinite" style={{height:35,width:35,resizeMode:'contain'}} source={require('../../assets/Bell.png')}/>
                                 </TouchableOpacity>
                                 {this.state.ShowHint ? 
-                                <View style={{height:35,backgroundColor:'white',marginLeft:15,borderRadius:5,alignItems:'center',justifyContent:'center',paddingHorizontal:10}}>
-                                    <NormalText style={{color:'black'}}>This Is The Hint For This Question</NormalText>
+                                <View style={{maxWidth:350,height:35,backgroundColor:'white',marginLeft:15,borderRadius:5,alignItems:'center',justifyContent:'center',paddingHorizontal:10}}>
+                                    <NormalText style={{color:'black'}}>{this.state.Questions[this.state.SelectedQuestion].Hints[0]}</NormalText>
                                 </View>:null}
                             </View>      
                             <View style={style.PicContainer}>
@@ -824,3 +862,6 @@ const mapDispatchToProps = dispatch =>{
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(SPGameScreen);
+
+
+

@@ -152,12 +152,15 @@ class Levels extends React.Component{
                                 
                                 </View>
                                 <View style={{width:'50%',alignItems:'flex-end',justifyContent:'center'}}>
-                                    {result.isUnlocked ? 
+                                    {result.isUnlocked &&  parseInt(result.Progress_bar) !== 100 ? 
                                     <TouchableOpacity onPress={()=>this.setState({ShowModalSP:true},()=>this.setState({SelectedLevel:result.Level}))}>
                                         <ImageBackground resizeMode="stretch" source={require('../../assets/Yellow.png')} style={{width:90,height:60,alignItems:'center',justifyContent:'center'}}>
                                             <NormalText style={{fontSize:18}}>Start</NormalText>
                                         </ImageBackground>
                                     </TouchableOpacity>:
+                                    parseInt(result.Progress_bar) === 100 ? 
+                                        <Image source={require('../../assets/chck.png')} style={{width:50,height:50}}></Image>
+                                    :
                                     <View style={{width:'100%',alignItems:'center'}}>
                                         <FontAwesome name="lock" size={24} color="red" />
                                     </View>
